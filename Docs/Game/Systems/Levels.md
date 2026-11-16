@@ -33,13 +33,13 @@
 | `DoorOutsideSide` | error | a door shorter than one cell or past the end of its side |
 | `BlockCannotLeave` | warning | no door of the block's color is as wide as the block's extent along the door's side |
 
-- Errors make a level unplayable: `Board` refuses it with an `ArgumentException` that lists the report. Warnings do not stop play.
+- Errors make a level unplayable and are not saved; warnings are shown but do not stop saving.
 - `BlockCannotLeave` checks widths only; whether the block can reach the door is a solver's question (phase 7).
 - The editor shows the report; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.
 
 ## Rules & invariants
 - The data types have public fields: Unity serializes them without an engine reference. Nothing changes them at runtime; the logic copies what it needs.
-- What a valid level is lives only in `LevelValidator`; neither the editor nor `Board` has its own copy of the rules.
+- What a valid level is lives only in `LevelValidator`. Levels are checked when they are made, not when they are played.
 - `Side` values are stored as ints in assets: never reorder them.
 
 ## Tests
