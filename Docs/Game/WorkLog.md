@@ -6,3 +6,4 @@
 |---|---|---|---|
 | 2026-11-16 | | Setup: Unity 2022.3.62f2, project, Core copied from the base template and tested, conventions, plan | Claude Code: installed the editor, created the project, ported Core, wrote the docs and plan |
 | 2026-11-16 | | Phase 0 finished: Core ported to 2022.3 (63 EditMode tests green), packages trimmed, samples removed, Android portrait settings, batch-mode skill, git `main` and `develop` | Claude Code: ported Core, ran the batch compile and tests, wrote the setup editor script, the skill and the status |
+| 2026-11-16/17 | | Phase 1 start: Case.md checked against the PDF, reference game studied on an Android device through five levels, open decisions settled | Claude Code: read the PDF, drove the device over adb (screenshots, swipes), wrote Reference.md and the decisions; the developer chose |
