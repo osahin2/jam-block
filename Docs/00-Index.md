@@ -19,6 +19,8 @@
 
 ## Game
 Game systems get a note each in `Game/Systems/` as they are built.
+- [Levels](Game/Systems/Levels.md) - level format: board size, blocks as shapes with a color id, doors on the sides, time limit; one `LevelAsset` per level
+- [Board](Game/Systems/Board.md) - move rules in whole cells: `CanStep`, `Step`, exit through a covering door of the block's color, cleared board
 
 ## Core
 Systems of the Core package (`Packages/com.base-setup.core/`), one note each.

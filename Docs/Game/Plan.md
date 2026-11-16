@@ -5,10 +5,11 @@
 ## Status
 - **2026-11-16, phase 0 done.** Unity 2022.3.62f2 with Android support (Rosetta 2 is required: the 2022.3 Package Manager server is x86_64); project created from the Universal 3D template; docs, conventions, hook and skills copied in. Core copied from the base template (commit 3cbd1db) with only `com.unity.ugui` 1.0.0 changed (list in `Packages/com.base-setup.core/CLAUDE.md`); its prefabs import with all scripts resolved; all 63 Core EditMode tests pass in batch mode. Manifest trimmed to the packages the game uses, plus Input System 1.14.0 (the only active input handler) and the OpenUPM registry for VContainer and UniTask. Template samples removed; Android build target, portrait only, IL2CPP ARM64, product "Rollic Case Study", bundle id `com.casestudy.blockslide`, all set by an editor script. Skill `unity-editor` rewritten for the batch-mode workflow. Git: `main` with the first commit, work continues on `develop`; no remote.
 - **2026-11-17, phase 1 decisions done.** Case.md checked against the PDF (small fixes). Reference game studied through five levels on the developer's Android device over `adb`; mechanics in [Reference](Reference.md). Open decisions settled with the developer and written to [Decisions](Decisions.md): follow the reference unless the case says otherwise; free drag with whole-cell rules; exit when touching a covering door of the block's color; hand-written motion; levels as ScriptableObjects with engine-free data; Boot + Home + Game scenes; lives, booster popup and out-of-time offer left out as the case allows.
-- **Next:** finish phase 1, in this order:
-  1. Copy the supplied assets (the case's Drive folder, already downloaded by the developer) into `Assets/Art/` with an editor script and review them; problems go to the README feedback section.
-  2. Create the four game assemblies and the test assembly.
-  3. Start phase 2 with the level format and the move rules, tests first.
+- **2026-11-17, phase 1 done, phase 2 started.** Supplied assets copied into `Assets/Art/` by an editor script (UI images as sprites) and measured: one cell is 2 model units, blocks are built from 1-unit quarter pieces, the four model files use different axis conventions, no block or door colors are supplied, the toggle has no off state; all in [Supplied assets](SuppliedAssets.md). Game assemblies `Game.Data` and `Game.Logic` (both engine-free), `Game`, `Game.Editor` and `Game.Tests` created. Level format ([Levels](Systems/Levels.md)) and move rules ([Board](Systems/Board.md)) written tests first: whole-cell steps, collisions, exit through a covering door of the block's color from any direction, cleared board; 84 EditMode tests green (63 Core, 21 game).
+- **Next:** finish phase 2, in this order:
+  1. Level timer in `Game.Logic`: starts on the first touch, pauses under popups, fails at zero, `Tick(deltaSeconds)`.
+  2. Coin wallet rules (balance, reward on win, no negative balance).
+  3. A play rules entry that combines board and timer into the level result (won, failed), so the phase 4 `PlaySession` has one class to drive.
 
 ## Phases
 Each phase ends with compile, EditMode tests green, notes and index updated, a `--no-ff` merge into `develop`.
@@ -32,4 +33,4 @@ Settled decisions are in [Decisions](Decisions.md). Still open:
 ## Risks
 - The editor is the second most weighted criterion; budget real time for its usability, not only for its function.
 - The live `unity command` bridge does not work on 2022.3; every editor action is a batch-mode run or an editor script, and batch mode cannot open the project while the editor has it open.
-- Supplied assets may not match the expected grid or colors; review them in phase 1.
+- The supplied models need per-file rotations and an own color set ([Supplied assets](SuppliedAssets.md)); budget phase 4 time for the block builder from quarter pieces.

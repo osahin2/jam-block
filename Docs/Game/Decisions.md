@@ -88,3 +88,11 @@ Format:
 ## Deliver both an APK and a recording
 - Why: the recording is cheap once the build runs and shows the flow even if a reviewer cannot install the APK. How to submit (private repository or archive) is decided at delivery.
 - Instead of: only one of the two.
+
+## Level data as plain classes with public fields, the asset class in Game
+- Why: Unity serializes public fields of a `[Serializable]` type without an engine reference, so `Game.Data` stays engine-free (`noEngineReferences: true`) and the logic and its tests never load the engine. `LevelAsset`, the ScriptableObject, is in `Game` and holds one `LevelData`. Nothing changes the data at runtime: `Board` copies what it needs into its own state.
+- Instead of: private `[SerializeField]` fields with getters, which need `UnityEngine` in `Game.Data`; or a second, read-only copy of every type.
+
+## A block is a set of cells relative to an anchor
+- Why: one type covers rectangles, L shapes and any later shape; a step changes only the anchor; the view builds the block from the same cells. The exit check uses the block's extent along the door's side, which works for every shape.
+- Instead of: width and height plus a shape kind, which needs a case per shape in the rules, the editor and the view.
