@@ -6,7 +6,7 @@ namespace Game.Logic.Play
 {
     public sealed class Board
     {
-        private const int Empty = -1;
+        public const int NoBlock = -1;
 
         private readonly int[] _occupant;
         private readonly BoardBlock[] _blocks;
@@ -23,7 +23,7 @@ namespace Game.Logic.Play
             Width = level.Width;
             Height = level.Height;
             _occupant = new int[Width * Height];
-            Array.Fill(_occupant, Empty);
+            Array.Fill(_occupant, NoBlock);
             _doors = level.Doors.ToArray();
             _blocks = new BoardBlock[level.Blocks.Count];
             for (var i = 0; i < _blocks.Length; i++)
@@ -33,6 +33,8 @@ namespace Game.Logic.Play
             }
             RemainingBlocks = _blocks.Length;
         }
+
+        public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
 
         public bool CanStep(int block, Direction direction)
         {
@@ -45,7 +47,7 @@ namespace Game.Logic.Play
                 if (!Contains(target))
                     return false;
                 var occupant = _occupant[IndexOf(target)];
-                if (occupant != Empty && occupant != block)
+                if (occupant != NoBlock && occupant != block)
                     return false;
             }
             return true;
@@ -57,7 +59,7 @@ namespace Game.Logic.Play
             if (!CanStep(block, direction))
                 return new StepResult(false, moving.Position, StepResult.NoDoor);
 
-            SetOccupant(moving, Empty);
+            SetOccupant(moving, NoBlock);
             moving.Position += direction.Offset;
             var exitDoor = FindExitDoor(moving);
             if (exitDoor == StepResult.NoDoor)

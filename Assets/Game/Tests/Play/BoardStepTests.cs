@@ -24,6 +24,16 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void BlockAt_FindsTheBlockOnACellAndNothingElsewhere()
+        {
+            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 1, 2, 1).Build());
+
+            Assert.AreEqual(1, board.BlockAt(new Cell(2, 1)));
+            Assert.AreEqual(Board.NoBlock, board.BlockAt(new Cell(2, 2)));
+            Assert.AreEqual(Board.NoBlock, board.BlockAt(new Cell(3, 0)));
+        }
+
+        [Test]
         public void CanStep_PastTheBoardEdge_IsFalse()
         {
             var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build());
