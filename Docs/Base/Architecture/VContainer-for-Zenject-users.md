@@ -21,7 +21,7 @@
 | Constructor injection | Same, no attribute needed | One constructor per class |
 | `PlaceholderFactory<TParam, T>` | `builder.RegisterFactory<TParam, T>(...)`, injected as `Func<TParam, T>` | |
 | `DiContainer.InstantiatePrefab(prefab)` | `IObjectResolver.Instantiate(prefab)` | Injects the new object; used only inside factories |
-| `SignalBus` | Nothing built in | Not used: systems talk through injected contracts, there is no event bus |
+| `SignalBus` | Nothing built in | Not used: systems talk through injected contracts; a typed bus only for cross-cutting facts (Communication) |
 | `MemoryPool` | Nothing built in | Use `Core.Pooling` |
 
 ## Differences that matter

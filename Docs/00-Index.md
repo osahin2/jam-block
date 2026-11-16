@@ -10,8 +10,8 @@
 
 ## Conventions
 - [Assemblies, features and folders](Conventions/Assemblies.md) - Game.Data / Game.Logic / Game / Game.Editor, one entry class per feature, folder layout
-- [Logic and view](Conventions/LogicAndView.md) - rules return outcomes, one player per outcome type, views only show and forward input
-- [Communication](Conventions/Communication.md) - how systems reach each other, dependency injection rules
+- [Logic and view](Conventions/LogicAndView.md) - logic decides and returns what happened, views only show and forward input, one flow per feature
+- [Communication](Conventions/Communication.md) - how systems reach each other, when an event bus fits, dependency injection rules
 - [Settings and installers](Conventions/SettingsAndInstallers.md) - settings assets per concern, one installer asset per feature
 - [Code style](Conventions/CodeStyle.md) - member order (checked by a hook), one type per file, naming
 

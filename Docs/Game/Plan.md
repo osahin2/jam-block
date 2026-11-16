@@ -4,7 +4,10 @@
 
 ## Status
 - **2026-11-16, phase 0 done.** Unity 2022.3.62f2 with Android support (Rosetta 2 is required: the 2022.3 Package Manager server is x86_64); project created from the Universal 3D template; docs, conventions, hook and skills copied in. Core copied from the base template (commit 3cbd1db) with only `com.unity.ugui` 1.0.0 changed (list in `Packages/com.base-setup.core/CLAUDE.md`); its prefabs import with all scripts resolved; all 63 Core EditMode tests pass in batch mode. Manifest trimmed to the packages the game uses, plus Input System 1.14.0 (the only active input handler) and the OpenUPM registry for VContainer and UniTask. Template samples removed; Android build target, portrait only, IL2CPP ARM64, product "Rollic Case Study", bundle id `com.casestudy.blockslide`, all set by an editor script. Skill `unity-editor` rewritten for the batch-mode workflow. Git: `main` with the first commit, work continues on `develop`; no remote.
-- **Next:** Phase 1. Agree the scope and the open decisions below with the developer before writing game code.
+- **Next:** Phase 1, in a new session, in this order:
+  1. Read the case PDF and check `Case.md` against it.
+  2. Study the reference game on the developer's Android phone over `adb` (in the Unity install: `PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb`; screenshots with `adb exec-out screencap -p`, taps and swipes with `adb shell input`, clips with `adb shell screenrecord`). Look at movement, collisions, doors and exits, timer, win and fail flow, home and settings screens. Notes on mechanics only go to `Docs/Game/Reference.md`; no art, names or levels are copied.
+  3. Settle the open decisions below with the developer and write them to [Decisions](Decisions.md); then the assemblies and game code.
 
 ## Phases
 Each phase ends with compile, EditMode tests green, notes and index updated, a `--no-ff` merge into `develop`.

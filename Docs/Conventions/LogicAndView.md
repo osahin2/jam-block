@@ -1,64 +1,27 @@
 # Logic and view
 
-> Summary: Rules in `Game.Logic` are plain C# that return what happened; views in `Game` only show it and forward input. One presentation class per outcome type turns a rule's result into view calls.
+> Summary: `Game.Logic` decides and returns what happened; views in `Game` show state and forward input; one flow class per feature connects them and owns the order of steps. How a result reaches the views is kept as simple as the feature allows.
 
-## The flow of one player action
-```
-input (view)  ->  flow  ->  rules.Resolve(action)  ->  result: ordered list of outcomes
-                    |
-                    v
-          presentation: one player per outcome type  ->  view calls (one animation)
-```
+## Rules
+- **Logic decides.** Whether a move is allowed, what it causes, when the level is won or failed, the coin balance: plain C# in `Game.Logic`, tested in EditMode without a scene.
+- **Logic reports through return values and queryable state.** The caller that caused a change gets what it needs back from that call. A notification is for state that is read by others who did not cause the change ([Communication](Communication.md)).
+- **Logic gets time and input as parameters** (`Tick(deltaSeconds)`, a move request). It never reads a clock, a transform or the screen.
+- **Views show and forward.** A view holds no rule; when it needs an answer ("can this block go there?") it asks the logic. A view changes its objects through its own methods; nothing sets its transforms from outside.
+- **One flow per feature** in `Game` connects input, logic and views and owns the order of steps (build, play, result, next). It reads top to bottom.
+- **Sound and haptics** are triggered from presentation, through the Core services, at the moment the player sees the event.
+- **Restart** builds new logic from the level data; nothing from the previous attempt is reused.
+- **Behavior that differs by kind** (a block type, a result type) lives with the kind: polymorphism or a strategy looked up once, never a switch over types.
+- **No machinery ahead of need.** A type hierarchy for results, a registry or an animation pipeline comes when the second case exists, not before.
 
-- **Rules** (`Game.Logic`) have no engine reference, so they run in EditMode tests without a scene. An operation returns its outcome; rules never raise events. When one action causes a chain (a block slides, leaves through a door, the level is won), the result is the ordered list of outcomes, because that order is what the player watches.
-- **The flow** (`Game`) is one orchestrator that owns the phases (build, accept input, resolve, play the result, show the result screen, go next). It reacts to input, the end of an animation, the timer and screen buttons.
-- **Presentation** has one player class per outcome type, looked up by type from a registry built once (Strategy, no switch over types). A player turns its outcome into view calls and returns its piece of the animation; the flow plays the whole result. Adding an outcome type is one new player and one registration line; a test fails if an outcome type has no player.
-- **Views** only show state and forward input. They hold no rules and decide nothing.
+The shape of a move result and the motion layer follow the movement and motion decisions ([Decisions](../Game/Decisions.md)).
 
-There are no presenter classes: the players are the bridge from rules to views.
+## Where presentation classes get their dependencies
+A `*View` is a MonoBehaviour; everything else in presentation is plain C#.
 
-## Example
-```csharp
-// Game.Logic: plain C#, returns what happened.
-public sealed class Board
-{
-    public MoveResult Move(BlockId block, Direction direction)   // Rejected, or ordered outcomes
-}
+| Kind | Gets its dependencies |
+|---|---|
+| View on a spawned prefab | `Init(...)` from whoever spawns it; not created through the container |
+| View placed in a scene | `[Inject] Construct(...)`, registered by the scene scope with `RegisterComponent` |
+| Plain C# (layout, spawner, input, flow) | Constructor |
 
-public abstract class Outcome { }
-public sealed class BlockSlid : Outcome { public BlockId Block; public Cell From, To; }
-public sealed class BlockExited : Outcome { public BlockId Block; public DoorId Door; }
-public sealed class LevelWon : Outcome { }
-
-// Game: one player per outcome type, found by type in a dictionary built once.
-public sealed class BlockSlidPlayer : OutcomePlayer<BlockSlid>
-{
-    private readonly BoardView _board;
-
-    public BlockSlidPlayer(BoardView board) => _board = board;
-
-    protected override Animation Build(BlockSlid slid) => _board.BlockOf(slid.Block).SlideTo(slid.To);
-}
-```
-`Animation` stands for whatever the motion layer returns; it is chosen with the tweening decision (`Docs/Game/Decisions.md`).
-
-## Kinds of presentation classes
-A `*View` is always a MonoBehaviour. Everything else in presentation is plain C#.
-
-| Kind | What it is | Gets its dependencies |
-|---|---|---|
-| Prefab view | MonoBehaviour on a spawned prefab: its own look and motion | `Init(..., settings)` from its spawner; not created through the container |
-| Composite view | MonoBehaviour in the scene that builds, keeps and clears its child views | `[Inject] Construct(...)`, registered by the scene scope with `RegisterComponent` |
-| Layout | Plain C#: cell to position, board fit to screen | Constructor (settings) |
-| Spawner | Plain C#: instantiates (or pools) one prefab and calls its `Init` | Constructor (settings) |
-| Input | Plain C#: reads the pointer, maps a drag to a block and a direction | Constructor |
-| Outcome players | Plain C#: outcome to view calls | Constructor (views, settings) |
-
-UI screens follow Core.UI ([UI](../Base/Systems/UI.md)): the flow opens a screen and passes one named callback per button the flow reacts to.
-
-## Rules of thumb
-- If a class needs `UnityEngine`, it is not a rule; the compiler enforces this for `Game.Logic`.
-- If a view starts deciding something ("can this block move?"), the decision belongs in the rules and the view gets the answer.
-- A move goes through a view method, never by setting a transform from outside, so the view keeps its own state right.
-- Sound and haptics are called from the players, through the Core services, at the point in the animation they belong to.
-- Restart builds a new rules object from the level data; nothing from the previous attempt is reused.
+UI screens follow Core.UI ([UI](../Base/Systems/UI.md)): the flow opens a screen and passes one named callback per button it reacts to.

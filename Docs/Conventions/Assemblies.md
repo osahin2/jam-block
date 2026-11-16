@@ -5,7 +5,7 @@
 ## Assemblies
 | Assembly | Folder | Holds | References | Engine |
 |---|---|---|---|---|
-| `Game.Data` | `Assets/Game/Data/` | The level format (board size, blocks, doors, timer) and other saved data: serializable types with no behavior beyond validation of their own values | - | see Decisions |
+| `Game.Data` | `Assets/Game/Data/` | The level format (board size, blocks, doors, timer) and other saved data: serializable types with no behavior beyond validation of their own values | - | open, see Plan |
 | `Game.Logic` | `Assets/Game/Logic/` | Rules: board state, moves, exits, win and fail, timer, coin balance | `Game.Data` | `noEngineReferences: true` |
 | `Game` | `Assets/Game/Runtime/` | Views, input, flows, UI screens, settings assets, lifetime scopes and installers | `Game.Data`, `Game.Logic`, `Core.*`, VContainer, UniTask | yes |
 | `Game.Editor` | `Assets/Game/Editor/` | The level editor window, its drawing and tools, other editor tooling | all of the above, `UnityEditor` | editor only |

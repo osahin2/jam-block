@@ -15,7 +15,7 @@ Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. 
   - `Game.Editor`: the level editor and other editor tooling, editor-only.
 - Each feature has one entry class that the rest of the game calls, e.g. `PlaySession.Start(level, onEnded)`; the result comes back as a return value or the callback passed to it. Everything else in the feature is used only inside it.
 - MonoBehaviours only present state and forward input; decisions live in `Game.Logic`.
-- Systems talk through return values and calls on injected contracts. No event bus, no static singletons, no service locator.
+- Systems talk through return values and calls on injected contracts. No static singletons, no service locator. An event bus only for facts that unrelated observers watch, never for flow (`Docs/Conventions/Communication.md`).
 - Dependencies arrive through one constructor without `[Inject]`; `[Inject]` methods only on MonoBehaviours.
 - Tuning values and content references live in ScriptableObject settings assets, one per concern, registered by the feature's `ScriptableObjectInstaller` (Core.Installers).
 - A class has one reason to change; no classes that only forward. No dead or commented-out code.

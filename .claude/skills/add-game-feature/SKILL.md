@@ -1,6 +1,6 @@
 ---
 name: add-game-feature
-description: Add a feature, a rule, an outcome type, a UI screen, a settings asset or a level-editor tool to the case game - which assembly it goes in, its entry class, folders, installer registration, tests and docs. Use when building or extending game code under `Assets/Game/`.
+description: Add a feature, a rule, a UI screen, a settings asset or a level-editor tool to the case game - which assembly it goes in, its entry class, folders, installer registration, tests and docs. Use when building or extending game code under `Assets/Game/`.
 ---
 
 # Adding to the game
@@ -23,11 +23,8 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 2. Data types in `Game.Data`, rules in `Game.Logic` with EditMode tests before any view.
 3. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
 4. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) that registers the settings (`RegisterInstance`) and the feature's services; create the asset and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
-5. Views per `LogicAndView.md`: prefab views get settings through `Init` from a spawner; composite scene views take `[Inject] Construct` and are registered by the scene scope with `RegisterComponent`.
+5. Views per `LogicAndView.md`: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
 6. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
-
-## A new outcome type
-One `Outcome` subclass in `Game.Logic`, exactly one player for it in `Game` registered in the player registry; the coverage test fails otherwise. No switch over outcome types.
 
 ## A new UI screen
 A prefab variant of Core's `UIScreenTemplate`, script and prefab together in the feature's `UI/`, added to the feature's `UIScreenCatalog`. Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
