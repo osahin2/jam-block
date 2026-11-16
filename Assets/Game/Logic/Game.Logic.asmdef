@@ -1,0 +1,16 @@
+{
+    "name": "Game.Logic",
+    "rootNamespace": "Game.Logic",
+    "references": [
+        "Game.Data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

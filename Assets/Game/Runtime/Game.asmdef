@@ -1,0 +1,27 @@
+{
+    "name": "Game",
+    "rootNamespace": "Game",
+    "references": [
+        "Game.Data",
+        "Game.Logic",
+        "Core.Audio",
+        "Core.Haptics",
+        "Core.Installers",
+        "Core.Levels",
+        "Core.Pooling",
+        "Core.Save",
+        "Core.Scenes",
+        "Core.UI",
+        "VContainer",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
