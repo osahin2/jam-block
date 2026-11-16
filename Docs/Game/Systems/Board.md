@@ -5,7 +5,7 @@
 ## Code
 - Folder: `Assets/Game/Logic/Play/`
 - Assembly: `Game.Logic`
-- Entry points: `Board` (`Logic/Play/Board.cs`); `Direction`, `StepResult`, `BoardBlock` are its parameter and result types
+- Entry points: `Board` (`Logic/Play/Board.cs`), `BlockDrag` (`Logic/Play/BlockDrag.cs`); `Direction`, `StepResult`, `DragPose`, `BoardBlock` are their parameter and result types
 
 ## How it works
 - `new Board(level)` copies the blocks into an occupancy grid (one block index or empty per cell).
@@ -13,6 +13,14 @@
 - `Step(block, direction)` moves the block one cell when the step is free and returns a `StepResult`: `Moved`, the block's `Position` and `ExitDoor`, the index of the door it left through or `StepResult.NoDoor`. A step that is not free changes nothing and returns `Moved` false.
 - After each step the moved block is checked against the doors in level order. It leaves through the first door that has its color, lies on a side the block touches, and spans the block's whole extent along that side. The drag direction does not matter. The block's cells are freed, `HasLeft` is set and `RemainingBlocks` drops.
 - `IsCleared` is true when every block has left.
+- `BlockAt(cell)` returns the block on a cell, or `Board.NoBlock` for an empty cell or one outside the board.
+
+## Drag
+`BlockDrag` turns a finger position into whole-cell steps and a sub-cell offset, in cells from the board's top-left corner.
+- `Begin(block, x, y)` keeps where the block was grabbed; `MoveTo(x, y)` moves the block toward where the finger wants its anchor, one step at a time, and returns a `DragPose`: the cell, the offset in each axis and the exit door. `End()` stops the drag.
+- A step is taken when the finger is more than half a cell past the block's cell; the offset follows the finger up to half a cell toward a free neighbour and stays 0 toward a blocked one.
+- Steps alternate between the axes, so a finger past an obstacle takes the block around it; a fast move steps several cells in one call, never through a block.
+- When a step makes the block leave, the pose reports the door and the drag ends.
 
 ## Rules & invariants
 - Rules are whole cells; the sub-cell drag offset is the view's.
@@ -23,6 +31,7 @@
 
 ## Tests
 - `Tests/Play/BoardStepTests`: free and blocked steps, edges, other blocks, L shapes, a blocked step that changes nothing.
+- `Tests/Play/BlockDragTests`: see [Play](Play.md).
 - `Tests/Play/BoardExitTests`: exit on touch from any direction, other color is wall, partial cover stays, extent along the side only, L shapes, two doors of one color, cleared after the last block.
 
 ## Related

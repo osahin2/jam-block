@@ -12,6 +12,7 @@
         "Core.Save",
         "Core.Scenes",
         "Core.UI",
+        "Unity.InputSystem",
         "VContainer",
         "UniTask"
     ],

@@ -5,6 +5,7 @@
         "Game.Data",
         "Game.Logic",
         "Game",
+        "Core.Installers",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

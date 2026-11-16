@@ -104,3 +104,11 @@ Format:
 ## A blocked step is a result, not an exception
 - Why: the finger can run ahead of a stopped block, so trying a step into a wall or another block is an ordinary event. `Step` decides and returns `Moved` false without changing anything; `CanStep` stays for the view's sub-cell offset.
 - Instead of: throwing when the step is not free, which makes an ordinary event an error and makes every caller check first.
+
+## Blocks are built from the supplied quarter pieces at load time
+- Why: the models are made as a modular kit (center, edge, outer and inner corner per quarter cell), so one builder covers every shape a designer paints, and a new shape needs no art or prefab. It runs once per level, not per frame.
+- Instead of: one prefab per block shape, which has to be made by hand for every shape and goes stale when the editor allows a new one.
+
+## The drag rule is logic, not view code
+- Why: when a step is taken, how far the block may lean toward a neighbour and how a fast or diagonal drag is resolved decide the game's feel and correctness; in `Game.Logic` (`BlockDrag`) they are tested without a scene. The view only converts the pointer to board cells and shows the returned pose.
+- Instead of: computing steps in the input or view code, where it can only be checked by hand in play mode.
