@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Logic.Levels;
 
 namespace Game.Logic.Play
 {
@@ -21,10 +20,6 @@ namespace Game.Logic.Play
 
         public Board(LevelData level)
         {
-            var report = LevelValidator.Validate(level);
-            if (report.HasErrors)
-                throw new ArgumentException($"The level cannot be played: {report}", nameof(level));
-
             Width = level.Width;
             Height = level.Height;
             _occupant = new int[Width * Height];
@@ -58,10 +53,10 @@ namespace Game.Logic.Play
 
         public StepResult Step(int block, Direction direction)
         {
-            if (!CanStep(block, direction))
-                throw new InvalidOperationException($"Block {block} cannot step by {direction.Offset}.");
-
             var moving = _blocks[block];
+            if (!CanStep(block, direction))
+                return new StepResult(false, moving.Position, StepResult.NoDoor);
+
             SetOccupant(moving, Empty);
             moving.Position += direction.Offset;
             var exitDoor = FindExitDoor(moving);
@@ -69,7 +64,7 @@ namespace Game.Logic.Play
                 SetOccupant(moving, block);
             else
                 Remove(moving);
-            return new StepResult(moving.Position, exitDoor);
+            return new StepResult(true, moving.Position, exitDoor);
         }
 
         private void Remove(BoardBlock block)

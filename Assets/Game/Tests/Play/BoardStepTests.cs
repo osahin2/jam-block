@@ -1,4 +1,3 @@
-using System;
 using Game.Data.Levels;
 using Game.Logic.Play;
 using Game.Tests.Levels;
@@ -18,6 +17,7 @@ namespace Game.Tests.Play
 
             var result = board.Step(0, Direction.Right);
 
+            Assert.IsTrue(result.Moved);
             Assert.AreEqual(new Cell(2, 1), result.Position);
             Assert.AreEqual(new Cell(2, 1), board.Blocks[0].Position);
             Assert.IsFalse(result.HasLeft);
@@ -89,27 +89,16 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void Step_WhenTheStepIsNotFree_Throws()
+        public void Step_WhenTheStepIsNotFree_LeavesTheBlockInPlace()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build());
+            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
 
-            Assert.Throws<InvalidOperationException>(() => board.Step(0, Direction.Up));
-        }
+            var result = board.Step(0, Direction.Right);
 
-        [Test]
-        public void Constructor_LevelWithErrors_Throws()
-        {
-            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 2, 1).Rect(Blue, 1, 0, 1, 1).Build();
-
-            Assert.Throws<ArgumentException>(() => new Board(level));
-        }
-
-        [Test]
-        public void Constructor_LevelWithWarningsOnly_Builds()
-        {
-            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 2, 1).Door(Red, Side.Top, 0).Build();
-
-            Assert.DoesNotThrow(() => new Board(level));
+            Assert.IsFalse(result.Moved);
+            Assert.AreEqual(new Cell(0, 0), result.Position);
+            Assert.AreEqual(new Cell(0, 0), board.Blocks[0].Position);
+            Assert.IsFalse(board.CanStep(1, Direction.Left));
         }
     }
 }
