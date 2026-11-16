@@ -1,0 +1,40 @@
+using System.Collections.Generic;
+using Game.Data.Levels;
+
+namespace Game.Tests.Play
+{
+    public sealed class LevelBuilder
+    {
+        private readonly LevelData _level;
+
+        public LevelBuilder(int width, int height)
+        {
+            _level = new LevelData { Width = width, Height = height };
+        }
+
+        public LevelBuilder Block(int colorId, int x, int y, params Cell[] shape)
+        {
+            _level.Blocks.Add(new BlockData { ColorId = colorId, Position = new Cell(x, y), Shape = new List<Cell>(shape) });
+            return this;
+        }
+
+        public LevelBuilder Rect(int colorId, int x, int y, int width, int height)
+        {
+            var shape = new List<Cell>();
+            for (var row = 0; row < height; row++)
+            {
+                for (var column = 0; column < width; column++)
+                    shape.Add(new Cell(column, row));
+            }
+            return Block(colorId, x, y, shape.ToArray());
+        }
+
+        public LevelBuilder Door(int colorId, Side side, int start, int length = 1)
+        {
+            _level.Doors.Add(new DoorData { ColorId = colorId, Side = side, Start = start, Length = length });
+            return this;
+        }
+
+        public LevelData Build() => _level;
+    }
+}
