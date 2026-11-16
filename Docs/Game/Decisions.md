@@ -96,3 +96,11 @@ Format:
 ## A block is a set of cells relative to an anchor
 - Why: one type covers rectangles, L shapes and any later shape; a step changes only the anchor; the view builds the block from the same cells. The exit check uses the block's extent along the door's side, which works for every shape.
 - Instead of: width and height plus a shape kind, which needs a case per shape in the rules, the editor and the view.
+
+## Level validity is checked in one validator, not by exceptions in the board
+- Why: the editor needs every problem of a level, with the block, door or cell it is about, and the difference between "cannot be played" and "probably a mistake"; exceptions give only the first problem as text. `LevelValidator` returns all of them. The editor shows them, a test checks every level asset in the project, and `Board` refuses a level with errors by throwing once with the whole report, so a broken asset cannot silently corrupt the occupancy grid (a cell past the right edge would land on the next row). Warnings do not stop play.
+- Instead of: checks inside the `Board` constructor, which the editor could only reach through try/catch and which would have to be written a second time for the editor's warnings; or a `Board` that trusts its input, which leaves a broken asset to fail as a wrong collision far from its cause.
+
+## A blocked step is a caller bug and throws
+- Why: the view asks `CanStep` every frame for the sub-cell drag offset and commits only free steps, so a blocked `Step` happens only through a bug. Throwing stops it before two blocks share a cell.
+- Instead of: `TryStep` or a "blocked" result, which turns a bug into a silent no-op and adds a branch every caller must handle.
