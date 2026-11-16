@@ -1,6 +1,7 @@
 using System;
 using Game.Data.Levels;
 using Game.Logic.Play;
+using Game.Tests.Levels;
 using NUnit.Framework;
 
 namespace Game.Tests.Play
@@ -96,7 +97,7 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void Constructor_OverlappingBlocks_Throws()
+        public void Constructor_LevelWithErrors_Throws()
         {
             var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 2, 1).Rect(Blue, 1, 0, 1, 1).Build();
 
@@ -104,19 +105,11 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void Constructor_BlockOutsideTheBoard_Throws()
+        public void Constructor_LevelWithWarningsOnly_Builds()
         {
-            var level = new LevelBuilder(3, 3).Rect(Red, 2, 0, 2, 1).Build();
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 2, 1).Door(Red, Side.Top, 0).Build();
 
-            Assert.Throws<ArgumentException>(() => new Board(level));
-        }
-
-        [Test]
-        public void Constructor_DoorPastTheEndOfItsSide_Throws()
-        {
-            var level = new LevelBuilder(3, 4).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 2, 2).Build();
-
-            Assert.Throws<ArgumentException>(() => new Board(level));
+            Assert.DoesNotThrow(() => new Board(level));
         }
     }
 }

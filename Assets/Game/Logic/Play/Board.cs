@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
+using Game.Logic.Levels;
 
 namespace Game.Logic.Play
 {
@@ -20,19 +21,20 @@ namespace Game.Logic.Play
 
         public Board(LevelData level)
         {
+            var report = LevelValidator.Validate(level);
+            if (report.HasErrors)
+                throw new ArgumentException($"The level cannot be played: {report}", nameof(level));
+
             Width = level.Width;
             Height = level.Height;
             _occupant = new int[Width * Height];
             Array.Fill(_occupant, Empty);
             _doors = level.Doors.ToArray();
-            foreach (var door in _doors)
-                CheckDoor(door);
-
             _blocks = new BoardBlock[level.Blocks.Count];
             for (var i = 0; i < _blocks.Length; i++)
             {
                 _blocks[i] = new BoardBlock(level.Blocks[i]);
-                Place(i);
+                SetOccupant(_blocks[i], i);
             }
             RemainingBlocks = _blocks.Length;
         }
@@ -68,20 +70,6 @@ namespace Game.Logic.Play
             else
                 Remove(moving);
             return new StepResult(moving.Position, exitDoor);
-        }
-
-        private void Place(int block)
-        {
-            var placed = _blocks[block];
-            for (var i = 0; i < placed.CellCount; i++)
-            {
-                var cell = placed.CellAt(i);
-                if (!Contains(cell))
-                    throw new ArgumentException($"Block {block} has cell {cell} outside the {Width} x {Height} board.");
-                if (_occupant[IndexOf(cell)] != Empty)
-                    throw new ArgumentException($"Block {block} overlaps block {_occupant[IndexOf(cell)]} at {cell}.");
-                _occupant[IndexOf(cell)] = block;
-            }
         }
 
         private void Remove(BoardBlock block)
@@ -122,25 +110,14 @@ namespace Game.Logic.Play
 
         private static bool Covers(DoorData door, BoardBlock block)
         {
-            var outward = Direction.OutOf(door.Side).Offset;
             var end = door.Start + door.Length;
             for (var i = 0; i < block.CellCount; i++)
             {
-                var along = AlongSide(block.CellAt(i), outward);
+                var along = door.Side.Along(block.CellAt(i));
                 if (along < door.Start || along >= end)
                     return false;
             }
             return true;
-        }
-
-        // A side runs across its outward direction: top and bottom along columns, left and right along rows.
-        private static int AlongSide(Cell cell, Cell outward) => outward.X == 0 ? cell.X : cell.Y;
-
-        private void CheckDoor(DoorData door)
-        {
-            var sideLength = Direction.OutOf(door.Side).Offset.X == 0 ? Width : Height;
-            if (door.Length < 1 || door.Start < 0 || door.Start + door.Length > sideLength)
-                throw new ArgumentException($"Door on {door.Side} from {door.Start} with length {door.Length} does not fit a side of {sideLength} cells.");
         }
 
         private bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;

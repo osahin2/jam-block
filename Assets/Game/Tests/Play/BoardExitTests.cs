@@ -1,5 +1,6 @@
 using Game.Data.Levels;
 using Game.Logic.Play;
+using Game.Tests.Levels;
 using NUnit.Framework;
 
 namespace Game.Tests.Play

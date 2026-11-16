@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
 
-namespace Game.Tests.Play
+namespace Game.Tests.Levels
 {
     public sealed class LevelBuilder
     {
