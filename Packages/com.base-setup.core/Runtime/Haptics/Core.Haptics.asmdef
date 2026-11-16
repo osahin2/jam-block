@@ -1,0 +1,17 @@
+{
+    "name": "Core.Haptics",
+    "rootNamespace": "Core.Haptics",
+    "references": [
+        "Core.Save",
+        "VContainer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

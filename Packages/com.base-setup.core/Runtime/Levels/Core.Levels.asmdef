@@ -1,0 +1,17 @@
+{
+    "name": "Core.Levels",
+    "rootNamespace": "Core.Levels",
+    "references": [
+        "Core.Save",
+        "VContainer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
