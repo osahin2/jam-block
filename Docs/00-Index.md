@@ -4,6 +4,7 @@
 
 ## Case
 - [Requirements](Game/Case.md) - what the case asks for, acceptance criteria, evaluation order, README contents
+- [Reference game](Game/Reference.md) - how the reference game plays: free drag, door exit rule, timer, win and fail flow, home and settings
 - [Plan](Game/Plan.md) - phases, open decisions, status
 - [Decisions](Game/Decisions.md) - short notes per choice; the README's decisions section comes from here
 - [Work log](Game/WorkLog.md) - time and LLM use per session
