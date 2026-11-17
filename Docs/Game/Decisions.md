@@ -140,3 +140,7 @@ Format:
 ## The play session runs the level; the board interaction runs the touches
 - Why: they change for different reasons. `PlaySession` owns the level's lifetime and time (build, tick, and in phase 4 the HUD, win, fail, restart and next level); `BoardInteraction` owns the touch path (pointer to attempt to block views), which changes with input and motion. Splitting before phase 4 keeps the flow from growing inside the touch code.
 - Instead of: one session class that both connects the views and runs the flow.
+
+## The level editor window is UI Toolkit only
+- Why: the editor is evaluated for usability, and UI Toolkit gives it for little code: fields bound to the working copy follow undo by themselves, a problem list, toolbar toggles, hover and selected states in USS, layout in UXML apart from the code. Everything the window needs exists in 2022.3; the Unity 6 APIs that do not are listed with their replacements in the `add-game-feature` skill. No IMGUI inside it: if UI Toolkit blocks something, the whole window moves to IMGUI.
+- Instead of: IMGUI, stable and quick for painting a grid, but hover, selection states and the sync between fields and undo are hand-written; or a mix, a board in an `IMGUIContainer` inside a UI Toolkit window, which leaves two UI models in one window.

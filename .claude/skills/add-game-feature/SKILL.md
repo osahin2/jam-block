@@ -33,6 +33,28 @@ A prefab variant of Core's `UIScreenTemplate`, script and prefab together in the
 ## A new level
 Made in the level editor only, never by editing the saved file. Format: the level data note in `Docs/Game/Systems/`.
 
+## Editor windows (UI Toolkit on 2022.3)
+Editor windows are UI Toolkit only: layout in UXML, style in USS, code in C#. Never mix in IMGUI (`IMGUIContainer`, `OnGUI`); if UI Toolkit cannot do something, the whole window goes back to IMGUI, decided with the developer.
+
+Examples online are mostly Unity 6. These do not exist in 2022.3 and do not compile:
+| Unity 6 | Use instead |
+|---|---|
+| `[UxmlElement]`, `[UxmlAttribute]` | build custom elements in C# and add them to an empty container from the UXML; `UxmlFactory`/`UxmlTraits` only if it must be placed from UXML |
+| runtime binding: `dataSource`, `SetBinding`, `[CreateProperty]` | editor binding to a `SerializedObject`: `Bind`, `BindProperty`, `bindingPath` |
+| `ToggleButtonGroup` | `ToolbarToggle`s with a few lines that keep one selected |
+| `TabView`, `Tab` | `TwoPaneSplitView` or plain containers |
+| `RegisterCallbackOnce` | `RegisterCallback`, then `UnregisterCallback` in the handler |
+| USS `aspect-ratio` | size square cells in a `GeometryChangedEvent` handler |
+
+Available in 2022.3: `Painter2D`, `TwoPaneSplitView`, `ListView` and `MultiColumnListView` (`selectionChanged`), `HelpBox`, `DropdownField`, `ToolbarToggle`, `TrackSerializedObjectValue`, `TrackPropertyValue`, `CapturePointer`, USS transitions and variables, `[Shortcut]`, `EditorWindow.hasUnsavedChanges`. When unsure whether an API exists, search the installed editor's docs before writing it: `UnityEngine.UIElementsModule.xml`, `UnityEditor.UIElementsModule.xml`, `UnityEditor.CoreModule.xml` in `/Applications/Unity/Hub/Editor/2022.3.62f2/Unity.app/Contents/Managed/UnityEngine/`.
+
+Behavior to plan for:
+- Domain reload rebuilds the window through `CreateGUI`: keep its state (open asset, tool, color, working copy) in serialized fields; a working-copy ScriptableObject with `HideFlags.HideAndDontSave` survives reloads and keeps its undo history.
+- Editor binding polls the `SerializedObject`: after a change made from code, refresh the view yourself; undo and bound fields reach it through `TrackSerializedObjectValue`. One refresh method draws everything that depends on the data.
+- Drag painting: pointer events on one container element with `CapturePointer`, converting the local position to a cell; per-element handlers stop receiving events while the pointer is captured. Hover per element through USS.
+- Keyboard shortcuts through `[Shortcut(id, typeof(TheWindow), KeyCode.X)]`, not `KeyDownEvent`, which only reaches the focused element; designers can rebind them in the Shortcuts window.
+- Batch mode does not draw windows: edit operations live in a plain class with EditMode tests; the window only draws and forwards input, and the developer checks it in the editor.
+
 ## Always
 - Compile, check for errors, run EditMode tests (skill `unity-editor`).
 - No allocations in per-frame code; pool what spawns often.
