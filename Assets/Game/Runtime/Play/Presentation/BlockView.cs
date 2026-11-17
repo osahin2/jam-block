@@ -1,56 +1,28 @@
+using DG.Tweening;
+using Game.Play.Settings;
 using UnityEngine;
 
 namespace Game.Play.Presentation
 {
-    // Follows a target pose smoothly while dragged or settling, and slides out when the block leaves. Stops updating
-    // once it has reached its target; a new target starts it again.
+    // Follows its target smoothly while dragged (per frame, hand-written). One-shot motions are tweens: the snap onto
+    // a cell on release, and the snap in front of the door, the hold and the slide out when the block leaves.
     public sealed class BlockView : MonoBehaviour
     {
         // An exponential approach never reaches its target; closer than this the block is put on it.
         private const float SnapDistanceSqr = 0.000001f;
 
+        private BlockMotionSettings _settings;
         private Vector3 _target;
-        private float _halfLife;
-        private bool _isLeaving;
-        private Vector3 _leaveVelocity;
-        private float _leaveTimeLeft;
+        private Tween _motion;
+
+        public void Init(BlockMotionSettings settings) => _settings = settings;
 
         private void Awake() => enabled = false;
 
         private void Update()
         {
-            if (_isLeaving)
-                SlideOut();
-            else
-                Approach();
-        }
-
-        public void SetPose(Vector3 position)
-        {
-            _target = position;
-            transform.localPosition = position;
-        }
-
-        public void Follow(Vector3 target, float halfLife)
-        {
-            if (enabled && target == _target)
-                return;
-            _target = target;
-            _halfLife = halfLife;
-            enabled = true;
-        }
-
-        public void Leave(Vector3 velocity, float duration)
-        {
-            _isLeaving = true;
-            _leaveVelocity = velocity;
-            _leaveTimeLeft = duration;
-            enabled = true;
-        }
-
-        private void Approach()
-        {
-            var position = Vector3.Lerp(transform.localPosition, _target, ExponentialFollow.Fraction(_halfLife, Time.deltaTime));
+            var fraction = ExponentialFollow.Fraction(_settings.DragHalfLife, Time.deltaTime);
+            var position = Vector3.Lerp(transform.localPosition, _target, fraction);
             if ((_target - position).sqrMagnitude < SnapDistanceSqr)
             {
                 position = _target;
@@ -59,12 +31,50 @@ namespace Game.Play.Presentation
             transform.localPosition = position;
         }
 
-        private void SlideOut()
+        public void SetPose(Vector3 position)
         {
-            transform.localPosition += _leaveVelocity * Time.deltaTime;
-            _leaveTimeLeft -= Time.deltaTime;
-            if (_leaveTimeLeft <= 0f)
-                gameObject.SetActive(false);
+            StopMotion();
+            _target = position;
+            transform.localPosition = position;
         }
+
+        public void Follow(Vector3 target)
+        {
+            if (enabled && target == _target)
+                return;
+            StopMotion();
+            _target = target;
+            enabled = true;
+        }
+
+        public void SnapTo(Vector3 position)
+        {
+            StopMotion();
+            _target = position;
+            _motion = Snap(position).SetLink(gameObject);
+        }
+
+        public void Leave(Vector3 doorCell, Vector3 outside)
+        {
+            StopMotion();
+            _motion = DOTween.Sequence()
+                .Append(Snap(doorCell))
+                .AppendInterval(_settings.LeaveHoldDuration)
+                .Append(transform.DOLocalMove(outside, _settings.LeaveDuration).SetEase(_settings.LeaveEase))
+                .OnComplete(Hide)
+                .SetLink(gameObject);
+        }
+
+        private Tween Snap(Vector3 position) =>
+            transform.DOLocalMove(position, _settings.SnapDuration).SetEase(_settings.SnapEase);
+
+        private void StopMotion()
+        {
+            enabled = false;
+            _motion?.Kill();
+            _motion = null;
+        }
+
+        private void Hide() => gameObject.SetActive(false);
     }
 }

@@ -18,13 +18,15 @@ namespace Game.Play.Presentation
 
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
+        private readonly BlockMotionSettings _motion;
         private readonly BlockPieceBuilder _pieces;
         private GameObject _root;
 
-        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockPieceBuilder pieces)
+        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, BlockPieceBuilder pieces)
         {
             _art = art;
             _palette = palette;
+            _motion = motion;
             _pieces = pieces;
         }
 
@@ -97,6 +99,7 @@ namespace Game.Play.Presentation
             {
                 var block = level.Blocks[i];
                 var view = new GameObject($"Block {i}").AddComponent<BlockView>();
+                view.Init(_motion);
                 view.transform.SetParent(_root.transform, false);
                 _pieces.Build(view.transform, block.Shape, _palette.For(block.ColorId));
                 view.SetPose(layout.CellCenter(block.Position));

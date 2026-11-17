@@ -55,7 +55,7 @@ namespace Game.Play.Flow
             if (pose.HasLeft)
                 Leave(block, pose);
             else
-                _blocks[block].Follow(_layout.PoseToWorld(pose), _motion.DragHalfLife);
+                _blocks[block].Follow(_layout.PoseToWorld(pose));
         }
 
         private void Release()
@@ -64,15 +64,15 @@ namespace Game.Play.Flow
                 return;
             var block = _drag.Block;
             _drag.End();
-            _blocks[block].Follow(_layout.CellCenter(_board.Blocks[block].Position), _motion.SettleHalfLife);
+            _blocks[block].SnapTo(_layout.CellCenter(_board.Blocks[block].Position));
         }
 
-        // The view slides out from wherever it is drawn, so a block still catching up with the finger does not jump.
+        // The block snaps onto the cell in front of its door, holds for a moment, then slides out through it.
         private void Leave(int block, DragPose pose)
         {
+            var doorCell = _layout.CellCenter(pose.Position);
             var outward = _layout.ToWorld(Direction.OutOf(_level.Doors[pose.ExitDoor].Side));
-            var speed = _motion.LeaveDistance * _layout.CellSize / _motion.LeaveDuration;
-            _blocks[block].Leave(outward * speed, _motion.LeaveDuration);
+            _blocks[block].Leave(doorCell, doorCell + outward * (_motion.LeaveDistance * _layout.CellSize));
         }
     }
 }

@@ -19,9 +19,20 @@ namespace Game.Tests.Play
         {
             _view.enabled = false;
 
-            _view.Follow(Vector3.right, 0.05f);
+            _view.Follow(Vector3.right);
 
             Assert.IsTrue(_view.enabled);
+        }
+
+        [Test]
+        public void SetPose_WhileFollowing_PutsTheBlockThereAndStops()
+        {
+            _view.Follow(Vector3.right);
+
+            _view.SetPose(Vector3.forward);
+
+            Assert.AreEqual(Vector3.forward, _view.transform.localPosition);
+            Assert.IsFalse(_view.enabled);
         }
     }
 }
