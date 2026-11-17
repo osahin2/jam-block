@@ -36,6 +36,8 @@ namespace Game.Logic.Play
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
 
+        internal bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
+
         public bool CanStep(int block, Direction direction)
         {
             var moving = _blocks[block];
@@ -115,7 +117,6 @@ namespace Game.Logic.Play
             return true;
         }
 
-        private bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
 
         private int IndexOf(Cell cell) => cell.Y * Width + cell.X;
     }

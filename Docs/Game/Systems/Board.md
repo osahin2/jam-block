@@ -17,7 +17,7 @@
 
 ## Drag
 `BlockDrag` turns a finger position into whole-cell steps and a sub-cell offset, in cells from the board's top-left corner.
-- `Begin(block, x, y)` keeps where the block was grabbed; `MoveTo(x, y)` moves the block toward where the finger wants its anchor, one step at a time, and returns a `DragPose`: the cell, the offset in each axis and the exit door. `End()` stops the drag.
+- `Begin(block, x, y)` keeps where the block was grabbed; `MoveTo(x, y)` moves the block toward where the finger wants its anchor, one step at a time, and returns a `DragPose`: the block, its cell, the offset in each axis and the exit door. The pose names its block because a block that leaves ends the drag. `End()` stops the drag.
 - A step is taken when the finger is more than half a cell past the block's cell; the offset follows the finger up to half a cell toward a free neighbour and stays 0 toward a blocked one.
 - Steps alternate between the axes, so a finger past an obstacle takes the block around it; a fast move steps several cells in one call, never through a block.
 - When a step makes the block leave, the pose reports the door and the drag ends.

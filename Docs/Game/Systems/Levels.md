@@ -27,6 +27,7 @@
 |---|---|---|
 | `InvalidSize` | error | width or height below 1; nothing else is checked |
 | `InvalidTimeLimit` | error | time limit below one second |
+| `NoBlocks` | error | a level without blocks (it is won when its last block leaves, so it could only run out of time) |
 | `EmptyBlock` | error | a block without cells (it could never leave, the level never ends) |
 | `BlockOutsideBoard` | error | a block cell outside the board, with the cell |
 | `BlocksOverlap` | error | a block cell already taken by an earlier block, with the cell |

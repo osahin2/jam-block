@@ -14,7 +14,6 @@ namespace Game.Logic.Play
 
         public LevelOutcome Outcome { get; private set; }
         public float RemainingSeconds => _timer.RemainingSeconds;
-        public int HeldBlock => _drag.Block;
         private bool TakesTouches => Outcome == LevelOutcome.Playing && !_timer.IsPaused;
 
         public LevelAttempt(LevelData level)
@@ -27,10 +26,11 @@ namespace Game.Logic.Play
         // Returns true when a block is under the finger and is now held.
         public bool Grab(float x, float y)
         {
-            if (!TakesTouches || x < 0f || y < 0f || x >= _board.Width || y >= _board.Height)
+            var cell = new Cell((int)Math.Floor(x), (int)Math.Floor(y));
+            if (!TakesTouches || !_board.Contains(cell))
                 return false;
             _timer.Start();
-            var block = _board.BlockAt(new Cell((int)Math.Floor(x), (int)Math.Floor(y)));
+            var block = _board.BlockAt(cell);
             if (block == Board.NoBlock)
                 return false;
             _drag.Begin(block, x, y);

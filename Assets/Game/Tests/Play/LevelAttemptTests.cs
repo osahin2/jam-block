@@ -31,7 +31,7 @@ namespace Game.Tests.Play
             attempt.Tick(5f);
 
             Assert.IsTrue(grabbed);
-            Assert.AreEqual(0, attempt.HeldBlock);
+            Assert.AreEqual(0, attempt.Release());
             Assert.AreEqual(TimeLimit - 5f, attempt.RemainingSeconds, Tolerance);
         }
 
@@ -44,7 +44,7 @@ namespace Game.Tests.Play
             attempt.Tick(5f);
 
             Assert.IsFalse(grabbed);
-            Assert.AreEqual(Board.NoBlock, attempt.HeldBlock);
+            Assert.AreEqual(Board.NoBlock, attempt.Release());
             Assert.AreEqual(TimeLimit - 5f, attempt.RemainingSeconds, Tolerance);
         }
 
@@ -76,6 +76,7 @@ namespace Game.Tests.Play
             var moved = attempt.MoveTo(1.7f, 1.5f, out var pose);
 
             Assert.IsTrue(moved);
+            Assert.AreEqual(0, pose.Block);
             Assert.AreEqual(new Cell(1, 1), pose.Position);
         }
 
@@ -88,8 +89,9 @@ namespace Game.Tests.Play
             attempt.MoveTo(0.5f, 0.9f, out var pose);
 
             Assert.IsTrue(pose.HasLeft);
+            Assert.AreEqual(0, pose.Block);
             Assert.AreEqual(LevelOutcome.Playing, attempt.Outcome);
-            Assert.AreEqual(Board.NoBlock, attempt.HeldBlock);
+            Assert.AreEqual(Board.NoBlock, attempt.Release());
         }
 
         [Test]
@@ -103,6 +105,7 @@ namespace Game.Tests.Play
             var outcome = attempt.Tick(TimeLimit);
 
             Assert.AreEqual(LevelOutcome.Won, outcome);
+            Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
         }
 
         [Test]

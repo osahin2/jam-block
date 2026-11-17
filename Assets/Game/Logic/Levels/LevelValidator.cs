@@ -19,6 +19,9 @@ namespace Game.Logic.Levels
             }
             if (level.TimeLimitSeconds < 1)
                 report.Add(LevelProblem.Error(LevelProblemKind.InvalidTimeLimit));
+            // A level is won when its last block leaves; without blocks it can only run out of time.
+            if (level.Blocks.Count == 0)
+                report.Add(LevelProblem.Error(LevelProblemKind.NoBlocks));
             CheckBlockCells(level, report);
             CheckDoors(level, report);
             CheckBlocksCanLeave(level, report);

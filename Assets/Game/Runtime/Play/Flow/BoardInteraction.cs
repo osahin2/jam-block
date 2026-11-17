@@ -45,20 +45,19 @@ namespace Game.Play.Flow
 
         private void Drag(Vector3 point)
         {
-            var block = _attempt.HeldBlock;
             var onBoard = _layout.WorldToBoard(point);
             if (!_attempt.MoveTo(onBoard.x, onBoard.y, out var pose))
                 return;
             if (pose.HasLeft)
-                Leave(block, pose);
+                Leave(pose);
             else
-                _blocks[block].Follow(_layout.PoseToWorld(pose));
+                _blocks[pose.Block].Follow(_layout.PoseToWorld(pose));
         }
 
-        private void Leave(int block, DragPose pose)
+        private void Leave(DragPose pose)
         {
             var outward = Direction.OutOf(_level.Doors[pose.ExitDoor].Side);
-            _blocks[block].Leave(_layout.CellCenter(pose.Position), _layout.ToWorld(outward) * _layout.CellSize);
+            _blocks[pose.Block].Leave(_layout.CellCenter(pose.Position), _layout.ToWorld(outward) * _layout.CellSize);
         }
     }
 }

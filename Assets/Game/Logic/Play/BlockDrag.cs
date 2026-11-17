@@ -45,15 +45,16 @@ namespace Game.Logic.Play
                     break;
             }
 
-            var current = _board.Blocks[Block].Position;
+            var block = Block;
+            var current = _board.Blocks[block].Position;
             if (_exitDoor != StepResult.NoDoor)
             {
                 End();
-                return new DragPose(current, 0f, 0f, _exitDoor);
+                return new DragPose(block, current, 0f, 0f, _exitDoor);
             }
             var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
             var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);
-            return new DragPose(current, offsetX, offsetY, StepResult.NoDoor);
+            return new DragPose(block, current, offsetX, offsetY, StepResult.NoDoor);
         }
 
         public void End() => Block = Board.NoBlock;

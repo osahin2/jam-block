@@ -26,7 +26,7 @@
 
 ## Tests
 - `Tests/Play/LevelTimerTests`: no count before start or while paused, resume, start while paused, stop at zero, expiry reported once.
-- `Tests/Play/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and pose, a block out with others left, win on the last block, fail at zero, a held block after fail, no touches after the level is over, pause and resume.
+- `Tests/Play/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and its pose, a block out with others left, win on the last block with the timer stopped, fail at zero, a held block after fail, no touches after the level is over, pause and resume.
 
 ## Related
 - [Board](Board.md), [Play](Play.md), [Reference](../Reference.md), [Decisions](../Decisions.md)

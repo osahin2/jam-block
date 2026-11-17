@@ -4,6 +4,7 @@ namespace Game.Logic.Levels
     {
         InvalidSize,
         InvalidTimeLimit,
+        NoBlocks,
         EmptyBlock,
         BlockOutsideBoard,
         BlocksOverlap,
