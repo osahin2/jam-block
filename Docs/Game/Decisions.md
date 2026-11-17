@@ -45,9 +45,9 @@ Format:
 - Why: observed rule. A block leaves as soon as it touches a side of the board where a door of its own color covers its whole extent along that side, from any drag direction; a door of another color is wall. Checked in one place in the logic after each step.
 - Instead of: requiring a drag toward the door, which the reference does not.
 
-## Hand-written motion, no tween library
-- Why: the drag is a per-frame follow, not a tween; the remaining motions are few (settle on release, slide out through the door with a pooled particle burst, popup open) and are written in the views without per-frame allocation.
-- Instead of: DOTween, which adds a large third-party import for three motions.
+## DOTween for one-shot motions, a hand-written follow for the drag
+- Why: the drag follows a target that changes every frame, which a tween cannot do without restarting each frame, so it stays a hand-written exponential follow. Everything else is a short, often sequenced motion: the snap on release, the snap in front of a door with a hold and the slide out, and later the break-apart, the door, coins flying to the counter, popups and touch feedback on every button. DOTween expresses each as a few lines (`Sequence`, `AppendInterval`, eases), is widely known, and each tween is linked to its object (`SetLink`) so a rebuilt level leaves none behind. Its allocations happen per motion, not per frame. Version 1.3.045, in `Assets/Plugins/Demigiant/`.
+- Instead of: hand-written timers and state fields in every view for each motion, which grew with every motion the reference shows; or a tween for the drag.
 
 ## Levels as ScriptableObject assets holding engine-free data
 - Why: one asset per level gives undo, the inspector and asset references in the editor for free; the level types in `Game.Data` are plain C# with an own `Cell` and a color id, so logic and tests never touch the engine, and the view maps color ids to the supplied art.
@@ -114,5 +114,5 @@ Format:
 - Instead of: computing steps in the input or view code, where it can only be checked by hand in play mode.
 
 ## Blocks follow their target with frame-rate independent exponential smoothing
-- Why: the block should feel attached to the finger: `1 - e^(-ln2 · dt / halfLife)` of the remaining distance per frame has no inertia, so starts and reversals answer at once, needs no velocity state to reset between drags, behaves the same at any frame rate and cannot pass the target on a long frame. One half-life for dragging and a longer one for settling on release are tuned in the motion settings.
+- Why: the block should feel attached to the finger: `1 - e^(-ln2 · dt / halfLife)` of the remaining distance per frame has no inertia, so starts and reversals answer at once, needs no velocity state to reset between drags, behaves the same at any frame rate and cannot pass the target on a long frame. The half-life is tuned in the motion settings. Placing a block on release and in front of its door is a short eased snap (DOTween), as the reference snaps it there.
 - Instead of: `Vector3.SmoothDamp`, a critically damped spring whose velocity state eases every start and carries through reversals; or `Lerp(a, b, k · dt)`, which changes with the frame rate and overshoots when `k · dt > 1`.

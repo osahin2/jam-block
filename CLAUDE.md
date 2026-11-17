@@ -5,7 +5,7 @@ A 7-day game developer case study: a vertical slice of a block-sliding color puz
 Everything written into the repository is English.
 
 ## Stack
-Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. Input System, uGUI 1.0 with TextMeshPro, VContainer 1.19.0 and UniTask 2.5.11 (OpenUPM, pinned), Unity Test Framework (EditMode first). Core: `Packages/com.base-setup.core/`, copied from the base template.
+Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. Input System, uGUI 1.0 with TextMeshPro, VContainer 1.19.0 and UniTask 2.5.11 (OpenUPM, pinned), DOTween 1.3.045 (`Assets/Plugins/Demigiant/`), Unity Test Framework (EditMode first). Core: `Packages/com.base-setup.core/`, copied from the base template.
 
 ## Architecture
 - Four game assemblies, dependencies one way: `Game.Editor -> Game -> Game.Logic -> Game.Data` (`Docs/Conventions/Assemblies.md`).

@@ -15,7 +15,7 @@ Cells are counted from column 0 on the left and row 0 at the top.
 ## Movement
 - **Free drag.** The player touches a block and drags it; the block follows the finger continuously, between cells as well, in both axes at once (a diagonal drag moves it diagonally). A held block gets an outline.
 - **Collisions.** A dragged block stops at walls and at other blocks; it cannot pass through either, and the finger can run ahead of it.
-- **Release.** On release the block settles on the nearest whole cell.
+- **Release.** On release the block snaps onto the nearest whole cell at once, without a visible glide.
 - **No slide.** A quick flick does not throw the block; it moves only as far as the finger drags it.
 
 ## Doors and exits
@@ -24,6 +24,7 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - The extent counts along the door's side only: a 3 x 1 block leaves through a door one cell tall on a left or right side.
 - A door of another color is wall for the block.
 - Leaving: the block slides out through the door and breaks into small pieces; the drag ends.
+- On leaving, the block first snaps onto the door at once, lined up with it, wherever the finger had it; after a short pause the door breaks the block apart piece by piece as it passes. (Seen by the developer in play; too quick for the screenshots.)
 - Not observed: a block wider than every door of its color (the levels never had one). It could never leave, so the editor should warn about it.
 
 ## Win
