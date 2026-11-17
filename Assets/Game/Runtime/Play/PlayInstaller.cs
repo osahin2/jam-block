@@ -23,7 +23,8 @@ namespace Game.Play
             builder.Register<BlockPieceBuilder>(Lifetime.Scoped);
             builder.Register<BoardBuilder>(Lifetime.Scoped);
             builder.RegisterEntryPoint<BoardPointer>(Lifetime.Scoped).AsSelf();
-            builder.Register<PlaySession>(Lifetime.Scoped);
+            builder.Register<BoardInteraction>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<PlaySession>(Lifetime.Scoped).AsSelf();
         }
     }
 }

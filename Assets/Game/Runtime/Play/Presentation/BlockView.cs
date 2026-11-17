@@ -54,9 +54,11 @@ namespace Game.Play.Presentation
             _motion = Snap(position).SetLink(gameObject);
         }
 
-        public void Leave(Vector3 doorCell, Vector3 outside)
+        // Snaps onto the cell in front of the door, holds, then slides out by the leave distance in cells.
+        public void Leave(Vector3 doorCell, Vector3 outwardCell)
         {
             StopMotion();
+            var outside = doorCell + outwardCell * _settings.LeaveDistance;
             _motion = DOTween.Sequence()
                 .Append(Snap(doorCell))
                 .AppendInterval(_settings.LeaveHoldDuration)

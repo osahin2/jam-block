@@ -21,7 +21,9 @@
 Game systems get a note each in `Game/Systems/` as they are built.
 - [Levels](Game/Systems/Levels.md) - level format: board size, blocks as shapes with a color id, doors on the sides, time limit; one `LevelAsset` per level; `LevelValidator` errors and warnings
 - [Board](Game/Systems/Board.md) - move rules in whole cells: `CanStep`, `Step`, exit through a covering door of the block's color, cleared board; `BlockDrag` turns a finger into steps and a sub-cell offset
-- [Play](Game/Systems/Play.md) - the Game scene: board built from the supplied models, blocks from quarter pieces, pointer input, the play session that connects drag rule and views
+- [Level attempt](Game/Systems/LevelAttempt.md) - one try at a level: board, drag and timer behind `LevelAttempt`; timer starts on the first touch, pauses, fails at zero; won when the last block leaves
+- [Coins](Game/Systems/Coins.md) - `CoinWallet`: the coin balance, earned only, never negative
+- [Play](Game/Systems/Play.md) - the Game scene: board built from the supplied models, blocks from quarter pieces, pointer input, the play session that connects the level attempt and views
 
 ## Core
 Systems of the Core package (`Packages/com.base-setup.core/`), one note each.

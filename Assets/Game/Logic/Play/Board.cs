@@ -107,11 +107,9 @@ namespace Game.Logic.Play
 
         private static bool Covers(DoorData door, BoardBlock block)
         {
-            var end = door.Start + door.Length;
             for (var i = 0; i < block.CellCount; i++)
             {
-                var along = door.Side.Along(block.CellAt(i));
-                if (along < door.Start || along >= end)
+                if (!door.Covers(door.Side.Along(block.CellAt(i))))
                     return false;
             }
             return true;

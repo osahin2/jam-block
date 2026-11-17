@@ -12,7 +12,7 @@
 |---|---|
 | `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors` |
 | `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position` |
-| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells |
+| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers |
 | `Cell` | `X` column from the left, `Y` row from the top; value equality and `+` |
 
 - A shape is any set of cells: rectangles and L shapes are the same type.

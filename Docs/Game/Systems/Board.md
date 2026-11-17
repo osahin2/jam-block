@@ -35,4 +35,5 @@
 - `Tests/Play/BoardExitTests`: exit on touch from any direction, other color is wall, partial cover stays, extent along the side only, L shapes, two doors of one color, cleared after the last block.
 
 ## Related
+- [Level attempt](LevelAttempt.md), which the play feature uses instead of `Board` and `BlockDrag` directly
 - [Levels](Levels.md), [Reference](../Reference.md), [Decisions](../Decisions.md)
