@@ -12,10 +12,13 @@
 - **2026-11-17, responsibility review.** `LevelAttempt` keeps its board private; `PlaySession` builds the level and ticks its time (the board stops at zero), `BoardInteraction` connects pointer, attempt and block views; the leave distance moved into `BlockView`; which cells a door covers is decided once in `DoorData`; a stale comment and dead code removed.
 - **2026-11-17, first independent review** (skill `review-code`, `code-reviewer` agent, scope `develop...feature/level-rules`): no architecture or separation problems; fixed a level without blocks that could only fail (`NoBlocks` error), the drag pose now names its block, the board's bounds are checked once, the win test checks the stopped timer. 137 EditMode tests green.
 - **2026-11-17, phase 3 design agreed** with the developer (details under phase 3 below): a UI Toolkit window with no IMGUI inside, a working copy with save, the solver in this phase, the generator after phase 6. UI Toolkit notes for 2022.3 added to skill `add-game-feature`.
-- **Next:** phase 3, the level editor, on `feature/level-editor`.
-  1. Try `Game.unity` in the editor first: the play code changed since the developer last played it (level attempt, board interaction, the timer now runs and stops the board at zero, with nothing shown yet).
-  2. Validator additions with tests (`DoorsOverlap`, `DisconnectedBlock`) and the palette color test.
-  3. Editor spike for the developer to try: board grid, block tool, one bound field, undo, domain reload, save.
+- **2026-11-17, phase 3 editor built** on `feature/level-editor` ([Level editor](Systems/LevelEditor.md)): UI Toolkit window with a working copy, save and Revert; Select, Block, Door and Erase tools as strategies with rebindable shortcuts; selections held by object; problems listed and marked on the board, a click selects the block or door; resizable panes; the level shown live in the Game scene. Validator additions: `DoorsOverlap`, `DisconnectedBlock`, `BlockStartsAtItsDoor`; palette color test. Second independent review over phases 1-3 by three parallel `code-reviewer` agents (Data and Logic, Runtime, Editor), with Liskov and open-closed added to the criteria; the recommended findings fixed, two moved to phase 4. Undo records whole copies of the level after a test showed Unity's difference-based undo restoring a block wrongly. 190 EditMode tests green, tried by the developer in the editor.
+- **Next:** the rest of phase 3, on `feature/level-editor`.
+  1. New level: creates the next `Level_NN` asset and appends it to the `LevelCatalog`; open from a dropdown of the catalog.
+  2. Play from the editor through `SessionState` (opens `Game.unity` until the Boot scene exists).
+  3. Solver in `Game.Logic`, tests first: `Unsolvable` warning, minimum move count, step-by-step playback in the editor.
+  4. The 5 levels authored in the editor, `Level_01` made again.
+  5. Usability check by the developer, then the phase end: notes, `--no-ff` merge into `develop`.
 
 ## Phases
 Each phase ends with compile, EditMode tests green, notes and index updated, a `--no-ff` merge into `develop`.
