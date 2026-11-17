@@ -8,6 +8,8 @@ namespace Game.Logic.Play
     // Positions are in cells from the board's top-left corner. A restart is a new attempt.
     public sealed class LevelAttempt
     {
+        public const int NoBlock = Board.NoBlock;
+
         private readonly Board _board;
         private readonly BlockDrag _drag;
         private readonly LevelTimer _timer;
@@ -31,7 +33,7 @@ namespace Game.Logic.Play
                 return false;
             _timer.Start();
             var block = _board.BlockAt(cell);
-            if (block == Board.NoBlock)
+            if (block == NoBlock)
                 return false;
             _drag.Begin(block, x, y);
             return true;
@@ -40,7 +42,7 @@ namespace Game.Logic.Play
         // Returns false when no block is held or the board takes no touches; the held block then stays where it is.
         public bool MoveTo(float x, float y, out DragPose pose)
         {
-            pose = default;
+            pose = DragPose.None;
             if (!_drag.IsActive || !TakesTouches)
                 return false;
             pose = _drag.MoveTo(x, y);
@@ -49,7 +51,7 @@ namespace Game.Logic.Play
             return true;
         }
 
-        // Returns the block that was held, or Board.NoBlock. Always allowed, so a held block can be put back after the
+        // Returns the block that was held, or NoBlock. Always allowed, so a held block can be put back after the
         // level fails or pauses.
         public int Release()
         {

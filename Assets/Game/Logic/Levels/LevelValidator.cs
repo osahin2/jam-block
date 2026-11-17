@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Game.Data.Levels;
+using Game.Logic.Play;
 
 namespace Game.Logic.Levels
 {
@@ -14,17 +16,18 @@ namespace Game.Logic.Levels
             var report = new LevelReport();
             if (level.Width < 1 || level.Height < 1)
             {
-                report.Add(LevelProblem.Error(LevelProblemKind.InvalidSize));
+                report.Add(LevelProblem.LevelError(LevelProblemKind.InvalidSize));
                 return report;
             }
             if (level.TimeLimitSeconds < 1)
-                report.Add(LevelProblem.Error(LevelProblemKind.InvalidTimeLimit));
+                report.Add(LevelProblem.LevelError(LevelProblemKind.InvalidTimeLimit));
             // A level is won when its last block leaves; without blocks it can only run out of time.
             if (level.Blocks.Count == 0)
-                report.Add(LevelProblem.Error(LevelProblemKind.NoBlocks));
+                report.Add(LevelProblem.LevelError(LevelProblemKind.NoBlocks));
             CheckBlockCells(level, report);
             CheckDoors(level, report);
             CheckBlocksCanLeave(level, report);
+            CheckBlocksStartInside(level, report);
             return report;
         }
 
@@ -36,20 +39,22 @@ namespace Game.Logic.Levels
             {
                 var block = level.Blocks[i];
                 if (block.Shape.Count == 0)
-                    report.Add(LevelProblem.Error(LevelProblemKind.EmptyBlock, i));
+                    report.Add(LevelProblem.BlockError(LevelProblemKind.EmptyBlock, i));
+                else if (!IsConnected(block.Shape))
+                    report.Add(LevelProblem.BlockError(LevelProblemKind.DisconnectedBlock, i));
                 foreach (var offset in block.Shape)
                 {
                     var cell = block.Position + offset;
-                    if (cell.X < 0 || cell.X >= level.Width || cell.Y < 0 || cell.Y >= level.Height)
+                    if (!level.IsOnBoard(cell))
                     {
-                        report.Add(LevelProblem.Error(LevelProblemKind.BlockOutsideBoard, i, cell));
+                        report.Add(LevelProblem.BlockError(LevelProblemKind.BlockOutsideBoard, i, cell));
                         continue;
                     }
-                    var index = cell.Y * level.Width + cell.X;
+                    var index = cell.IndexIn(level.Width);
                     if (owner[index] == Free)
                         owner[index] = i;
                     else
-                        report.Add(LevelProblem.Error(LevelProblemKind.BlocksOverlap, i, cell));
+                        report.Add(LevelProblem.BlockError(LevelProblemKind.BlocksOverlap, i, cell));
                 }
             }
         }
@@ -59,9 +64,54 @@ namespace Game.Logic.Levels
             for (var i = 0; i < level.Doors.Count; i++)
             {
                 var door = level.Doors[i];
-                var sideLength = door.Side.Length(level.Width, level.Height);
-                if (door.Length < 1 || door.Start < 0 || door.End > sideLength)
-                    report.Add(LevelProblem.Error(LevelProblemKind.DoorOutsideSide, i));
+                if (!door.FitsSide(level.Width, level.Height))
+                    report.Add(LevelProblem.DoorError(LevelProblemKind.DoorOutsideSide, i));
+                if (OverlapsAnEarlierDoor(level, i))
+                    report.Add(LevelProblem.DoorError(LevelProblemKind.DoorsOverlap, i));
+            }
+        }
+
+        // A block is moved and built as one piece, so its cells must form one group of touching cells.
+        private static bool IsConnected(List<Cell> shape)
+        {
+            var reached = new HashSet<Cell> { shape[0] };
+            var open = new Stack<Cell>();
+            open.Push(shape[0]);
+            while (open.Count > 0)
+            {
+                var cell = open.Pop();
+                foreach (var neighbour in shape)
+                {
+                    if (cell.Touches(neighbour) && reached.Add(neighbour))
+                        open.Push(neighbour);
+                }
+            }
+            return reached.Count == new HashSet<Cell>(shape).Count;
+        }
+
+        private static bool OverlapsAnEarlierDoor(LevelData level, int index)
+        {
+            var door = level.Doors[index];
+            for (var i = 0; i < index; i++)
+            {
+                var other = level.Doors[i];
+                if (other.Overlaps(door.Side, door.Start, door.End))
+                    return true;
+            }
+            return false;
+        }
+
+        // A block that already touches its exit would leave before the player moves anything. The board's own exit
+        // rule decides it, so it runs only on a level the board can be built from.
+        private static void CheckBlocksStartInside(LevelData level, LevelReport report)
+        {
+            if (report.HasErrors)
+                return;
+            var board = new Board(level);
+            for (var i = 0; i < level.Blocks.Count; i++)
+            {
+                if (board.ExitDoorOf(i) != StepResult.NoDoor)
+                    report.Add(LevelProblem.BlockError(LevelProblemKind.BlockStartsAtItsDoor, i));
             }
         }
 
@@ -72,7 +122,7 @@ namespace Game.Logic.Levels
             {
                 var block = level.Blocks[i];
                 if (block.Shape.Count > 0 && !FitsADoor(block, level))
-                    report.Add(LevelProblem.Warning(LevelProblemKind.BlockCannotLeave, i));
+                    report.Add(LevelProblem.BlockWarning(LevelProblemKind.BlockCannotLeave, i));
             }
         }
 

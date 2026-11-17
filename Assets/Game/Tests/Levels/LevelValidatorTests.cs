@@ -34,7 +34,8 @@ namespace Game.Tests.Levels
             var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 1, 1).Door(Red, Side.Top, 0).Build();
             level.TimeLimitSeconds = 0;
 
-            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.InvalidTimeLimit, Severity.Error, LevelProblem.NoIndex);
+            var problem = AssertSingle(LevelValidator.Validate(level), LevelProblemKind.InvalidTimeLimit, Severity.Error, LevelProblem.NoIndex);
+            Assert.AreEqual(LevelPart.Level, problem.Part);
         }
 
         [Test]
@@ -76,6 +77,67 @@ namespace Game.Tests.Levels
         }
 
         [Test]
+        public void Validate_BlockInTwoPieces_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3)
+                .Block(Red, 0, 0, new Cell(0, 0), new Cell(2, 0))
+                .Door(Red, Side.Top, 0, 3)
+                .Build();
+
+            var problem = AssertSingle(LevelValidator.Validate(level), LevelProblemKind.DisconnectedBlock, Severity.Error, 0);
+            Assert.AreEqual(LevelPart.Block, problem.Part);
+            Assert.IsNull(problem.Cell);
+        }
+
+        [Test]
+        public void Validate_BlockCellsTouchingOnlyAtACorner_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3)
+                .Block(Red, 0, 0, new Cell(0, 0), new Cell(1, 1))
+                .Door(Red, Side.Top, 0, 2)
+                .Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.DisconnectedBlock, Severity.Error, 0);
+        }
+
+        [Test]
+        public void Validate_LShapedBlock_IsConnected()
+        {
+            var level = new LevelBuilder(3, 3)
+                .Block(Red, 0, 0, new Cell(0, 0), new Cell(0, 1), new Cell(1, 1))
+                .Door(Red, Side.Bottom, 0, 2)
+                .Build();
+
+            Assert.IsEmpty(LevelValidator.Validate(level).Problems);
+        }
+
+        [Test]
+        public void Validate_DoorsOverlappingOnOneSide_IsAnErrorOnTheLaterDoor()
+        {
+            var level = new LevelBuilder(4, 3)
+                .Rect(Red, 0, 1, 1, 1)
+                .Door(Red, Side.Top, 0, 2)
+                .Door(Blue, Side.Top, 1, 2)
+                .Build();
+
+            var problem = AssertSingle(LevelValidator.Validate(level), LevelProblemKind.DoorsOverlap, Severity.Error, 1);
+            Assert.AreEqual(LevelPart.Door, problem.Part);
+        }
+
+        [Test]
+        public void Validate_DoorsSideBySideOrOnDifferentSides_DoNotOverlap()
+        {
+            var level = new LevelBuilder(4, 3)
+                .Rect(Red, 0, 1, 1, 1)
+                .Door(Red, Side.Top, 0, 2)
+                .Door(Red, Side.Top, 2, 2)
+                .Door(Blue, Side.Left, 0, 2)
+                .Build();
+
+            Assert.IsEmpty(LevelValidator.Validate(level).Problems);
+        }
+
+        [Test]
         public void Validate_DoorPastTheEndOfItsSide_IsAnError()
         {
             var level = new LevelBuilder(3, 4).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Door(Red, Side.Top, 2, 2).Build();
@@ -105,7 +167,7 @@ namespace Game.Tests.Levels
         [Test]
         public void Validate_BlockFitsADoorOnTheSideAcrossItsShortExtent()
         {
-            var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 2, 1).Door(Red, Side.Left, 1).Build();
+            var level = new LevelBuilder(3, 3).Rect(Red, 1, 1, 2, 1).Door(Red, Side.Left, 1).Build();
 
             Assert.IsEmpty(LevelValidator.Validate(level).Problems);
         }
@@ -130,8 +192,31 @@ namespace Game.Tests.Levels
 
             var report = LevelValidator.Validate(level);
 
-            Assert.AreEqual(3, report.Problems.Count);
+            var kinds = new LevelProblemKind[report.Problems.Count];
+            for (var i = 0; i < kinds.Length; i++)
+                kinds[i] = report.Problems[i].Kind;
+            CollectionAssert.AreEquivalent(
+                new[] { LevelProblemKind.InvalidTimeLimit, LevelProblemKind.BlockOutsideBoard, LevelProblemKind.BlockCannotLeave },
+                kinds);
             Assert.IsTrue(report.HasErrors);
+        }
+
+        [Test]
+        public void Validate_BlockStartingAtACoveringDoorOfItsColor_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 1, 0, 1, 1).Rect(Blue, 1, 2, 1, 1).Door(Red, Side.Top, 1).Build();
+            level.Doors.Add(new DoorData { ColorId = Blue, Side = Side.Left, Start = 1 });
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.BlockStartsAtItsDoor, Severity.Error, 0);
+        }
+
+        [TestCase(0, 0)]
+        [TestCase(-1, 1)]
+        public void Validate_DoorWithoutCellsOrBeforeItsSide_IsAnError(int start, int length)
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Door(Red, Side.Top, 1).Door(Blue, Side.Bottom, start, length).Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.DoorOutsideSide, Severity.Error, 1);
         }
 
         private static LevelProblem AssertSingle(LevelReport report, LevelProblemKind kind, Severity severity, int index)

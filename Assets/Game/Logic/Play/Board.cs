@@ -36,7 +36,11 @@ namespace Game.Logic.Play
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
 
-        internal bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
+        internal bool Contains(Cell cell) => cell.IsInside(Width, Height);
+
+        // The door the block would leave through where it stands, or StepResult.NoDoor; the validator uses it to find
+        // a block that starts at its own exit.
+        internal int ExitDoorOf(int block) => FindExitDoor(_blocks[block]);
 
         public bool CanStep(int block, Direction direction)
         {
@@ -117,7 +121,6 @@ namespace Game.Logic.Play
             return true;
         }
 
-
-        private int IndexOf(Cell cell) => cell.Y * Width + cell.X;
+        private int IndexOf(Cell cell) => cell.IndexIn(Width);
     }
 }

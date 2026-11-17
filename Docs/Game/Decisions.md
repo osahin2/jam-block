@@ -50,7 +50,7 @@ Format:
 - Instead of: hand-written timers and state fields in every view for each motion, which grew with every motion the reference shows; or a tween for the drag.
 
 ## Levels as ScriptableObject assets holding engine-free data
-- Why: one asset per level gives undo, the inspector and asset references in the editor for free; the level types in `Game.Data` are plain C# with an own `Cell` and a color id, so logic and tests never touch the engine, and the view maps color ids to the supplied art.
+- Why: one asset per level gives asset references, the inspector and Unity's undo (the level editor edits an in-memory ScriptableObject copy with it and writes the copy back only when it has no errors, so a dirty asset with errors is never saved by Ctrl+S); the level types in `Game.Data` are plain C# with an own `Cell` and a color id, so logic and tests never touch the engine, and the view maps color ids to the supplied art.
 - Instead of: JSON files, which need own undo, file handling and a second format check; or `Vector2Int` and `Color` in the data, which ties the data assembly to the engine.
 
 ## Boot, Home and Game scenes
@@ -144,3 +144,11 @@ Format:
 ## The level editor window is UI Toolkit only
 - Why: the editor is evaluated for usability, and UI Toolkit gives it for little code: fields bound to the working copy follow undo by themselves, a problem list, toolbar toggles, hover and selected states in USS, layout in UXML apart from the code. Everything the window needs exists in 2022.3; the Unity 6 APIs that do not are listed with their replacements in the `add-game-feature` skill. No IMGUI inside it: if UI Toolkit blocks something, the whole window moves to IMGUI.
 - Instead of: IMGUI, stable and quick for painting a grid, but hover, selection states and the sync between fields and undo are hand-written; or a mix, a board in an `IMGUIContainer` inside a UI Toolkit window, which leaves two UI models in one window.
+
+## Levels are previewed in the Game scene, built by the game and never saved
+- Why: the designer sees a level in the Scene and Game views as the game will build it, framing included, without entering play mode. The preview uses the game's own `BoardBuilder`, so there is no second way of drawing a level, and its objects are `DontSave` and not editable, so the level stays in its asset only and the scene file never changes. It shows the level open in the level editor, live, or else the level asset last selected in the Project window; following the selection while no window is open needs an `[InitializeOnLoad]` editor hook, the one static entry point, called only by the window.
+- Instead of: saving the level into the scene, which gives a level two sources and a scene diff per level edit; or a preview inside the editor window (`PreviewRenderUtility`), which does not show the game camera's framing.
+
+## A block may not start at its own door
+- Why: a block leaves as soon as it touches a covering door of its color, but the board only checks after a step, so such a block would sit at an open door until moved away and back; and the solver assumes every block starts on the board. A designer never wants this, so the validator reports it as an error, decided by the board's own exit rule (`Board.ExitDoorOf`), not a second copy of it.
+- Instead of: letting the game remove the block when the level starts, which plays a leave the player did not cause.

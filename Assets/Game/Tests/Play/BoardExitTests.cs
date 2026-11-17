@@ -22,6 +22,20 @@ namespace Game.Tests.Play
             Assert.IsTrue(board.Blocks[0].HasLeft);
         }
 
+        // Also checks the Side-indexed table in Direction: a wrong entry steps the block the wrong way.
+        [TestCase(Side.Top)]
+        [TestCase(Side.Bottom)]
+        [TestCase(Side.Left)]
+        [TestCase(Side.Right)]
+        public void Step_OutOfTheMiddleTowardADoorOnEachSide_LeavesThroughIt(Side side)
+        {
+            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Door(Red, side, 1).Build());
+
+            var result = board.Step(0, Direction.OutOf(side));
+
+            Assert.IsTrue(result.HasLeft, side.ToString());
+        }
+
         [Test]
         public void Step_AlongTheEdgeIntoTheDoor_Leaves()
         {

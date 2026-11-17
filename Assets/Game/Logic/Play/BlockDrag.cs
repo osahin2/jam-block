@@ -10,7 +10,6 @@ namespace Game.Logic.Play
         private readonly int _maxStepsPerMove;
         private float _grabX;
         private float _grabY;
-        private int _exitDoor;
 
         public int Block { get; private set; } = Board.NoBlock;
         public bool IsActive => Block != Board.NoBlock;
@@ -33,24 +32,24 @@ namespace Game.Logic.Play
         {
             var targetX = x - _grabX;
             var targetY = y - _grabY;
-            _exitDoor = StepResult.NoDoor;
+            var exitDoor = StepResult.NoDoor;
             for (var i = 0; i < _maxStepsPerMove; i++)
             {
                 var position = _board.Blocks[Block].Position;
-                var movedX = StepToward(targetX - position.X, Direction.Left, Direction.Right);
-                if (_exitDoor != StepResult.NoDoor)
+                var movedX = StepToward(targetX - position.X, Direction.Left, Direction.Right, out exitDoor);
+                if (exitDoor != StepResult.NoDoor)
                     break;
-                var movedY = StepToward(targetY - position.Y, Direction.Up, Direction.Down);
-                if (_exitDoor != StepResult.NoDoor || !(movedX || movedY))
+                var movedY = StepToward(targetY - position.Y, Direction.Up, Direction.Down, out exitDoor);
+                if (exitDoor != StepResult.NoDoor || !(movedX || movedY))
                     break;
             }
 
             var block = Block;
             var current = _board.Blocks[block].Position;
-            if (_exitDoor != StepResult.NoDoor)
+            if (exitDoor != StepResult.NoDoor)
             {
                 End();
-                return new DragPose(block, current, 0f, 0f, _exitDoor);
+                return new DragPose(block, current, 0f, 0f, exitDoor);
             }
             var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
             var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);
@@ -59,12 +58,15 @@ namespace Game.Logic.Play
 
         public void End() => Block = Board.NoBlock;
 
-        private bool StepToward(float delta, Direction backward, Direction forward)
+        // Steps one cell toward a target at least half a cell away; returns whether the block moved, and the door it
+        // left through.
+        private bool StepToward(float delta, Direction backward, Direction forward, out int exitDoor)
         {
+            exitDoor = StepResult.NoDoor;
             if (delta > -HalfCell && delta < HalfCell)
                 return false;
             var result = _board.Step(Block, delta > 0f ? forward : backward);
-            _exitDoor = result.ExitDoor;
+            exitDoor = result.ExitDoor;
             return result.Moved;
         }
 

@@ -12,5 +12,7 @@ namespace Game.Data.Levels
         public int TimeLimitSeconds = 300;
         public List<BlockData> Blocks = new List<BlockData>();
         public List<DoorData> Doors = new List<DoorData>();
+
+        public bool IsOnBoard(Cell cell) => cell.IsInside(Width, Height);
     }
 }

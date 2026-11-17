@@ -64,7 +64,9 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
 
-            Assert.IsFalse(attempt.MoveTo(1.5f, 1.5f, out _));
+            Assert.IsFalse(attempt.MoveTo(1.5f, 1.5f, out var pose));
+            Assert.IsFalse(pose.HasLeft, "an empty pose must not read as having left through door 0");
+            Assert.AreEqual(LevelAttempt.NoBlock, pose.Block);
         }
 
         [Test]

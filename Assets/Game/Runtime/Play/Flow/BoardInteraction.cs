@@ -33,7 +33,7 @@ namespace Game.Play.Flow
         public void Release()
         {
             var block = _attempt.Release();
-            if (block != Board.NoBlock)
+            if (block != LevelAttempt.NoBlock)
                 _blocks[block].SnapTo(_layout.CellCenter(_attempt.PositionOf(block)));
         }
 

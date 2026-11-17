@@ -8,7 +8,10 @@ namespace Game.Logic.Levels
         EmptyBlock,
         BlockOutsideBoard,
         BlocksOverlap,
+        DisconnectedBlock,
         DoorOutsideSide,
+        DoorsOverlap,
+        BlockStartsAtItsDoor,
         BlockCannotLeave
     }
 }

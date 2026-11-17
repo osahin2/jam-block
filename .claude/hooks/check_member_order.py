@@ -32,7 +32,10 @@ UNITY_OTHER = {"OnValidate", "OnApplicationPause", "OnApplicationFocus", "OnAppl
                "OnTriggerEnter", "OnTriggerStay", "OnTriggerExit", "OnTriggerEnter2D", "OnTriggerStay2D",
                "OnTriggerExit2D", "OnCollisionEnter", "OnCollisionStay", "OnCollisionExit",
                "OnCollisionEnter2D", "OnCollisionStay2D", "OnCollisionExit2D", "OnMouseDown", "OnMouseUp",
-               "OnRectTransformDimensionsChange", "OnTransformParentChanged"}
+               "OnRectTransformDimensionsChange", "OnTransformParentChanged",
+               # EditorWindow messages
+               "CreateGUI", "OnFocus", "OnLostFocus", "OnSelectionChange", "OnInspectorUpdate",
+               "OnHierarchyChange", "OnProjectChange"}
 UNITY_MESSAGES = set(UNITY_LIFECYCLE) | UNITY_OTHER
 
 MODIFIERS = {"public", "private", "protected", "internal", "static", "readonly", "const", "virtual",
