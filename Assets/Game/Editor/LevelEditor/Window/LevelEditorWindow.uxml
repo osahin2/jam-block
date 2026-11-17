@@ -2,6 +2,7 @@
     <uie:Toolbar>
         <uie:ObjectField name="level" class="toolbar-level" tooltip="The level being edited. Double-clicking a level asset opens it here too." />
         <uie:ToolbarButton name="save" text="Save" tooltip="Writes the level into its asset. Disabled while the level has errors." />
+        <uie:ToolbarButton name="revert" text="Revert" tooltip="Drops the unsaved changes and loads the level again from its asset." />
         <ui:Label name="unsaved" text="Unsaved changes" class="toolbar-unsaved" />
     </uie:Toolbar>
     <ui:HelpBox name="no-level" text="Pick a level in the toolbar, or double-click a level asset." message-type="Info" />

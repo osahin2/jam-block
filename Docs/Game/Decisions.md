@@ -152,3 +152,7 @@ Format:
 ## A block may not start at its own door
 - Why: a block leaves as soon as it touches a covering door of its color, but the board only checks after a step, so such a block would sit at an open door until moved away and back; and the solver assumes every block starts on the board. A designer never wants this, so the validator reports it as an error, decided by the board's own exit rule (`Board.ExitDoorOf`), not a second copy of it.
 - Instead of: letting the game remove the block when the level starts, which plays a leave the player did not cause.
+
+## Level editor undo records whole copies of the level
+- Why: Unity's difference-based `Undo.RecordObject` restored the draft wrongly after a cell was removed from the middle of a block's shape list (a test with real undo brought a block back with one cell twice and one missing). A level is a few hundred bytes, so a whole copy per stroke costs nothing; a stroke is recorded once, on release and only if it changed the level, so empty clicks add no undo step.
+- Instead of: `RecordObject` before every press and drag, which is Unity's usual way but gives the broken restores; or an own undo stack, which leaves Unity's Edit menu and shortcuts.

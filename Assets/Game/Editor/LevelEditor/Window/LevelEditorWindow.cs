@@ -46,6 +46,7 @@ namespace Game.Editor.LevelEditor.Window
         private IntegerField _width;
         private IntegerField _height;
         private Button _save;
+        private Button _revert;
         private Label _unsaved;
         private LevelProblemList _problems;
         private Label _status;
@@ -59,7 +60,6 @@ namespace Game.Editor.LevelEditor.Window
         private VisualElement _side;
         private VisualElement _bottom;
         private LevelReport _report;
-        private int _strokeUndoGroup;
         private Cell _hoverCell;
         private bool _hovering;
 
@@ -69,7 +69,7 @@ namespace Game.Editor.LevelEditor.Window
         private void OnEnable()
         {
             if (_draft == null)
-                _draft = CreateDraft();
+                RecoverDraft();
             _palette = EditorAssets.FindFirst<ColorPalette>();
             _tools = new ILevelEditorTool[] { _selectTool, new BlockTool(), new DoorTool(), new EraseTool() };
             _toolIndex = Mathf.Clamp(_toolIndex, 0, _tools.Length - 1);
@@ -82,8 +82,7 @@ namespace Game.Editor.LevelEditor.Window
         private void OnDestroy()
         {
             LevelPreviewSource.ReleaseEdited();
-            Undo.ClearUndo(_draft);
-            DestroyImmediate(_draft);
+            _draft.Discard();
         }
 
         private void CreateGUI()
@@ -98,6 +97,8 @@ namespace Game.Editor.LevelEditor.Window
             _levelField.RegisterValueChangedCallback(evt => Open(evt.newValue as LevelAsset));
             _save = root.Q<Button>("save");
             _save.clicked += () => TrySave();
+            _revert = root.Q<Button>("revert");
+            _revert.clicked += () => Open(_asset);
             _unsaved = root.Q<Label>("unsaved");
             _noLevel = root.Q<HelpBox>("no-level");
             _content = root.Q("content");
@@ -179,7 +180,7 @@ namespace Game.Editor.LevelEditor.Window
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            Undo.RecordObject(_draft, "Recolor");
+            _draft.Record("Recolor");
             selection.Recolor(_draft.Level, colorId);
             Refresh();
         }
@@ -189,7 +190,7 @@ namespace Game.Editor.LevelEditor.Window
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            Undo.RecordObject(_draft, "Delete");
+            _draft.Record("Delete");
             selection.Delete(_draft.Level);
             _selectTool.ClearSelection();
             Refresh();
@@ -202,23 +203,24 @@ namespace Game.Editor.LevelEditor.Window
             return focused != null && (focused is IntegerField || focused.GetFirstAncestorOfType<IntegerField>() != null);
         }
 
-        private static LevelDraft CreateDraft()
+        // The working copy is never saved: after the editor restarts the window remembers its level but not the copy,
+        // so the level is loaded again from its asset.
+        private void RecoverDraft()
         {
-            var draft = CreateInstance<LevelDraft>();
-            // Not HideAndDontSave: it includes NotEditable, which makes bound fields refuse edits.
-            draft.hideFlags = HideFlags.DontSave;
-            return draft;
+            _draft = LevelDraft.Create();
+            if (_asset != null)
+                _draft.Load(_asset.Level);
         }
 
         // Every way of opening a level comes here, so unsaved changes are never dropped without asking. Opening the level
-        // that is already open, or clearing the field, keeps the working copy.
+        // that is already open loads it again from its asset, which is how Revert works; clearing the field keeps the
+        // working copy.
         private void Open(LevelAsset asset)
         {
-            if (asset != null && asset != _asset && ConfirmDiscard())
+            if (asset != null && ConfirmDiscard())
             {
                 _asset = asset;
                 _draft.Load(asset.Level);
-                Undo.ClearUndo(_draft);
                 _selectTool.ClearSelection();
             }
             _levelField?.SetValueWithoutNotify(_asset);
@@ -314,16 +316,14 @@ namespace Game.Editor.LevelEditor.Window
 
         private void Resize(int width, int height)
         {
-            Undo.RecordObject(_draft, "Resize Board");
+            _draft.Record("Resize Board");
             LevelEdits.Resize(_draft.Level, Mathf.Max(1, width), Mathf.Max(1, height));
             Refresh();
         }
 
         private void OnPressed(Cell cell)
         {
-            Undo.IncrementCurrentGroup();
-            _strokeUndoGroup = Undo.GetCurrentGroup();
-            Undo.RecordObject(_draft, Tool.Name);
+            _draft.BeginStroke();
             Tool.Press(_draft.Level, cell, _colorId);
             // Refreshed even when the level did not change: a press can change the selection.
             Refresh();
@@ -331,16 +331,14 @@ namespace Game.Editor.LevelEditor.Window
 
         private void OnDragged(Cell cell)
         {
-            Undo.RecordObject(_draft, Tool.Name);
             if (Tool.Drag(_draft.Level, cell))
                 Refresh();
         }
 
-        // One stroke is one undo step.
         private void OnReleased()
         {
             Tool.Release();
-            Undo.CollapseUndoOperations(_strokeUndoGroup);
+            _draft.EndStroke(Tool.Name);
         }
 
         private void OnHovered(Cell cell)
@@ -416,6 +414,7 @@ namespace Game.Editor.LevelEditor.Window
             _save.SetEnabled(!_report.HasErrors);
             hasUnsavedChanges = !_draft.Matches(_asset.Level);
             _unsaved.style.display = hasUnsavedChanges ? DisplayStyle.Flex : DisplayStyle.None;
+            _revert.SetEnabled(hasUnsavedChanges);
             UpdateStatus();
             LevelPreviewSource.ShowEdited(level);
         }
