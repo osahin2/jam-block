@@ -116,3 +116,27 @@ Format:
 ## Blocks follow their target with frame-rate independent exponential smoothing
 - Why: the block should feel attached to the finger: `1 - e^(-ln2 · dt / halfLife)` of the remaining distance per frame has no inertia, so starts and reversals answer at once, needs no velocity state to reset between drags, behaves the same at any frame rate and cannot pass the target on a long frame. The half-life is tuned in the motion settings. Placing a block on release and in front of its door is a short eased snap (DOTween), as the reference snaps it there.
 - Instead of: `Vector3.SmoothDamp`, a critically damped spring whose velocity state eases every start and carries through reversals; or `Lerp(a, b, k · dt)`, which changes with the frame rate and overshoots when `k · dt > 1`.
+
+## One level attempt is the play session's only rule object
+- Why: the session needs one answer per touch and per frame: is this touch taken, where is the block, is the level over. `LevelAttempt` owns the board, the drag and the timer and the rules between them (the first touch starts the timer, a popup stops both, the outcome is set once), so they are tested without a scene and the session only shows what it returns. A restart is a new attempt, so nothing survives from the last try.
+- Instead of: the session calling `Board`, `BlockDrag` and a timer itself, which puts the win, fail and pause rules in view code.
+
+## The timer starts on any touch inside the board
+- Why: the reference starts it on the first touch on the board; a touch on an empty cell counts too, so the player cannot study the level with the clock stopped by touching around the blocks. A touch outside the board (HUD, margins) does not start it.
+- Instead of: starting only when a block is grabbed.
+
+## A held block can always be released
+- Why: when the time runs out or a popup opens under the finger, the board takes no more moves, but the view still needs the held block back on its cell. `Release` works in every state and returns the block.
+- Instead of: ending the drag inside the attempt, which leaves the view with a block between cells and no call that tells it so.
+
+## The coin wallet only earns
+- Why: the case asks for a coin inventory whose count stays correct, and nothing in its required scope spends coins: the reference spends them on boosters, the shop, lives and the out-of-time offer, all left out above. `CoinWallet` keeps the balance non-negative and rejects negative amounts as programmer errors; saving is the `Game` side's job. The first spend planned is the out-of-time offer, optional after the required scope (phase 7 in the plan).
+- Instead of: a spend rule nothing calls, which is dead code; or building the out-of-time offer before the editor, which the evaluation weighs more.
+
+## Board input through the EventSystem on one board-sized collider
+- Why: the EventSystem sends a press to the UI first, so HUD buttons and popups block the board without extra checks, and it is the input path the UI uses anyway. One collider covers the board, so touches outside it never arrive, and which block is under the finger stays a logic question (`Board.BlockAt`), not a physics one. Drag positions are projected onto the touch plane, which also works when the finger leaves the collider. The visual spike polled `Pointer.current` to move fast; it is replaced with the HUD in phase 4.
+- Instead of: polling the pointer each frame, which ignores UI; or a collider and handler per block, which moves the block lookup into physics and needs colliders rebuilt as blocks move.
+
+## The play session runs the level; the board interaction runs the touches
+- Why: they change for different reasons. `PlaySession` owns the level's lifetime and time (build, tick, and in phase 4 the HUD, win, fail, restart and next level); `BoardInteraction` owns the touch path (pointer to attempt to block views), which changes with input and motion. Splitting before phase 4 keeps the flow from growing inside the touch code.
+- Instead of: one session class that both connects the views and runs the flow.

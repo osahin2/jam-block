@@ -31,10 +31,18 @@ namespace Game.Tests.Levels
         [Test]
         public void Validate_TimeLimitBelowOneSecond_IsAnError()
         {
-            var level = new LevelBuilder(3, 3).Build();
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 1, 1).Door(Red, Side.Top, 0).Build();
             level.TimeLimitSeconds = 0;
 
             AssertSingle(LevelValidator.Validate(level), LevelProblemKind.InvalidTimeLimit, Severity.Error, LevelProblem.NoIndex);
+        }
+
+        [Test]
+        public void Validate_LevelWithoutBlocks_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3).Door(Red, Side.Top, 0).Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.NoBlocks, Severity.Error, LevelProblem.NoIndex);
         }
 
         [Test]

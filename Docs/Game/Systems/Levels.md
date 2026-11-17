@@ -12,7 +12,7 @@
 |---|---|
 | `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors` |
 | `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position` |
-| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells |
+| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers |
 | `Cell` | `X` column from the left, `Y` row from the top; value equality and `+` |
 
 - A shape is any set of cells: rectangles and L shapes are the same type.
@@ -27,6 +27,7 @@
 |---|---|---|
 | `InvalidSize` | error | width or height below 1; nothing else is checked |
 | `InvalidTimeLimit` | error | time limit below one second |
+| `NoBlocks` | error | a level without blocks (it is won when its last block leaves, so it could only run out of time) |
 | `EmptyBlock` | error | a block without cells (it could never leave, the level never ends) |
 | `BlockOutsideBoard` | error | a block cell outside the board, with the cell |
 | `BlocksOverlap` | error | a block cell already taken by an earlier block, with the cell |

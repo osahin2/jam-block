@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Game.Data.Levels;
 
 namespace Game.Logic.Play
@@ -10,7 +9,6 @@ namespace Game.Logic.Play
         public int ColorId { get; }
         public Cell Position { get; internal set; }
         public bool HasLeft { get; internal set; }
-        public IReadOnlyList<Cell> Shape => _shape;
         internal int CellCount => _shape.Length;
 
         internal BoardBlock(BlockData data)

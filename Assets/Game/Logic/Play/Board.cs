@@ -36,6 +36,8 @@ namespace Game.Logic.Play
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
 
+        internal bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
+
         public bool CanStep(int block, Direction direction)
         {
             var moving = _blocks[block];
@@ -107,17 +109,14 @@ namespace Game.Logic.Play
 
         private static bool Covers(DoorData door, BoardBlock block)
         {
-            var end = door.Start + door.Length;
             for (var i = 0; i < block.CellCount; i++)
             {
-                var along = door.Side.Along(block.CellAt(i));
-                if (along < door.Start || along >= end)
+                if (!door.Covers(door.Side.Along(block.CellAt(i))))
                     return false;
             }
             return true;
         }
 
-        private bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
 
         private int IndexOf(Cell cell) => cell.Y * Width + cell.X;
     }

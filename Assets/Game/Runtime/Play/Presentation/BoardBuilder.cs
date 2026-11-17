@@ -39,7 +39,7 @@ namespace Game.Play.Presentation
             return BuildBlocks(level, layout);
         }
 
-        public void Clear()
+        private void Clear()
         {
             if (_root != null)
                 Object.Destroy(_root);
@@ -124,7 +124,7 @@ namespace Game.Play.Presentation
         {
             foreach (var door in level.Doors)
             {
-                if (door.Side == side && index >= door.Start && index < door.Start + door.Length)
+                if (door.Side == side && door.Covers(index))
                     return door;
             }
             return null;

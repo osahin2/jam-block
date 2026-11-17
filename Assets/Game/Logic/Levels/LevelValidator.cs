@@ -3,8 +3,8 @@ using Game.Data.Levels;
 
 namespace Game.Logic.Levels
 {
-    // The one place that says what a valid level is: the level editor shows the report, the board refuses a level
-    // with errors, and a test checks every level asset in the project.
+    // The one place that says what a valid level is: the level editor shows the report before saving, and a test
+    // checks every level asset in the project. The game plays a level as given.
     public static class LevelValidator
     {
         private const int Free = -1;
@@ -19,6 +19,9 @@ namespace Game.Logic.Levels
             }
             if (level.TimeLimitSeconds < 1)
                 report.Add(LevelProblem.Error(LevelProblemKind.InvalidTimeLimit));
+            // A level is won when its last block leaves; without blocks it can only run out of time.
+            if (level.Blocks.Count == 0)
+                report.Add(LevelProblem.Error(LevelProblemKind.NoBlocks));
             CheckBlockCells(level, report);
             CheckDoors(level, report);
             CheckBlocksCanLeave(level, report);
@@ -57,7 +60,7 @@ namespace Game.Logic.Levels
             {
                 var door = level.Doors[i];
                 var sideLength = door.Side.Length(level.Width, level.Height);
-                if (door.Length < 1 || door.Start < 0 || door.Start + door.Length > sideLength)
+                if (door.Length < 1 || door.Start < 0 || door.End > sideLength)
                     report.Add(LevelProblem.Error(LevelProblemKind.DoorOutsideSide, i));
             }
         }

@@ -20,11 +20,12 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 
 ## A new feature
 1. Name its entry class first and write its signature: what it takes (data types), what it returns or calls back with. Callers will know only this class.
-2. Data types in `Game.Data`, rules in `Game.Logic` with EditMode tests before any view.
-3. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
-4. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) that registers the settings (`RegisterInstance`) and the feature's services; create the asset and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
-5. Views per `LogicAndView.md`: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
-6. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
+2. Name where it varies before writing it: several kinds of one thing (editor tools, block types) or several states (paused, won, failed). Choose the pattern there: a strategy per kind looked up once, one state value or type, never a switch over kinds. Where nothing varies, write plain code. Use what Unity and Core already provide (Unity's `Undo`, Core's pools and screens) instead of writing it again.
+3. Data types in `Game.Data`, rules in `Game.Logic` with EditMode tests before any view.
+4. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
+5. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) that registers the settings (`RegisterInstance`) and the feature's services; create the asset and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
+6. Views per `LogicAndView.md`: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
+7. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
 
 ## A new UI screen
 A prefab variant of Core's `UIScreenTemplate`, script and prefab together in the feature's `UI/`, added to the feature's `UIScreenCatalog`. Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
@@ -36,3 +37,4 @@ Made in the level editor only, never by editing the saved file. Format: the leve
 - Compile, check for errors, run EditMode tests (skill `unity-editor`).
 - No allocations in per-frame code; pool what spawns often.
 - Anything another game could use unchanged belongs in Core (skill `add-core-module`).
+- When the feature is done, ask the developer whether to review it (skill `review-code`).
