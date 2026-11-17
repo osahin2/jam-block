@@ -24,6 +24,7 @@ Each phase ends with compile, EditMode tests green, notes and index updated, a `
    - camera framed to each level's size, checked at 1080 x 1920 and 20:9, and the lighting tuned;
    - after the snap and hold, the door breaks the block apart piece by piece: each quarter piece that crosses the door line is hidden and a pooled particle burst plays in its place (measure timing from a recording of the reference);
    - the door lowers while a block passes and rises again (if time allows).
+   - board pieces (block quarters, walls, doors, ground) as prefabs from Core's `PrefabPool`, one pool per piece type in the Game scene's scope, prewarmed when the scene opens: restart and the next level take pieces from the pools and give them back, so a level is built without `Instantiate`. Not in the Boot scope, where pieces would outlive the scene that parents them.
 5. **Meta screens**: home (top UI with coins and lives placeholder, level button, settings button, placeholder tab bar, touch feedback), settings (sound, music, vibration toggles bound to Core.Audio and Core.Haptics, close). Check layout at 1080 x 1920 and 20:9.
 6. **Delivery**: Android build (IL2CPP, ARM64), a short recording of the full flow, README written from `Decisions.md`, `WorkLog.md` and the known issues, final pass for dead code and style.
 7. **Optional, only if 1-6 are complete**: level validation in the editor (solver warns before saving), then one optional mechanic.
