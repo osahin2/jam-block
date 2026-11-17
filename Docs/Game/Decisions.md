@@ -112,3 +112,7 @@ Format:
 ## The drag rule is logic, not view code
 - Why: when a step is taken, how far the block may lean toward a neighbour and how a fast or diagonal drag is resolved decide the game's feel and correctness; in `Game.Logic` (`BlockDrag`) they are tested without a scene. The view only converts the pointer to board cells and shows the returned pose.
 - Instead of: computing steps in the input or view code, where it can only be checked by hand in play mode.
+
+## Blocks follow their target with frame-rate independent exponential smoothing
+- Why: the block should feel attached to the finger: `1 - e^(-ln2 · dt / halfLife)` of the remaining distance per frame has no inertia, so starts and reversals answer at once, needs no velocity state to reset between drags, behaves the same at any frame rate and cannot pass the target on a long frame. One half-life for dragging and a longer one for settling on release are tuned in the motion settings.
+- Instead of: `Vector3.SmoothDamp`, a critically damped spring whose velocity state eases every start and carries through reversals; or `Lerp(a, b, k · dt)`, which changes with the frame rate and overshoots when `k · dt > 1`.
