@@ -47,36 +47,46 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void Advance_FromTheCurrentLevel_CompletesItAndGivesTheNextCurrentLevel()
+        public void CompleteCurrent_CompletesTheCurrentLevelAndGivesTheNextOne()
         {
-            var next = _sequence.Advance(_levels[0]);
+            var next = _sequence.CompleteCurrent();
 
             Assert.AreEqual(1, _progression.Completed);
             Assert.AreSame(_levels[1], next);
         }
 
+        // A designer testing the player's current level from the level editor does not move the player's progress.
         [Test]
-        public void Advance_FromAnotherCatalogLevel_GivesTheCatalogsNextLevelWithoutProgress()
+        public void After_TheCurrentLevel_GivesTheCatalogsNextLevelWithoutProgress()
         {
-            var next = _sequence.Advance(_levels[1]);
+            var next = _sequence.After(_levels[0]);
+
+            Assert.AreEqual(0, _progression.Completed);
+            Assert.AreSame(_levels[1], next);
+        }
+
+        [Test]
+        public void After_AnotherCatalogLevel_GivesTheCatalogsNextLevelWithoutProgress()
+        {
+            var next = _sequence.After(_levels[1]);
 
             Assert.AreEqual(0, _progression.Completed);
             Assert.AreSame(_levels[2], next);
         }
 
         [Test]
-        public void Advance_FromTheCatalogsLastLevel_WhenItIsNotCurrent_GivesTheCatalogsFirstLevel()
+        public void After_TheCatalogsLastLevel_GivesTheCatalogsFirstLevel()
         {
-            Assert.AreSame(_levels[0], _sequence.Advance(_levels[2]));
+            Assert.AreSame(_levels[0], _sequence.After(_levels[2]));
         }
 
         [Test]
-        public void Advance_FromALevelOutsideTheCatalog_GivesTheCurrentLevelWithoutProgress()
+        public void After_ALevelOutsideTheCatalog_GivesTheCurrentLevelWithoutProgress()
         {
             _progression.Index = 2;
             var draft = ScriptableObject.CreateInstance<LevelAsset>();
 
-            var next = _sequence.Advance(draft);
+            var next = _sequence.After(draft);
 
             Assert.AreEqual(0, _progression.Completed);
             Assert.AreSame(_levels[2], next);

@@ -3,9 +3,9 @@ using Game.Levels.Settings;
 
 namespace Game.Levels
 {
-    // Which level comes next. The player's progress moves only when they win the level they are on; a level played
-    // from the level editor leaves it alone and continues with the catalog's next level, or with the player's level
-    // when it is not in the catalog.
+    // Which level comes next. The player's progress moves only when they win the level they are on in their own run;
+    // a run started from the level editor is a designer's test that plays on through the catalog and leaves the
+    // progress alone.
     public sealed class LevelSequence
     {
         private readonly LevelCatalog _catalog;
@@ -19,15 +19,18 @@ namespace Game.Levels
             _progression = progression;
         }
 
-        // Records the win of the given level and returns the level to play next.
-        public LevelAsset Advance(LevelAsset won)
+        // The player won their current level: records it and returns the new current level.
+        public LevelAsset CompleteCurrent()
         {
-            if (won == Current)
-            {
-                _progression.CompleteCurrentLevel();
-                return Current;
-            }
-            var index = IndexOf(won);
+            _progression.CompleteCurrentLevel();
+            return Current;
+        }
+
+        // The catalog's level after the given one (the first after the last), or the player's current level when the
+        // given one is not in the catalog. The player's progress stays as it is.
+        public LevelAsset After(LevelAsset level)
+        {
+            var index = IndexOf(level);
             return index < 0 ? Current : _catalog.Levels[(index + 1) % _catalog.Levels.Count];
         }
 

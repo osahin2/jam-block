@@ -110,6 +110,30 @@ namespace Game.Tests.Play
             Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
         }
 
+        // The win is known when the move that takes the last block out returns, not one tick later.
+        [Test]
+        public void MoveTo_TheLastBlockOut_WinsBeforeTheNextTick()
+        {
+            var attempt = TwoBlocks();
+            LeaveFirstBlock(attempt);
+            attempt.Grab(2.5f, 1.5f, out _);
+
+            attempt.MoveTo(2.5f, 2.1f, out _);
+
+            Assert.AreEqual(LevelOutcome.Won, attempt.Outcome);
+        }
+
+        // Tick reports the outcome as it stands, so every tick after the end returns it, not only the one that changed it.
+        [Test]
+        public void Tick_AfterTheLevelFailed_ReturnsFailedAgain()
+        {
+            var attempt = TwoBlocks();
+            attempt.Grab(1.5f, 1.5f, out _);
+            attempt.Tick(TimeLimit);
+
+            Assert.AreEqual(LevelOutcome.Failed, attempt.Tick(1f));
+        }
+
         // A tap is enough: a block that touches its door with its way out free leaves on the touch, without a drag.
         [Test]
         public void Grab_OnABlockAtItsDoor_LeavesAtOnceWithoutHoldingIt()
