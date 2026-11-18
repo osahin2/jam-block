@@ -24,18 +24,25 @@ A feature is something added or removed as a unit: the play session, the home sc
 - **The flow inside a feature** is one orchestrator that owns the order of steps; it reads top to bottom (see [Logic and view](LogicAndView.md)).
 - A feature's code spreads over the assemblies by role, under the same feature folder name in each: the play rules in `Logic/Play/` and their views in `Runtime/Play/`; the level format in `Data/Levels/` and its asset in `Runtime/Levels/`.
 
-## Folders inside `Assets/Game/Runtime/`
+## Folders
+Feature first; inside a feature, code and assets apart; folder names from fixed lists, so where a file goes is never a choice. The examples are the play feature.
+
 ```
-Bootstrap/      lifetime scopes (composition roots)
-Scenes/         scenes; they compose several features
-<Feature>/      one per feature
-  Presentation/   views, layouts, spawners, outcome players, input
-  Flow/           the orchestrator and the entry class
-  UI/             screen scripts and prefabs together, plus the feature's screen catalog
-  Settings/       settings ScriptableObjects and their classes
-  Prefabs/, Materials/, Content/   only when the feature has such assets
-  <Feature>Installer.asset
+Data/<Feature>/, Logic/<Feature>/       code only
+  <Concept>/                              when the feature holds more than one concept (Logic/Play/Board/, Drag/, Attempt/)
+Runtime/<Feature>/, Editor/<Feature>/   nothing at the feature root but these:
+  Scripts/                                code, always in role folders
+    <Role>/                                 Scopes, Flow, Services, Presentation, UI, Settings, Content, Installers
+      <Concept>/                              when the role holds more than one concept (Presentation/Board/, Blocks/, Input/)
+  Scenes/ Installers/ Settings/ Prefabs/ Materials/ Levels/ Layouts/ Styles/   assets by Unity type, only those present
+Tests/<Feature>/                        the folders of the code under test, without Scripts/ (Tests/Play/Attempt/)
 ```
-- Role subfolders only when needed; no empty skeleton.
+- **Roles** in `Scripts/`: `Scopes` lifetime scopes; `Flow` entry classes and orchestrators; `Services` plain classes registered in a scope that other code calls; `Presentation` views, builders, layouts, input; `UI` screen scripts; `Settings` settings ScriptableObject classes; `Content` ScriptableObject classes whose assets are authored content (`LevelAsset`); `Installers` installer classes. Editor features use their own roles (the level editor: `Window`, `Views`, `Document`, `Tools`, `Selection`, `Edits`, `Levels`, `Play`, `Preview`).
+- **Asset folders**: `Scenes`, `Installers`, `Settings` (settings and catalog assets), `Prefabs`, `Materials`, `Levels` (level assets), `Layouts` (UXML), `Styles` (USS). A new kind of asset is added to this list before its folder is made.
+- A folder split into concepts holds no files of its own; a concept folder may hold one file. Role folders in `Scripts/` exist even for one file.
+- `Bootstrap/` is the scenes' composition: each scene's scope (`Scopes`), the flow that starts it (`Flow`), the scene switch (`Services`) and the scene files (`Scenes`). Feature installers register only their feature's services.
+- An assembly folder holds only its asmdef and feature folders.
+- Unity's special folder names (`Editor`, `Resources`, `Plugins`, `Gizmos`, `StreamingAssets`) are never used inside a feature: they change what is compiled or built. The assembly folder `Editor/` is governed by its asmdef.
+- Namespaces stop at the feature (`Game.Play`, `Game.Logic.Play`); deeper folders are for finding files only.
 - Supplied art goes under `Assets/Art/` as delivered, so it can be told apart from code and replaced as a unit.
 - Moving files: through Unity (`AssetDatabase.MoveAsset`), never on disk, so GUID references survive. Commit a move on its own.

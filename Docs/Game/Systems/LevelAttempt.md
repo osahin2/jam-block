@@ -3,9 +3,9 @@
 > Summary: One try at a level in `Game.Logic`: the board, the drag and the timer behind one class that the play feature talks to, and the level's outcome (playing, won, failed). A restart is a new attempt.
 
 ## Code
-- Folder: `Assets/Game/Logic/Play/`
+- Folder: `Assets/Game/Logic/Play/Attempt/`
 - Assembly: `Game.Logic`
-- Entry points: `LevelAttempt` (`Logic/Play/LevelAttempt.cs`); `LevelTimer` (`Logic/Play/LevelTimer.cs`) and `LevelOutcome` are used through it
+- Entry points: `LevelAttempt` (`Logic/Play/Attempt/LevelAttempt.cs`); `LevelTimer` (`Logic/Play/Attempt/LevelTimer.cs`) and `LevelOutcome` are used through it
 
 ## How it works
 - `new LevelAttempt(level)` builds a `Board`, a `BlockDrag` over it and a `LevelTimer` with the level's time limit. Positions are in cells from the board's top-left corner, as in [Board](Board.md). The board stays inside the attempt, so no caller can step a block past its rules; `PositionOf(block)` gives a block's cell.
@@ -25,8 +25,8 @@
 - `Grab`, `MoveTo`, `Release` and `Tick` do not allocate.
 
 ## Tests
-- `Tests/Play/LevelTimerTests`: no count before start or while paused, resume, start while paused, stop at zero, expiry reported once.
-- `Tests/Play/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and its pose, no pose without a held block, a block out with others left, win on the last block with the timer stopped, the win known before the next tick, a tap that sends out a block at its door (and wins on the last one) or holds one whose way out is blocked, fail at zero, every tick after a fail returning it again, a held block after fail, no touches after the level is over, pause and resume.
+- `Tests/Play/Attempt/LevelTimerTests`: no count before start or while paused, resume, start while paused, stop at zero, expiry reported once.
+- `Tests/Play/Attempt/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and its pose, no pose without a held block, a block out with others left, win on the last block with the timer stopped, the win known before the next tick, a tap that sends out a block at its door (and wins on the last one) or holds one whose way out is blocked, fail at zero, every tick after a fail returning it again, a held block after fail, no touches after the level is over, pause and resume.
 
 ## Related
 - [Board](Board.md), [Play](Play.md), [Reference](../Reference.md), [Decisions](../Decisions.md)

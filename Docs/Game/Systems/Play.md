@@ -3,9 +3,9 @@
 > Summary: Shows a level on the board and lets the player drag blocks out through their doors. The play session builds the board from the supplied models and runs the level's time; the board interaction turns the pointer into board positions, asks the level attempt for whole-cell steps and a sub-cell offset, and moves the block views. When the level is won or failed the session tells its caller once; the Game scene continues with the next level or plays the same one again. No HUD, win screen or fail popup yet.
 
 ## Code
-- Folder: `Assets/Game/Runtime/Play/` (`Flow/`, `Presentation/`, `Settings/`), `Assets/Game/Runtime/Bootstrap/`, `Assets/Game/Runtime/Scenes/Game.unity`
+- Folder: `Assets/Game/Runtime/Play/` (`Scripts/Flow/`, `Scripts/Presentation/` with `Board/`, `Blocks/`, `Input/`, `Scripts/Settings/`; assets in `Installers/`, `Settings/`, `Materials/`), `Assets/Game/Runtime/Bootstrap/` (`GameScope`, `GameEntry`, `Scenes/Game.unity`)
 - Assembly: `Game`
-- Entry points: `PlaySession.Start(level, onWon, onFailed)` (`Play/Flow/PlaySession.cs`); `PlayInstaller` (`Play/PlayInstaller.asset`). `BoardInteraction` (`Play/Flow/BoardInteraction.cs`) is used only by the session.
+- Entry points: `PlaySession.Start(level, onWon, onFailed)` (`Play/Scripts/Flow/PlaySession.cs`); `PlayInstaller` (`Play/Installers/PlayInstaller.asset`). `BoardInteraction` (`Play/Scripts/Flow/BoardInteraction.cs`) is used only by the session.
 
 ## How it works
 - **Scene.** `Game.unity` holds the camera, a light and `GameScope`, a child of the Boot scope ([App flow](AppFlow.md)), which registers the camera and runs its installer list (`PlayInstaller`). `GameEntry` is the scene's flow: it starts the level the level editor asked to play (`EditorPlayRequest`, taken once; never in a build), else the player's current level (`LevelSequence.Current`), and decides what follows a level: a win plays the next level ([App flow](AppFlow.md): the player's run completes their level, a run from the level editor never moves progress), a fail plays the same level again. Both happen in this scene, without a scene switch.
@@ -33,9 +33,9 @@
 - A win builds the next level at once, so the last block's slide out is cut short; the win screen will come between them.
 
 ## Tests
-- `Tests/Play/BlockDragTests`: offsets toward free and blocked cells, steps past half a cell, several cells at once, stopping at a block, going around an obstacle, the grab point, leaving through a door.
-- `Tests/Play/ExponentialFollowTests`: half the distance after one half-life, two short frames equal one long frame, a long frame does not pass the target.
-- `Tests/Play/BlockViewTests`: a view that stopped starts again on a new target; `SetPose` while following puts the block there and stops.
+- `Tests/Play/Drag/BlockDragTests`: offsets toward free and blocked cells, steps past half a cell, several cells at once, stopping at a block, going around an obstacle, the grab point, leaving through a door.
+- `Tests/Play/Presentation/Blocks/ExponentialFollowTests`: half the distance after one half-life, two short frames equal one long frame, a long frame does not pass the target.
+- `Tests/Play/Presentation/Blocks/BlockViewTests`: a view that stopped starts again on a new target; `SetPose` while following puts the block there and stops.
 - `Tests/Bootstrap/InstallerAssetTests`: every installer and the settings it references have no unassigned reference.
 - The session's end and the Game scene's flow are checked in the editor: press Play, win a level (the next one is built), let the time run out (the same level starts again).
 - Views and input are checked in the editor: open `Game.unity` and press Play.

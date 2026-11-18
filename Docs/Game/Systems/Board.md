@@ -3,9 +3,9 @@
 > Summary: The move rules of a level in whole cells: whether a block can step one cell in a direction, the step itself, the exit through a door of the block's color, and whether the board is cleared. Plain C# in `Game.Logic`, built from a `LevelData`.
 
 ## Code
-- Folder: `Assets/Game/Logic/Play/`
+- Folder: `Assets/Game/Logic/Play/Board/`, `Assets/Game/Logic/Play/Drag/`
 - Assembly: `Game.Logic`
-- Entry points: `Board` (`Logic/Play/Board.cs`), `BlockDrag` (`Logic/Play/BlockDrag.cs`); `Direction`, `StepResult`, `DragPose`, `BoardBlock` are their parameter and result types
+- Entry points: `Board` (`Logic/Play/Board/Board.cs`), `BlockDrag` (`Logic/Play/Drag/BlockDrag.cs`); `Direction`, `StepResult`, `DragPose`, `BoardBlock` are their parameter and result types
 
 ## How it works
 - `new Board(level)` copies the blocks into an occupancy grid (one block index or empty per cell).
@@ -30,9 +30,9 @@
 - `Step` and `CanStep` do not allocate.
 
 ## Tests
-- `Tests/Play/BoardStepTests`: free and blocked steps, edges, other blocks, L shapes, a blocked step that changes nothing.
-- `Tests/Play/BlockDragTests`: see [Play](Play.md).
-- `Tests/Play/BoardExitTests`: exit through a door on each side (which also checks `Direction`'s table indexed by `Side`), exit on touch from any direction, other color is wall, partial cover stays, extent along the side only, L shapes, an L held by a block between its other part and the door, `TryLeave` for a block at its door, away from it, after the block in its way moved off and for a block that has already left, two doors of one color, cleared after the last block.
+- `Tests/Play/Board/BoardStepTests`: free and blocked steps, edges, other blocks, L shapes, a blocked step that changes nothing.
+- `Tests/Play/Drag/BlockDragTests`: see [Play](Play.md).
+- `Tests/Play/Board/BoardExitTests`: exit through a door on each side (which also checks `Direction`'s table indexed by `Side`), exit on touch from any direction, other color is wall, partial cover stays, extent along the side only, L shapes, an L held by a block between its other part and the door, `TryLeave` for a block at its door, away from it, after the block in its way moved off and for a block that has already left, two doors of one color, cleared after the last block.
 
 ## Related
 - [Level attempt](LevelAttempt.md), which the play feature uses instead of `Board` and `BlockDrag` directly

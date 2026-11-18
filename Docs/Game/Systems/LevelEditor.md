@@ -3,9 +3,9 @@
 > Summary: An editor window where a designer makes and changes levels by drawing on a top-down board. It edits a working copy of a level, so undo covers every change and only a level without errors is written back to its asset. Built in phase 3; this note grows with it.
 
 ## Code
-- Folder: `Assets/Game/Editor/LevelEditor/` (`Editing/`, `Window/`, `Preview/`, `Levels/`, `Play/`)
+- Folder: `Assets/Game/Editor/LevelEditor/` (`Scripts/` with `Window/`, `Views/`, `Document/`, `Tools/`, `Selection/`, `Edits/`, `Levels/`, `Play/`, `Preview/`; `Layouts/` for the UXML, `Styles/` for the USS)
 - Assembly: `Game.Editor`
-- Entry points: `LevelEditorWindow` (`Window/LevelEditorWindow.cs`), opened from the menu **Game > Level Editor** or by double-clicking a level asset.
+- Entry points: `LevelEditorWindow` (`Scripts/Window/LevelEditorWindow.cs`), opened from the menu **Game > Level Editor** or by double-clicking a level asset.
 
 ## How it works
 - **Window.** UI Toolkit only: layout in `LevelEditorWindow.uxml`, style in `LevelEditorWindow.uss`, code in `LevelEditorWindow.cs`. A toolbar with a Levels toggle that shows or hides the level list (shortcut L; hidden, the board gets its room, and the state is kept across reloads), the name of the level being edited, New, Duplicate, Save, Play, Revert and an unsaved-changes mark; on the left the level list; a side panel with the tools, the colors of the `ColorPalette` and the board fields; the board; a status line; the problem list under it. Thin handles right of the level list and of the side panel and one above the area under the board can be dragged to resize them (`PaneResizer`, a pointer manipulator), between a minimum and a maximum in the window's code; the sizes are serialized fields of the window, so they survive reloads. The side panel scrolls when the window is short.
@@ -37,18 +37,18 @@
 - The solver, which would warn about an unsolvable level, is optional scope and comes in phase 7.
 
 ## Tests
-- `Tests/LevelEditor/LevelEditsTests`: adding and finding a block, growing only by a free touching cell, resizing drops what falls outside and keeps the rest.
-- `Tests/LevelEditor/BlockToolTests`: a stroke draws one block, a stroke from a block extends it, a stroke from outside the board does nothing, a new stroke makes a new block.
-- `Tests/LevelEditor/LevelEditsDoorAndMoveTests`: ring sides and corners, finding doors and their cells, adding and resizing doors without overlap, moving blocks onto free cells only, erasing cells.
-- `Tests/LevelEditor/SelectToolTests`: selecting and moving a block and a door, stopping at another block, a selection that keeps its block when an earlier one is removed, clearing, recoloring and deleting.
-- `Tests/LevelEditor/LevelEditorShortcutsTests`: every tool, color key, Delete and the level list toggle has a registered shortcut.
-- `Tests/LevelEditor/DoorAndEraseToolTests`: placing and lengthening a door, no door on corners or the board, dragging a door's end, stopping at another door, erasing cells and doors.
-- `Tests/LevelEditor/LevelProblemGuideTests`: every problem kind has a sentence; a problem's subject is its block or door, none for the whole level.
-- `Tests/LevelEditor/LevelScenePreviewTests` (opens `Game.unity` additively; skipped when it is already open in the editor): the preview is built in the Game scene with every object `DontSave` and the scene left clean; a new level replaces the old; clearing removes it.
-- `Tests/LevelEditor/LevelLibraryTests` (creates assets in a folder of its own, removed after each test): a new level is saved under the next name and appended to the catalog in play order, next to the last level after the levels were moved and past an entry left empty by a deleted asset; a name a file already has is skipped; the catalog is saved; moving changes the play order; deleting leaves no empty entry and moves the file to the trash (one small test asset per run), and only takes out an entry whose asset was deleted.
-- `Tests/LevelEditor/LevelSearchTests`: an empty query matches every level, a part of the name in any case, the play number, spaces around the query ignored, no match.
-- `Tests/LevelEditor/LevelDocumentTests` (saves into its own folder and catalog): nothing open has nothing to save; a new level opens empty under the next name, is unsaved only once changed and never revertable; with errors it creates no asset, without errors it becomes the catalog's next level; without a library it is not saved; an open level reverts by opening it again and saves into its own asset; a duplicate starts as a new level with the open level's content as in the window and saves as a level of its own, leaving the original as it was saved; with nothing open there is nothing to duplicate; unloading leaves nothing open.
-- `Tests/Levels/EditorPlayRequestTests`: a requested level is taken once, also by another instance, as after a domain reload.
+- `Tests/LevelEditor/Edits/LevelEditsTests`: adding and finding a block, growing only by a free touching cell, resizing drops what falls outside and keeps the rest.
+- `Tests/LevelEditor/Tools/BlockToolTests`: a stroke draws one block, a stroke from a block extends it, a stroke from outside the board does nothing, a new stroke makes a new block.
+- `Tests/LevelEditor/Edits/LevelEditsDoorAndMoveTests`: ring sides and corners, finding doors and their cells, adding and resizing doors without overlap, moving blocks onto free cells only, erasing cells.
+- `Tests/LevelEditor/Tools/SelectToolTests`: selecting and moving a block and a door, stopping at another block, a selection that keeps its block when an earlier one is removed, clearing, recoloring and deleting.
+- `Tests/LevelEditor/Window/LevelEditorShortcutsTests`: every tool, color key, Delete and the level list toggle has a registered shortcut.
+- `Tests/LevelEditor/Tools/DoorAndEraseToolTests`: placing and lengthening a door, no door on corners or the board, dragging a door's end, stopping at another door, erasing cells and doors.
+- `Tests/LevelEditor/Edits/LevelProblemGuideTests`: every problem kind has a sentence; a problem's subject is its block or door, none for the whole level.
+- `Tests/LevelEditor/Preview/LevelScenePreviewTests` (opens `Game.unity` additively; skipped when it is already open in the editor): the preview is built in the Game scene with every object `DontSave` and the scene left clean; a new level replaces the old; clearing removes it.
+- `Tests/LevelEditor/Levels/LevelLibraryTests` (creates assets in a folder of its own, removed after each test): a new level is saved under the next name and appended to the catalog in play order, next to the last level after the levels were moved and past an entry left empty by a deleted asset; a name a file already has is skipped; the catalog is saved; moving changes the play order; deleting leaves no empty entry and moves the file to the trash (one small test asset per run), and only takes out an entry whose asset was deleted.
+- `Tests/LevelEditor/Levels/LevelSearchTests`: an empty query matches every level, a part of the name in any case, the play number, spaces around the query ignored, no match.
+- `Tests/LevelEditor/Document/LevelDocumentTests` (saves into its own folder and catalog): nothing open has nothing to save; a new level opens empty under the next name, is unsaved only once changed and never revertable; with errors it creates no asset, without errors it becomes the catalog's next level; without a library it is not saved; an open level reverts by opening it again and saves into its own asset; a duplicate starts as a new level with the open level's content as in the window and saves as a level of its own, leaving the original as it was saved; with nothing open there is nothing to duplicate; unloading leaves nothing open.
+- `Tests/Levels/Services/EditorPlayRequestTests`: a requested level is taken once, also by another instance, as after a domain reload.
 - Entering play mode cannot run in EditMode tests; Play is checked by hand.
 - The window itself is checked by hand in the editor; batch mode does not draw windows.
 

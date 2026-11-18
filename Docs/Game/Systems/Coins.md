@@ -5,7 +5,7 @@
 ## Code
 - Folder: `Assets/Game/Logic/Coins/`, `Assets/Game/Data/Coins/`, `Assets/Game/Runtime/Coins/`
 - Assembly: `Game.Logic`, `Game.Data`, `Game`
-- Entry points: `CoinWallet` (`Logic/Coins/CoinWallet.cs`); `CoinsInstaller` (`Runtime/Coins/CoinsInstaller.cs`)
+- Entry points: `CoinWallet` (`Logic/Coins/CoinWallet.cs`); `CoinsInstaller` (`Runtime/Coins/Scripts/Installers/CoinsInstaller.cs`)
 
 ## How it works
 - `new CoinWallet(store)` reads the balance once from an `ICoinStore`; `Balance` reads it; `Add(amount)` raises it and writes the new balance to the store at once.
