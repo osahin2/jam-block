@@ -36,7 +36,23 @@ namespace Game.Logic.Play
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
 
-        internal bool Contains(Cell cell) => cell.X >= 0 && cell.X < Width && cell.Y >= 0 && cell.Y < Height;
+        internal bool Contains(Cell cell) => cell.IsInside(Width, Height);
+
+        // True when the block leaves where it stands, through exitDoor; it is then taken off the board. False, with
+        // StepResult.NoDoor, when it stays, and always for a block that has already left.
+        public bool TryLeave(int block, out int exitDoor)
+        {
+            exitDoor = StepResult.NoDoor;
+            var leaving = _blocks[block];
+            if (leaving.HasLeft)
+                return false;
+            exitDoor = FindExitDoor(block);
+            if (exitDoor == StepResult.NoDoor)
+                return false;
+            SetOccupant(leaving, NoBlock);
+            Remove(leaving);
+            return true;
+        }
 
         public bool CanStep(int block, Direction direction)
         {
@@ -63,11 +79,8 @@ namespace Game.Logic.Play
 
             SetOccupant(moving, NoBlock);
             moving.Position += direction.Offset;
-            var exitDoor = FindExitDoor(moving);
-            if (exitDoor == StepResult.NoDoor)
-                SetOccupant(moving, block);
-            else
-                Remove(moving);
+            SetOccupant(moving, block);
+            TryLeave(block, out var exitDoor);
             return new StepResult(true, moving.Position, exitDoor);
         }
 
@@ -83,17 +96,29 @@ namespace Game.Logic.Play
                 _occupant[IndexOf(block.CellAt(i))] = occupant;
         }
 
-        // A block leaves through a door of its color on a side it touches, when the door spans the
-        // block's whole extent along that side.
-        private int FindExitDoor(BoardBlock block)
+        // The first door, in level order, the block leaves through.
+        private int FindExitDoor(int index)
         {
             for (var i = 0; i < _doors.Length; i++)
             {
-                var door = _doors[i];
-                if (door.ColorId == block.ColorId && Touches(block, door.Side) && Covers(door, block))
+                if (LeavesThrough(index, _doors[i]))
                     return i;
             }
             return StepResult.NoDoor;
+        }
+
+        // A block leaves through a door of its color on a side it touches, when the door spans the block's whole extent
+        // along that side and no other block stands between the block and the door. Cheapest checks first.
+        private bool LeavesThrough(int index, DoorData door)
+        {
+            var block = _blocks[index];
+            if (door.ColorId != block.ColorId)
+                return false;
+            if (!Touches(block, door.Side))
+                return false;
+            if (!Covers(door, block))
+                return false;
+            return IsWayOutFree(index, door.Side);
         }
 
         private bool Touches(BoardBlock block, Side side)
@@ -107,6 +132,24 @@ namespace Game.Logic.Play
             return false;
         }
 
+        // The block slides out straight through the door, so every cell from each of its cells to the side must be free
+        // or its own: a part further from the door would otherwise pass through another block.
+        private bool IsWayOutFree(int index, Side side)
+        {
+            var block = _blocks[index];
+            var outward = Direction.OutOf(side).Offset;
+            for (var i = 0; i < block.CellCount; i++)
+            {
+                for (var cell = block.CellAt(i) + outward; Contains(cell); cell += outward)
+                {
+                    var occupant = _occupant[IndexOf(cell)];
+                    if (occupant != NoBlock && occupant != index)
+                        return false;
+                }
+            }
+            return true;
+        }
+
         private static bool Covers(DoorData door, BoardBlock block)
         {
             for (var i = 0; i < block.CellCount; i++)
@@ -117,7 +160,6 @@ namespace Game.Logic.Play
             return true;
         }
 
-
-        private int IndexOf(Cell cell) => cell.Y * Width + cell.X;
+        private int IndexOf(Cell cell) => cell.IndexIn(Width);
     }
 }

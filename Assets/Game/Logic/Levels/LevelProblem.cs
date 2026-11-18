@@ -8,24 +8,33 @@ namespace Game.Logic.Levels
 
         public LevelProblemKind Kind { get; }
         public Severity Severity { get; }
+        public LevelPart Part { get; }
         // The block or door the problem is about, by its index in the level.
         public int Index { get; }
-        public Cell Cell { get; }
+        // The one cell at fault, when there is one.
+        public Cell? Cell { get; }
 
-        private LevelProblem(LevelProblemKind kind, Severity severity, int index, Cell cell)
+        private LevelProblem(LevelProblemKind kind, Severity severity, LevelPart part, int index, Cell? cell)
         {
             Kind = kind;
             Severity = severity;
+            Part = part;
             Index = index;
             Cell = cell;
         }
 
-        public static LevelProblem Error(LevelProblemKind kind, int index = NoIndex, Cell cell = default) =>
-            new LevelProblem(kind, Severity.Error, index, cell);
+        public static LevelProblem LevelError(LevelProblemKind kind) =>
+            new LevelProblem(kind, Severity.Error, LevelPart.Level, NoIndex, null);
 
-        public static LevelProblem Warning(LevelProblemKind kind, int index) =>
-            new LevelProblem(kind, Severity.Warning, index, default);
+        public static LevelProblem BlockError(LevelProblemKind kind, int index, Cell? cell = null) =>
+            new LevelProblem(kind, Severity.Error, LevelPart.Block, index, cell);
 
-        public override string ToString() => $"{Severity} {Kind} (index {Index}, cell {Cell})";
+        public static LevelProblem BlockWarning(LevelProblemKind kind, int index) =>
+            new LevelProblem(kind, Severity.Warning, LevelPart.Block, index, null);
+
+        public static LevelProblem DoorError(LevelProblemKind kind, int index) =>
+            new LevelProblem(kind, Severity.Error, LevelPart.Door, index, null);
+
+        public override string ToString() => $"{Severity} {Kind} ({Part} {Index}, cell {Cell})";
     }
 }

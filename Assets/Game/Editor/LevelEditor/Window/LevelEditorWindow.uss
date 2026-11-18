@@ -1,0 +1,291 @@
+.toolbar-level {
+    width: 200px;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    margin-left: 6px;
+}
+
+.toolbar-unsaved {
+    -unity-text-align: middle-left;
+    margin-left: 8px;
+    color: rgb(230, 160, 40);
+}
+
+/* The level list on the left, then the editor: the no-level message or the level's content. */
+.body {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.levels {
+    flex-shrink: 0;
+}
+
+.editor {
+    flex-grow: 1;
+}
+
+.content {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.level-list {
+    flex-grow: 1;
+}
+
+.level-search {
+    width: auto;
+    margin: 4px;
+}
+
+.level-rows {
+    flex-grow: 1;
+}
+
+.level-row {
+    -unity-text-align: middle-left;
+    padding-left: 6px;
+}
+
+.level-row--missing {
+    color: rgb(220, 100, 90);
+    -unity-font-style: italic;
+}
+
+/* The side panel's width and the bottom area's height are set from code, which keeps them between their limits. */
+.side {
+    flex-shrink: 0;
+    padding: 6px;
+}
+
+.main {
+    flex-grow: 1;
+}
+
+.bottom {
+    flex-shrink: 0;
+}
+
+.handle {
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.handle:hover {
+    background-color: rgb(58, 121, 187);
+}
+
+.handle--side {
+    width: 4px;
+    cursor: resize-horizontal;
+}
+
+.handle--bottom {
+    height: 4px;
+    cursor: resize-vertical;
+}
+
+.side-header {
+    -unity-font-style: bold;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.tools {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.tool-button {
+    min-width: 64px;
+    height: 28px;
+    margin: 2px;
+    border-radius: 4px;
+}
+
+.tool-button--selected {
+    background-color: rgb(58, 121, 187);
+    border-color: rgb(120, 180, 240);
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+}
+
+.colors {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    margin: 2px;
+    padding: 0;
+    border-width: 2px;
+    border-radius: 4px;
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
+/* The shortcut key in the swatch's corner; the dark badge keeps it readable on every palette color. */
+.color-swatch-key {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    min-width: 11px;
+    padding: 0 2px;
+    margin: 0;
+    border-top-left-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: rgb(255, 255, 255);
+    font-size: 9px;
+    -unity-text-align: middle-center;
+}
+
+.color-swatch--selected {
+    border-width: 3px;
+    border-color: rgb(255, 255, 255);
+    scale: 1.15 1.15;
+}
+
+.color-name {
+    margin-top: 2px;
+    -unity-font-style: italic;
+}
+
+.board-area {
+    flex-grow: 1;
+    min-height: 100px;
+}
+
+.board {
+    flex-grow: 1;
+}
+
+/* Fixed colors, not theme-relative: the wall must stand apart from the tiles and the window in both themes. */
+.board-ground {
+    background-color: rgb(35, 35, 40);
+}
+
+.board-tile {
+    background-color: rgb(85, 88, 95);
+    border-radius: 3px;
+}
+
+.board-block {
+    border-color: rgba(0, 0, 0, 0.8);
+}
+
+.frame {
+    background-color: rgb(140, 145, 160);
+}
+
+.frame--door {
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.8);
+}
+
+.hover-cell {
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.hover-piece {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.selected {
+    border-width: 3px;
+    border-color: rgb(255, 210, 60);
+}
+
+.selection {
+    margin-top: 4px;
+    padding: 4px;
+    border-radius: 4px;
+    background-color: rgba(255, 210, 60, 0.15);
+}
+
+.hint {
+    white-space: normal;
+    -unity-font-style: italic;
+}
+
+/* The status line has a fixed height and the list takes the rest of the bottom area: text that changes under the
+   pointer must not resize the board. */
+.status {
+    white-space: normal;
+    padding: 6px;
+    height: 60px;
+    flex-shrink: 0;
+    overflow: hidden;
+    -unity-font-style: bold;
+    background-color: rgba(58, 121, 187, 0.25);
+}
+
+.problems {
+    flex-grow: 1;
+    padding: 6px;
+}
+
+.problems-header {
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.problem-list {
+    flex-grow: 1;
+}
+
+.problem-row {
+    padding: 4px 6px;
+    margin-bottom: 3px;
+    border-left-width: 4px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.problem-row--error {
+    border-left-color: rgb(235, 70, 70);
+}
+
+.problem-row--warning {
+    border-left-color: rgb(240, 165, 30);
+}
+
+.problem-row--selectable:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.problem-title {
+    -unity-font-style: bold;
+}
+
+.problem-text {
+    white-space: normal;
+}
+
+/* Problems on the board: a block or door in its severity's color, the cell at fault filled, the hovered one white. */
+.problem--error {
+    border-width: 3px;
+    border-color: rgb(235, 70, 70);
+    background-color: rgba(235, 70, 70, 0.3);
+}
+
+.problem--warning {
+    border-width: 3px;
+    border-color: rgb(240, 165, 30);
+    background-color: rgba(240, 165, 30, 0.25);
+}
+
+.problem-fault {
+    border-width: 4px;
+    border-color: rgb(255, 40, 40);
+    background-color: rgba(255, 40, 40, 0.6);
+}
+
+.problem-focus {
+    border-width: 3px;
+    border-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.35);
+}

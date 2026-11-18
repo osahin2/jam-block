@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,8 @@ namespace Game.Levels.Settings
     [CreateAssetMenu(menuName = "Game/Levels/Level Catalog")]
     public sealed class LevelCatalog : ScriptableObject
     {
-        [SerializeField] private LevelAsset[] _levels;
+        // Created from code, a ScriptableObject keeps a field without an initializer null.
+        [SerializeField] private LevelAsset[] _levels = Array.Empty<LevelAsset>();
 
         public IReadOnlyList<LevelAsset> Levels => _levels;
     }

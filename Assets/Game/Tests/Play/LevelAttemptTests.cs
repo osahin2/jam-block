@@ -27,7 +27,7 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
 
-            var grabbed = attempt.Grab(0.5f, 1.5f);
+            var grabbed = attempt.Grab(0.5f, 1.5f, out _);
             attempt.Tick(5f);
 
             Assert.IsTrue(grabbed);
@@ -40,7 +40,7 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
 
-            var grabbed = attempt.Grab(1.5f, 1.5f);
+            var grabbed = attempt.Grab(1.5f, 1.5f, out _);
             attempt.Tick(5f);
 
             Assert.IsFalse(grabbed);
@@ -53,7 +53,7 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
 
-            attempt.Grab(-0.5f, 1.5f);
+            attempt.Grab(-0.5f, 1.5f, out _);
             attempt.Tick(5f);
 
             Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
@@ -64,14 +64,16 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
 
-            Assert.IsFalse(attempt.MoveTo(1.5f, 1.5f, out _));
+            Assert.IsFalse(attempt.MoveTo(1.5f, 1.5f, out var pose));
+            Assert.IsFalse(pose.HasLeft, "an empty pose must not read as having left through door 0");
+            Assert.AreEqual(LevelAttempt.NoBlock, pose.Block);
         }
 
         [Test]
         public void MoveTo_WithABlockHeld_ReturnsItsPose()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(0.5f, 1.5f);
+            attempt.Grab(0.5f, 1.5f, out _);
 
             var moved = attempt.MoveTo(1.7f, 1.5f, out var pose);
 
@@ -84,7 +86,7 @@ namespace Game.Tests.Play
         public void MoveTo_ABlockOutWhileOthersRemain_KeepsPlaying()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(0.5f, 1.5f);
+            attempt.Grab(0.5f, 1.5f, out _);
 
             attempt.MoveTo(0.5f, 0.9f, out var pose);
 
@@ -99,7 +101,7 @@ namespace Game.Tests.Play
         {
             var attempt = TwoBlocks();
             LeaveFirstBlock(attempt);
-            attempt.Grab(2.5f, 1.5f);
+            attempt.Grab(2.5f, 1.5f, out _);
 
             attempt.MoveTo(2.5f, 2.1f, out _);
             var outcome = attempt.Tick(TimeLimit);
@@ -108,11 +110,70 @@ namespace Game.Tests.Play
             Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
         }
 
+        // A tap is enough: a block that touches its door with its way out free leaves on the touch, without a drag.
+        [Test]
+        public void Grab_OnABlockAtItsDoor_LeavesAtOnceWithoutHoldingIt()
+        {
+            var attempt = new LevelAttempt(new LevelBuilder(3, 3)
+                .Rect(Red, 0, 0, 1, 1)
+                .Rect(Blue, 2, 1, 1, 1)
+                .Door(Red, Side.Top, 0)
+                .Door(Blue, Side.Bottom, 2)
+                .Build());
+
+            var grabbed = attempt.Grab(0.5f, 0.5f, out var pose);
+
+            Assert.IsTrue(grabbed);
+            Assert.IsTrue(pose.HasLeft);
+            Assert.AreEqual(0, pose.Block);
+            Assert.AreEqual(0, pose.ExitDoor);
+            Assert.AreEqual(Board.NoBlock, attempt.Release(), "a block that left is not held");
+            Assert.AreEqual(LevelOutcome.Playing, attempt.Outcome);
+        }
+
+        [Test]
+        public void Grab_OnTheLastBlockAtItsDoor_Wins()
+        {
+            var attempt = new LevelAttempt(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Build());
+
+            attempt.Grab(0.5f, 0.5f, out _);
+
+            Assert.AreEqual(LevelOutcome.Won, attempt.Outcome);
+        }
+
+        // The board's way-out rule holds on a touch too: a block between the door and the L's other part keeps it on
+        // the board, and the touch holds it for a drag.
+        [Test]
+        public void Grab_OnABlockAtItsDoorWithABlockInTheWay_HoldsIt()
+        {
+            var attempt = new LevelAttempt(new LevelBuilder(2, 3)
+                .Block(Red, 0, 1, new Cell(0, 0), new Cell(1, 0), new Cell(1, 1))
+                .Rect(Blue, 0, 2, 1, 1)
+                .Door(Red, Side.Bottom, 0, 2)
+                .Build());
+
+            var grabbed = attempt.Grab(1.5f, 2.5f, out var pose);
+
+            Assert.IsTrue(grabbed);
+            Assert.IsFalse(pose.HasLeft);
+            Assert.AreEqual(0, attempt.Release(), "the red block is held");
+        }
+
+        [Test]
+        public void Grab_OnABlockAwayFromItsDoor_LeavesNothing()
+        {
+            var attempt = TwoBlocks();
+
+            attempt.Grab(0.5f, 1.5f, out var pose);
+
+            Assert.IsFalse(pose.HasLeft);
+        }
+
         [Test]
         public void Tick_ToZero_Fails()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(1.5f, 1.5f);
+            attempt.Grab(1.5f, 1.5f, out _);
 
             var outcome = attempt.Tick(TimeLimit);
 
@@ -124,7 +185,7 @@ namespace Game.Tests.Play
         public void Tick_ToZeroWhileHolding_KeepsTheBlockUntilReleaseButStopsItsMoves()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(0.5f, 1.5f);
+            attempt.Grab(0.5f, 1.5f, out _);
             attempt.Tick(TimeLimit);
 
             var moved = attempt.MoveTo(1.7f, 1.5f, out _);
@@ -139,17 +200,17 @@ namespace Game.Tests.Play
         public void Grab_AfterTheLevelIsOver_HoldsNothing()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(1.5f, 1.5f);
+            attempt.Grab(1.5f, 1.5f, out _);
             attempt.Tick(TimeLimit);
 
-            Assert.IsFalse(attempt.Grab(0.5f, 1.5f));
+            Assert.IsFalse(attempt.Grab(0.5f, 1.5f, out _));
         }
 
         [Test]
         public void Pause_StopsTheTimerAndTheBoard()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(0.5f, 1.5f);
+            attempt.Grab(0.5f, 1.5f, out _);
             attempt.Pause();
 
             attempt.Tick(5f);
@@ -158,21 +219,21 @@ namespace Game.Tests.Play
             Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
             Assert.IsFalse(moved);
             Assert.AreEqual(0, attempt.Release());
-            Assert.IsFalse(attempt.Grab(0.5f, 1.5f));
+            Assert.IsFalse(attempt.Grab(0.5f, 1.5f, out _));
         }
 
         [Test]
         public void Resume_StartsTheTimerAndTheBoardAgain()
         {
             var attempt = TwoBlocks();
-            attempt.Grab(1.5f, 1.5f);
+            attempt.Grab(1.5f, 1.5f, out _);
             attempt.Pause();
             attempt.Resume();
 
             attempt.Tick(5f);
 
             Assert.AreEqual(TimeLimit - 5f, attempt.RemainingSeconds, Tolerance);
-            Assert.IsTrue(attempt.Grab(0.5f, 1.5f));
+            Assert.IsTrue(attempt.Grab(0.5f, 1.5f, out _));
         }
 
         [Test]
@@ -208,7 +269,7 @@ namespace Game.Tests.Play
 
         private static void LeaveFirstBlock(LevelAttempt attempt)
         {
-            attempt.Grab(0.5f, 1.5f);
+            attempt.Grab(0.5f, 1.5f, out _);
             attempt.MoveTo(0.5f, 0.9f, out _);
         }
     }

@@ -10,10 +10,10 @@
 ## How it works
 | Type | Fields |
 |---|---|
-| `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors` |
+| `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors`; `IsOnBoard(cell)` |
 | `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position` |
-| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers |
-| `Cell` | `X` column from the left, `Y` row from the top; value equality and `+` |
+| `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers; `FitsSide(width, height)`, `Overlaps(side, start, end)` and `SpanFits`, the one place for the door rules the validator and the level editor both apply |
+| `Cell` | `X` column from the left, `Y` row from the top; value equality, `+`, `-`, `Touches` (shares an edge), `IsInside(width, height)` and `IndexIn(width)`, used by the board and the validator alike |
 
 - A shape is any set of cells: rectangles and L shapes are the same type.
 - `Start` counts columns on `Top` and `Bottom`, rows on `Left` and `Right` (`SideExtensions.Along`).
@@ -21,7 +21,7 @@
 - `LevelAsset` holds one `LevelData` in a serialized field; the editor writes it, the play session reads `Level` and builds its own state from it.
 
 ## Validation
-`LevelValidator.Validate(level)` returns a `LevelReport`: every `LevelProblem` found (kind, severity, block or door index, cell) and `HasErrors`.
+`LevelValidator.Validate(level)` returns a `LevelReport`: every `LevelProblem` found (kind, severity, the part it is about as a `LevelPart` — the level, a block or a door — with that block's or door's index, and the cell at fault when there is one) and `HasErrors`.
 
 | Kind | Severity | Means |
 |---|---|---|
@@ -31,12 +31,14 @@
 | `EmptyBlock` | error | a block without cells (it could never leave, the level never ends) |
 | `BlockOutsideBoard` | error | a block cell outside the board, with the cell |
 | `BlocksOverlap` | error | a block cell already taken by an earlier block, with the cell |
+| `DisconnectedBlock` | error | a block whose cells are not one group of edge-touching cells (it is moved and built as one piece) |
 | `DoorOutsideSide` | error | a door shorter than one cell or past the end of its side |
+| `DoorsOverlap` | error | a door covering a cell of the same side that an earlier door covers |
 | `BlockCannotLeave` | warning | no door of the block's color is as wide as the block's extent along the door's side |
 
 - Errors make a level unplayable and are not saved; warnings are shown but do not stop saving.
-- `BlockCannotLeave` checks widths only; whether the block can reach the door is a solver's question (phase 7).
-- The editor shows the report; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.
+- `BlockCannotLeave` checks widths only; whether the block can reach the door is the solver's question (phase 7).
+- The level editor ([Level editor](LevelEditor.md)) shows the report and saves only without errors; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.
 
 ## Rules & invariants
 - The data types have public fields: Unity serializes them without an engine reference. Nothing changes them at runtime; the logic copies what it needs.
@@ -45,8 +47,9 @@
 
 ## Tests
 - `Tests/Levels/LevelAssetTests`: a level survives Unity serialization.
-- `Tests/Levels/LevelValidatorTests`: each problem kind, warnings versus errors, every problem reported.
-- `Tests/Levels/ProjectLevelsTests`: every level asset in the project has no errors.
+- `Tests/Levels/LevelValidatorTests`: each problem kind (door without cells or before its side included), warnings versus errors, every problem reported by kind.
+- `Tests/Levels/DoorDataTests`: a door fits its side and overlaps only on shared cells of the same side.
+- `Tests/Levels/ProjectLevelsTests`: there are level assets, every one has no errors, and every color id in them has a material in the `ColorPalette` (`ColorPalette.Has`, the one check the editor uses too).
 - `Tests/Levels/LevelBuilder`: builds levels for the tests.
 
 ## Related

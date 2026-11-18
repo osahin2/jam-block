@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <uie:Toolbar>
+        <uie:ToolbarToggle name="levels-toggle" text="Levels" />
+        <ui:Label name="level" class="toolbar-level" tooltip="The level being edited. Pick one in the list on the left, or double-click a level asset." />
+        <uie:ToolbarButton name="new" text="New" tooltip="Starts a new level on an empty board. Its first save adds it to the game as the last level." />
+        <uie:ToolbarButton name="duplicate" text="Duplicate" tooltip="Starts a new level as a copy of this one, as it is in the window. Its first save adds it to the game as the last level; this level keeps what was last saved." />
+        <uie:ToolbarButton name="save" text="Save" tooltip="Writes the level into its asset. Disabled while the level has errors." />
+        <uie:ToolbarButton name="play" text="Play" tooltip="Saves the level and plays it in the game. The scenes open in the editor come back when play mode ends. Disabled while the level has errors." />
+        <uie:ToolbarButton name="revert" text="Revert" tooltip="Drops the unsaved changes and loads the level again from its asset." />
+        <ui:Label name="unsaved" text="Unsaved changes" class="toolbar-unsaved" />
+    </uie:Toolbar>
+    <ui:VisualElement class="body">
+        <ui:VisualElement name="levels" class="levels" />
+        <ui:VisualElement name="levels-handle" class="handle handle--side" tooltip="Drag to resize the level list." />
+        <ui:VisualElement class="editor">
+            <ui:HelpBox name="no-level" text="Pick a level in the list on the left or press New. Double-clicking a level asset opens it too." message-type="Info" />
+            <ui:VisualElement name="content" class="content">
+                <ui:ScrollView name="side" class="side">
+                    <ui:Label text="Tool" class="side-header" />
+                    <ui:VisualElement name="tools" class="tools" />
+                    <ui:Label text="Color" class="side-header" />
+                    <ui:VisualElement name="colors" class="colors" />
+                    <ui:Label name="color-name" class="color-name" />
+                    <ui:Label text="Board" class="side-header" />
+                    <ui:IntegerField name="width" label="Width" is-delayed="true" tooltip="Columns. Making the board smaller removes what falls outside." />
+                    <ui:IntegerField name="height" label="Height" is-delayed="true" tooltip="Rows. Making the board smaller removes what falls outside." />
+                    <ui:IntegerField name="time" label="Time (s)" binding-path="_level.TimeLimitSeconds" tooltip="Seconds the player has, counted from the first touch." />
+                    <ui:VisualElement name="selection" class="selection">
+                        <ui:Label text="Selection" class="side-header" />
+                        <ui:Label name="selection-label" />
+                        <ui:Label text="Drag it on the board to move it. Click a color to recolor it." class="hint" />
+                        <ui:Button name="delete-selection" text="Delete" />
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:VisualElement name="side-handle" class="handle handle--side" tooltip="Drag to resize the side panel." />
+                <ui:VisualElement class="main">
+                    <ui:VisualElement name="board-area" class="board-area" />
+                    <ui:VisualElement name="bottom-handle" class="handle handle--bottom" tooltip="Drag to resize the area under the board." />
+                    <ui:VisualElement name="bottom" class="bottom">
+                        <ui:Label name="status" class="status" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

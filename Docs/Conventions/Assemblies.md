@@ -5,13 +5,13 @@
 ## Assemblies
 | Assembly | Folder | Holds | References | Engine |
 |---|---|---|---|---|
-| `Game.Data` | `Assets/Game/Data/` | The level format (board size, blocks, doors, timer) and other saved data: serializable types with no behavior beyond validation of their own values | - | `noEngineReferences: true` |
+| `Game.Data` | `Assets/Game/Data/` | The level format (board size, blocks, doors, timer) and other saved data: serializable types with no behavior beyond queries on their own geometry (`Cell.IsInside`, `DoorData.Covers`, `FitsSide`, `Overlaps`) | - | `noEngineReferences: true` |
 | `Game.Logic` | `Assets/Game/Logic/` | Rules: board state, moves, exits, win and fail, timer, coin balance | `Game.Data` | `noEngineReferences: true` |
 | `Game` | `Assets/Game/Runtime/` | Views, input, flows, UI screens, settings assets, lifetime scopes and installers | `Game.Data`, `Game.Logic`, `Core.*`, VContainer, UniTask | yes |
 | `Game.Editor` | `Assets/Game/Editor/` | The level editor window, its drawing and tools, other editor tooling | all of the above, `UnityEditor` | editor only |
 | `Game.Tests` | `Assets/Game/Tests/` | EditMode tests, folders mirror the features | what each test needs | editor only |
 
-- References point one way: `Game.Editor -> Game -> Game.Logic -> Game.Data`. Nothing references `Game.Editor` or the tests.
+- References point one way: `Game.Editor -> Game -> Game.Logic -> Game.Data`. Only the tests reference `Game.Editor` (for its edit operations and tools); nothing references the tests.
 - `Game.Logic` cannot reach `UnityEngine`, so a rule cannot touch a transform, a `MonoBehaviour` or `Time`. Time arrives as a parameter (`Tick(float deltaSeconds)`), randomness as an injected seed or interface.
 - `Game.Data` is the only format the editor writes and the game reads. Neither side has a private copy of the format. The ScriptableObject that stores a level (`LevelAsset`) is in `Game`, since it needs the engine; it holds a `Game.Data` type and nothing else.
 - `autoReferenced: false` for every game assembly except where Unity needs it; namespaces follow assembly and folder (`Game.Logic.Play`).

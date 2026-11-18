@@ -56,6 +56,10 @@ public sealed class EnemyView : MonoBehaviour
 - No static singletons or service locators: dependencies arrive through the constructor (or `Init` / `Construct`).
 - Comments only for what the code cannot say (a non-obvious reason or invariant).
 
+## Interfaces and extension
+- **Keep the contract (Liskov).** Every implementation of an interface or base class keeps the promise its comment states, so callers never need to know which one they hold: no type checks on implementations (`is`, `as`, `GetType`), no member that throws `NotSupportedException` or does nothing where the caller expects an effect, and a return value or side effect means the same in every implementation. When one implementation cannot keep the promise, change the contract, not the caller.
+- **Open where it changes (open-closed).** Where kinds are known to change (the plan names more of them, or a second one already exists), a new kind is a new class looked up once, not an edit to working code: no switch or if-chain over kinds. A closed set (an enum the rules own) may stay a table, with a test that every value has an entry. No extension point for a change nobody has asked for: an interface with one implementation and none planned is a smell.
+
 ## The hook
 `check_member_order.py` runs after every Edit or Write of a `.cs` file under the project. When the order is wrong it returns the problems to Claude, which fixes the file in the same turn. It reads declarations line by line, so unusual syntax can confuse it; run it by hand on a file to see what it found:
 

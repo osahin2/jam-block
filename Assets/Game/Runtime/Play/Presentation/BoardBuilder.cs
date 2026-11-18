@@ -7,7 +7,8 @@ using Object = UnityEngine.Object;
 
 namespace Game.Play.Presentation
 {
-    // Builds a level's ground, frame, doors and blocks under one root object.
+    // Builds a level's ground, frame, doors and blocks under one root object. The game builds it at the scene root;
+    // the level editor's scene preview builds it under its own object.
     public sealed class BoardBuilder
     {
         private static readonly Side[] Sides = (Side[])Enum.GetValues(typeof(Side));
@@ -30,10 +31,11 @@ namespace Game.Play.Presentation
             _pieces = pieces;
         }
 
-        public BlockView[] Build(LevelData level, BoardLayout layout)
+        public BlockView[] Build(LevelData level, BoardLayout layout, Transform parent = null)
         {
             Clear();
             _root = new GameObject("Board");
+            _root.transform.SetParent(parent, false);
             BuildGround(level, layout);
             BuildFrame(level, layout);
             return BuildBlocks(level, layout);
@@ -116,7 +118,9 @@ namespace Game.Play.Presentation
             piece.GetComponent<MeshFilter>().sharedMesh = mesh;
             piece.GetComponent<MeshRenderer>().sharedMaterial = material;
             piece.transform.SetParent(_root.transform, false);
-            piece.transform.SetPositionAndRotation(position, rotation);
+            // Local, like the blocks, so the board follows the parent it is built under.
+            piece.transform.localPosition = position;
+            piece.transform.localRotation = rotation;
             piece.transform.localScale = Vector3.one * _art.Scale;
         }
 

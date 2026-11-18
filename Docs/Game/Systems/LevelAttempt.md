@@ -9,9 +9,9 @@
 
 ## How it works
 - `new LevelAttempt(level)` builds a `Board`, a `BlockDrag` over it and a `LevelTimer` with the level's time limit. Positions are in cells from the board's top-left corner, as in [Board](Board.md). The board stays inside the attempt, so no caller can step a block past its rules; `PositionOf(block)` gives a block's cell.
-- `Grab(x, y)`: a touch inside the board starts the timer (the first one counts, later ones change nothing); when a block is under the finger it is held and the call returns true. A touch outside the board does nothing.
-- `MoveTo(x, y, out pose)`: moves the held block through the drag rule and returns its `DragPose`. When the move takes the last block out, `Outcome` becomes `Won`. Returns false when nothing is held or the board takes no touches.
-- `Release()`: ends the drag and returns the block that was held, or `Board.NoBlock`, so the view can snap it back onto its cell.
+- `Grab(x, y, out pose)`: a touch inside the board starts the timer (the first one counts, later ones change nothing); when a block is under the finger the call returns true. A block that touches its door with its way out free leaves at once (`Board.TryLeave`), so a tap is enough, and the pose reports the door; when that was the last block, `Outcome` becomes `Won`. Any other block is held and the pose is `DragPose.None`. A touch outside the board does nothing.
+- `MoveTo(x, y, out pose)`: moves the held block through the drag rule and returns its `DragPose`. When the move takes the last block out, `Outcome` becomes `Won`. Returns false, with `DragPose.None`, when nothing is held or the board takes no touches.
+- `Release()`: ends the drag and returns the block that was held, or `LevelAttempt.NoBlock`, so the view can snap it back onto its cell without knowing the board.
 - `Tick(deltaSeconds)`: counts the timer down while the level is playing and returns the outcome; the tick that reaches zero sets `Failed`.
 - `Pause()` / `Resume()`: stop and restart the timer and the board together, for the pause and settings popups.
 
@@ -26,7 +26,7 @@
 
 ## Tests
 - `Tests/Play/LevelTimerTests`: no count before start or while paused, resume, start while paused, stop at zero, expiry reported once.
-- `Tests/Play/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and its pose, a block out with others left, win on the last block with the timer stopped, fail at zero, a held block after fail, no touches after the level is over, pause and resume.
+- `Tests/Play/LevelAttemptTests`: first touch starts the timer (on a block, on an empty cell, not outside the board), held block and its pose, no pose without a held block, a block out with others left, win on the last block with the timer stopped, a tap that sends out a block at its door (and wins on the last one) or holds one whose way out is blocked, fail at zero, a held block after fail, no touches after the level is over, pause and resume.
 
 ## Related
 - [Board](Board.md), [Play](Play.md), [Reference](../Reference.md), [Decisions](../Decisions.md)
