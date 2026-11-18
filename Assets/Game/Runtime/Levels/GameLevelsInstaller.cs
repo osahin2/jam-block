@@ -10,6 +10,10 @@ namespace Game.Levels
     {
         [SerializeField] private LevelCatalog _catalog;
 
-        public override void Install(IContainerBuilder builder) => builder.RegisterInstance(_catalog);
+        public override void Install(IContainerBuilder builder)
+        {
+            builder.RegisterInstance(_catalog);
+            builder.Register<EditorPlayRequest>(Lifetime.Singleton);
+        }
     }
 }

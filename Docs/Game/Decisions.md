@@ -42,7 +42,7 @@ Format:
 - Instead of: swipe-to-slide until blocked, which is a different game; or continuous positions in the logic, which makes collisions and tests float-based.
 
 ## A block leaves when it touches a door of its color that covers it
-- Why: observed rule. A block leaves as soon as it touches a side of the board where a door of its own color covers its whole extent along that side, from any drag direction; a door of another color is wall. Checked in one place in the logic after each step.
+- Why: observed rule. A block leaves as soon as it touches a side of the board where a door of its own color covers its whole extent along that side, from any drag direction; a door of another color is wall. Checked in one place in the logic after each step. The block slides out straight through the door, so another block between the door and any of its cells holds it on the board (found by the developer on an L shape while authoring the levels; to be confirmed in the reference); it leaves on the next touch once the way is free.
 - Instead of: requiring a drag toward the door, which the reference does not.
 
 ## DOTween for one-shot motions, a hand-written follow for the drag
@@ -146,13 +146,33 @@ Format:
 - Instead of: IMGUI, stable and quick for painting a grid, but hover, selection states and the sync between fields and undo are hand-written; or a mix, a board in an `IMGUIContainer` inside a UI Toolkit window, which leaves two UI models in one window.
 
 ## Levels are previewed in the Game scene, built by the game and never saved
-- Why: the designer sees a level in the Scene and Game views as the game will build it, framing included, without entering play mode. The preview uses the game's own `BoardBuilder`, so there is no second way of drawing a level, and its objects are `DontSave` and not editable, so the level stays in its asset only and the scene file never changes. It shows the level open in the level editor, live, or else the level asset last selected in the Project window; following the selection while no window is open needs an `[InitializeOnLoad]` editor hook, the one static entry point, called only by the window.
+- Why: the designer sees a level in the Scene and Game views as the game will build it, framing included, without entering play mode. The preview uses the game's own `BoardBuilder`, so there is no second way of drawing a level, and its objects are `DontSave` and not editable, so the level stays in its asset only and the scene file never changes. It shows the level open in the level editor, live, or else the level asset last selected in the Project window; following the selection while no window is open needs an `[InitializeOnLoad]` editor hook, a static class called only by the window (the play starter is the other one, for the same reason: it acts after a domain reload).
 - Instead of: saving the level into the scene, which gives a level two sources and a scene diff per level edit; or a preview inside the editor window (`PreviewRenderUtility`), which does not show the game camera's framing.
 
-## A block may not start at its own door
-- Why: a block leaves as soon as it touches a covering door of its color, but the board only checks after a step, so such a block would sit at an open door until moved away and back; and the solver assumes every block starts on the board. A designer never wants this, so the validator reports it as an error, decided by the board's own exit rule (`Board.ExitDoorOf`), not a second copy of it.
-- Instead of: letting the game remove the block when the level starts, which plays a leave the player did not cause.
+## A block at its door leaves on a touch
+- Why: in the reference a block can start touching its door and stays there until the player taps it, and a tap is enough to send out a block whose way to the door was blocked and is now free. The level attempt asks the board's one exit rule (`Board.TryLeave`) on every touch as well as after every step, so a designer may place a block at its door, and a freed block leaves without being dragged away and back. Replaces the earlier `BlockStartsAtItsDoor` error, which forbade blocks at their door because only a step checked for an exit.
+- Instead of: checking every block for an exit after any move, which sends out blocks the player did not touch; or keeping the error, which forbids a layout the reference uses.
 
 ## Level editor undo records whole copies of the level
 - Why: Unity's difference-based `Undo.RecordObject` restored the draft wrongly after a cell was removed from the middle of a block's shape list (a test with real undo brought a block back with one cell twice and one missing). A level is a few hundred bytes, so a whole copy per stroke costs nothing; a stroke is recorded once, on release and only if it changed the level, so empty clicks add no undo step.
 - Instead of: `RecordObject` before every press and drag, which is Unity's usual way but gives the broken restores; or an own undo stack, which leaves Unity's Edit menu and shortcuts.
+
+## The solver waits for the optional scope
+- Why: the case lists "warn before saving an unsolvable level" as optional scope, to be built only after the required scope, and scope control is evaluated. The five levels are small enough to check by playing them from the editor. The solver comes first in phase 7, where the level generator needs its metrics anyway.
+- Instead of: building it inside the level editor phase, before gameplay and the meta screens exist.
+
+## A new level becomes an asset on its first save
+- Why: New opens an empty board in the editor's working copy; Save, without errors, creates the next `Level_NN` asset and appends it to the level catalog. A level with errors never becomes an asset, the catalog never lists a level the game cannot play, and pressing New and changing one's mind leaves nothing behind.
+- Instead of: creating the asset and the catalog entry on New, which leaves an empty, invalid level in the game until the designer finishes or deletes it by hand.
+
+## Play from the editor starts from the first build scene and hands over the level asset
+- Why: the game then starts the way a build does, through the same scenes and scopes; when the Boot scene comes first in phase 5, the editor needs no change. `EditorSceneManager.playModeStartScene` starts play mode there without closing the designer's open scenes, which come back when play mode ends. The request is the level asset's GUID, not a copy of its data: the editor saves before playing, so the asset is what the window shows, and the game knows which catalog level it plays, which win and next level need.
+- Instead of: opening `Game.unity` in place of the open scenes, which asks to save them and leaves the designer elsewhere after play; or a copy of the level data, which loses the level's place in the catalog.
+
+## A designer mostly changes an existing level
+- Why: a designer is fastest making small changes to a level that already works: a copy of a level, a few blocks moved or recolored, the time adjusted. Duplicate in the level editor starts a new level from the open one, saved as the catalog's next level, so the original is never at risk. The level generator in phase 7 extends the same idea: a generated, solvable level goes into the working copy for the designer to adjust. Painting from an empty board stays for what has no level to start from, such as the first levels of a new mechanic.
+- Instead of: only an empty board for every new level, which repeats the same groundwork each time.
+
+## The level editor manages the levels in a searchable list
+- Why: the catalog's order is the play order, and a designer keeps opening, reordering, duplicating and deleting levels; doing all of it in one list in the editor saves going to the catalog's inspector and the Project window. A `ListView` draws only the rows on screen and the search finds a level by its play number or name, so the list stays usable with thousands of levels. A deleted level's file goes to the trash, not away for good.
+- Instead of: a dropdown menu of every level, unusable past a few dozen; or Unity's `AdvancedDropdown`, which is searchable but IMGUI, against the window's UI Toolkit only rule.

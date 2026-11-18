@@ -25,6 +25,7 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - A door of another color is wall for the block.
 - Leaving: the block slides out through the door and breaks into small pieces; the drag ends.
 - On leaving, the block first snaps onto the door at once, lined up with it, wherever the finger had it; after a short pause the door breaks the block apart piece by piece as it passes. (Seen by the developer in play; too quick for the screenshots.)
+- A block can start touching its door; it stays until the player touches it, and a tap, without a drag, makes it leave. A block held at its door by another block in its way leaves the same way once the way is free. (Seen by the developer in the reference.)
 - Not observed: a block wider than every door of its color (the levels never had one). It could never leave, so the editor should warn about it.
 
 ## Win

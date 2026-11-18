@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Logic.Play;
 
 namespace Game.Logic.Levels
 {
@@ -27,7 +26,6 @@ namespace Game.Logic.Levels
             CheckBlockCells(level, report);
             CheckDoors(level, report);
             CheckBlocksCanLeave(level, report);
-            CheckBlocksStartInside(level, report);
             return report;
         }
 
@@ -99,20 +97,6 @@ namespace Game.Logic.Levels
                     return true;
             }
             return false;
-        }
-
-        // A block that already touches its exit would leave before the player moves anything. The board's own exit
-        // rule decides it, so it runs only on a level the board can be built from.
-        private static void CheckBlocksStartInside(LevelData level, LevelReport report)
-        {
-            if (report.HasErrors)
-                return;
-            var board = new Board(level);
-            for (var i = 0; i < level.Blocks.Count; i++)
-            {
-                if (board.ExitDoorOf(i) != StepResult.NoDoor)
-                    report.Add(LevelProblem.BlockError(LevelProblemKind.BlockStartsAtItsDoor, i));
-            }
         }
 
         // Only whether some door of the block's color is wide enough; whether the block can reach it is a solver's job.

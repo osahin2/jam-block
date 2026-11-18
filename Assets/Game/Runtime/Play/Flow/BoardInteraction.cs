@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.Play.Flow
 {
     // Connects the pointer, the level attempt and the block views: a touch goes to the attempt in board cells, the
-    // pose that comes back goes to the held block's view.
+    // pose that comes back goes to its block's view.
     public sealed class BoardInteraction
     {
         private readonly BoardPointer _pointer;
@@ -40,7 +40,8 @@ namespace Game.Play.Flow
         private void Grab(Vector3 point)
         {
             var onBoard = _layout.WorldToBoard(point);
-            _attempt.Grab(onBoard.x, onBoard.y);
+            if (_attempt.Grab(onBoard.x, onBoard.y, out var pose) && pose.HasLeft)
+                Leave(pose);
         }
 
         private void Drag(Vector3 point)

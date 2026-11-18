@@ -9,6 +9,7 @@ namespace Game.Editor.LevelEditor.Window
     public static class LevelEditorShortcuts
     {
         public const string DeleteId = Prefix + "Delete Selection";
+        public const string LevelListId = Prefix + "Show or Hide Level List";
         // Colors 1 to 9 have keys; a larger palette's other colors are picked with the mouse.
         public const int ColorKeyCount = 9;
         private const string Prefix = "Level Editor/";
@@ -35,6 +36,9 @@ namespace Game.Editor.LevelEditor.Window
 
         [Shortcut(DeleteId, typeof(LevelEditorWindow), KeyCode.Backspace)]
         private static void DeleteSelection(ShortcutArguments args) => Run(args, window => window.DeleteSelection());
+
+        [Shortcut(LevelListId, typeof(LevelEditorWindow), KeyCode.L)]
+        private static void ToggleLevelList(ShortcutArguments args) => Run(args, window => window.ToggleLevelList());
 
         [Shortcut(Prefix + "Color 1", typeof(LevelEditorWindow), KeyCode.Alpha1)]
         private static void Color1(ShortcutArguments args) => PickColor(args, 0);

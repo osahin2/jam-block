@@ -1,5 +1,8 @@
 .toolbar-level {
-    width: 240px;
+    width: 200px;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    margin-left: 6px;
 }
 
 .toolbar-unsaved {
@@ -8,9 +11,46 @@
     color: rgb(230, 160, 40);
 }
 
+/* The level list on the left, then the editor: the no-level message or the level's content. */
+.body {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.levels {
+    flex-shrink: 0;
+}
+
+.editor {
+    flex-grow: 1;
+}
+
 .content {
     flex-grow: 1;
     flex-direction: row;
+}
+
+.level-list {
+    flex-grow: 1;
+}
+
+.level-search {
+    width: auto;
+    margin: 4px;
+}
+
+.level-rows {
+    flex-grow: 1;
+}
+
+.level-row {
+    -unity-text-align: middle-left;
+    padding-left: 6px;
+}
+
+.level-row--missing {
+    color: rgb(220, 100, 90);
+    -unity-font-style: italic;
 }
 
 /* The side panel's width and the bottom area's height are set from code, which keeps them between their limits. */
@@ -84,6 +124,21 @@
     border-width: 2px;
     border-radius: 4px;
     border-color: rgba(0, 0, 0, 0.4);
+}
+
+/* The shortcut key in the swatch's corner; the dark badge keeps it readable on every palette color. */
+.color-swatch-key {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    min-width: 11px;
+    padding: 0 2px;
+    margin: 0;
+    border-top-left-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: rgb(255, 255, 255);
+    font-size: 9px;
+    -unity-text-align: middle-center;
 }
 
 .color-swatch--selected {

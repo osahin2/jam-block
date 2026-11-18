@@ -21,8 +21,6 @@ namespace Game.Editor.LevelEditor.Editing
                 "This block is in pieces that do not touch. A block must be one piece: join the pieces or erase one.",
             [LevelProblemKind.DoorOutsideSide] = "This door runs past the end of its side.",
             [LevelProblemKind.DoorsOverlap] = "This door overlaps another door on the same side.",
-            [LevelProblemKind.BlockStartsAtItsDoor] =
-                "This block already touches a door of its color that covers it, so it would leave at once. Move it away from the door.",
             [LevelProblemKind.BlockCannotLeave] =
                 "No door of this block's color is wide enough for it, so it can never leave. Widen a door or add one."
         };

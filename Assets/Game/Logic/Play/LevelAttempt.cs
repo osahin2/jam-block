@@ -25,9 +25,12 @@ namespace Game.Logic.Play
             _timer = new LevelTimer(level.TimeLimitSeconds);
         }
 
-        // Returns true when a block is under the finger and is now held.
-        public bool Grab(float x, float y)
+        // Returns true when a block is under the finger. A block that touches its door with its way out free leaves at
+        // once, as a tap does in the reference, and the pose says so; any other block is now held and the pose is
+        // DragPose.None.
+        public bool Grab(float x, float y, out DragPose pose)
         {
+            pose = DragPose.None;
             var cell = new Cell((int)Math.Floor(x), (int)Math.Floor(y));
             if (!TakesTouches || !_board.Contains(cell))
                 return false;
@@ -35,7 +38,13 @@ namespace Game.Logic.Play
             var block = _board.BlockAt(cell);
             if (block == NoBlock)
                 return false;
-            _drag.Begin(block, x, y);
+            if (!_board.TryLeave(block, out var exitDoor))
+            {
+                _drag.Begin(block, x, y);
+                return true;
+            }
+            pose = DragPose.Left(block, _board.Blocks[block].Position, exitDoor);
+            UpdateWon();
             return true;
         }
 
@@ -46,8 +55,7 @@ namespace Game.Logic.Play
             if (!_drag.IsActive || !TakesTouches)
                 return false;
             pose = _drag.MoveTo(x, y);
-            if (_board.IsCleared)
-                Outcome = LevelOutcome.Won;
+            UpdateWon();
             return true;
         }
 
@@ -72,5 +80,11 @@ namespace Game.Logic.Play
         public void Pause() => _timer.Pause();
 
         public void Resume() => _timer.Resume();
+
+        private void UpdateWon()
+        {
+            if (_board.IsCleared)
+                Outcome = LevelOutcome.Won;
+        }
     }
 }

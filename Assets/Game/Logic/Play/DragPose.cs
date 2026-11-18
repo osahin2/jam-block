@@ -23,5 +23,8 @@ namespace Game.Logic.Play
             OffsetY = offsetY;
             ExitDoor = exitDoor;
         }
+
+        // A block that left from the cell it stood on, with no offset.
+        public static DragPose Left(int block, Cell position, int exitDoor) => new DragPose(block, position, 0f, 0f, exitDoor);
     }
 }

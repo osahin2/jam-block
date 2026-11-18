@@ -20,13 +20,14 @@ namespace Game.Tests.LevelEditor
         }
 
         [Test]
-        public void EveryColorKey_AndDelete_HaveAShortcut()
+        public void EveryColorKey_Delete_AndTheLevelList_HaveAShortcut()
         {
             var ids = ShortcutManager.instance.GetAvailableShortcutIds().ToList();
 
             for (var i = 0; i < LevelEditorShortcuts.ColorKeyCount; i++)
                 CollectionAssert.Contains(ids, LevelEditorShortcuts.ColorId(i));
             CollectionAssert.Contains(ids, LevelEditorShortcuts.DeleteId);
+            CollectionAssert.Contains(ids, LevelEditorShortcuts.LevelListId);
         }
     }
 }

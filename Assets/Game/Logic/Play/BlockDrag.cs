@@ -49,7 +49,7 @@ namespace Game.Logic.Play
             if (exitDoor != StepResult.NoDoor)
             {
                 End();
-                return new DragPose(block, current, 0f, 0f, exitDoor);
+                return DragPose.Left(block, current, exitDoor);
             }
             var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
             var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);

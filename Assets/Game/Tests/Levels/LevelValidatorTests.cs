@@ -201,15 +201,6 @@ namespace Game.Tests.Levels
             Assert.IsTrue(report.HasErrors);
         }
 
-        [Test]
-        public void Validate_BlockStartingAtACoveringDoorOfItsColor_IsAnError()
-        {
-            var level = new LevelBuilder(3, 3).Rect(Red, 1, 0, 1, 1).Rect(Blue, 1, 2, 1, 1).Door(Red, Side.Top, 1).Build();
-            level.Doors.Add(new DoorData { ColorId = Blue, Side = Side.Left, Start = 1 });
-
-            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.BlockStartsAtItsDoor, Severity.Error, 0);
-        }
-
         [TestCase(0, 0)]
         [TestCase(-1, 1)]
         public void Validate_DoorWithoutCellsOrBeforeItsSide_IsAnError(int start, int length)

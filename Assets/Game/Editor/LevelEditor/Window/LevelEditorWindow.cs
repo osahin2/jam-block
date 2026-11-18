@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Editor.LevelEditor.Editing;
+using Game.Editor.LevelEditor.Levels;
+using Game.Editor.LevelEditor.Play;
 using Game.Editor.LevelEditor.Preview;
 using Game.Levels;
+using Game.Levels.Settings;
 using Game.Logic.Levels;
 using Game.Play.Settings;
 using UnityEditor;
@@ -27,13 +30,15 @@ namespace Game.Editor.LevelEditor.Window
         private const string FaultClass = "problem-fault";
         private const string FocusClass = "problem-focus";
         // Minimum and maximum, in pixels.
+        private static readonly Vector2 LevelsWidthRange = new Vector2(140f, 400f);
         private static readonly Vector2 SideWidthRange = new Vector2(180f, 420f);
         private static readonly Vector2 BottomHeightRange = new Vector2(110f, 520f);
 
-        [SerializeField] private LevelAsset _asset;
-        [SerializeField] private LevelDraft _draft;
+        [SerializeField] private LevelDocument _document = new LevelDocument();
         [SerializeField] private int _colorId;
         [SerializeField] private int _toolIndex;
+        [SerializeField] private bool _levelsShown = true;
+        [SerializeField] private float _levelsWidth = 180f;
         [SerializeField] private float _sideWidth = 230f;
         [SerializeField] private float _bottomHeight = 240f;
 
@@ -41,12 +46,17 @@ namespace Game.Editor.LevelEditor.Window
         private readonly List<BoardMark> _marks = new List<BoardMark>();
         private ILevelEditorTool[] _tools;
         private ColorPalette _palette;
+        private LevelCatalog _catalog;
+        private LevelLibrary _library;
         private LevelBoardView _board;
-        private ObjectField _levelField;
+        private Label _levelName;
+        private LevelListPanel _levels;
         private IntegerField _width;
         private IntegerField _height;
         private Button _save;
+        private Button _play;
         private Button _revert;
+        private Button _duplicate;
         private Label _unsaved;
         private LevelProblemList _problems;
         private Label _status;
@@ -57,6 +67,9 @@ namespace Game.Editor.LevelEditor.Window
         private VisualElement _colors;
         private VisualElement _toolButtons;
         private VisualElement _selectionPanel;
+        private ToolbarToggle _levelsToggle;
+        private VisualElement _levelsPane;
+        private VisualElement _levelsHandle;
         private VisualElement _side;
         private VisualElement _bottom;
         private LevelReport _report;
@@ -65,12 +78,15 @@ namespace Game.Editor.LevelEditor.Window
 
         private ILevelEditorTool Tool => _tools[_toolIndex];
         private ILevelSelection ShownSelection => Tool == _selectTool ? _selectTool.Selection : null;
+        private LevelDraft Draft => _document.Draft;
+        private string LevelName => _document.Name(_library);
 
         private void OnEnable()
         {
-            if (_draft == null)
-                RecoverDraft();
+            _document.EnsureDraft();
             _palette = EditorAssets.FindFirst<ColorPalette>();
+            _catalog = EditorAssets.FindFirst<LevelCatalog>();
+            _library = _catalog != null ? new LevelLibrary(_catalog) : null;
             _tools = new ILevelEditorTool[] { _selectTool, new BlockTool(), new DoorTool(), new EraseTool() };
             _toolIndex = Mathf.Clamp(_toolIndex, 0, _tools.Length - 1);
             saveChangesMessage = "This level has unsaved changes. Save them?";
@@ -82,7 +98,7 @@ namespace Game.Editor.LevelEditor.Window
         private void OnDestroy()
         {
             LevelPreviewSource.ReleaseEdited();
-            _draft.Discard();
+            _document.Close();
         }
 
         private void CreateGUI()
@@ -91,14 +107,18 @@ namespace Game.Editor.LevelEditor.Window
             AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LayoutPath).CloneTree(root);
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(StylePath));
 
-            _levelField = root.Q<ObjectField>("level");
-            _levelField.objectType = typeof(LevelAsset);
-            _levelField.SetValueWithoutNotify(_asset);
-            _levelField.RegisterValueChangedCallback(evt => Open(evt.newValue as LevelAsset));
+            _levelName = root.Q<Label>("level");
+            var newLevel = root.Q<Button>("new");
+            newLevel.clicked += NewLevel;
+            newLevel.SetEnabled(_library != null);
+            _duplicate = root.Q<Button>("duplicate");
+            _duplicate.clicked += DuplicateLevel;
             _save = root.Q<Button>("save");
             _save.clicked += () => TrySave();
+            _play = root.Q<Button>("play");
+            _play.clicked += Play;
             _revert = root.Q<Button>("revert");
-            _revert.clicked += () => Open(_asset);
+            _revert.clicked += () => Open(_document.Asset);
             _unsaved = root.Q<Label>("unsaved");
             _noLevel = root.Q<HelpBox>("no-level");
             _content = root.Q("content");
@@ -110,10 +130,19 @@ namespace Game.Editor.LevelEditor.Window
             delete.clicked += DeleteSelection;
             delete.tooltip = $"Removes the selected block or door. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.DeleteId)}";
 
+            _levelsPane = root.Q("levels");
+            _levelsHandle = root.Q("levels-handle");
+            BuildLevelList();
+            _levelsToggle = root.Q<ToolbarToggle>("levels-toggle");
+            _levelsToggle.tooltip = $"Shows or hides the level list, for more room for the board. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.LevelListId)}";
+            _levelsToggle.RegisterValueChangedCallback(evt => ShowLevelList(evt.newValue));
+            ShowLevelList(_levelsShown);
             _side = root.Q("side");
             _bottom = root.Q("bottom");
+            SetLevelsWidth(_levelsWidth);
             SetSideWidth(_sideWidth);
             SetBottomHeight(_bottomHeight);
+            _levelsHandle.AddManipulator(new PaneResizer(Vector2.right, () => _levelsWidth, SetLevelsWidth));
             root.Q("side-handle").AddManipulator(new PaneResizer(Vector2.right, () => _sideWidth, SetSideWidth));
             root.Q("bottom-handle").AddManipulator(new PaneResizer(Vector2.down, () => _bottomHeight, SetBottomHeight));
 
@@ -123,9 +152,9 @@ namespace Game.Editor.LevelEditor.Window
             _bottom.Add(_problems);
 
             _width = root.Q<IntegerField>("width");
-            _width.RegisterValueChangedCallback(evt => Resize(evt.newValue, _draft.Level.Height));
+            _width.RegisterValueChangedCallback(evt => Resize(evt.newValue, Draft.Level.Height));
             _height = root.Q<IntegerField>("height");
-            _height.RegisterValueChangedCallback(evt => Resize(_draft.Level.Width, evt.newValue));
+            _height.RegisterValueChangedCallback(evt => Resize(Draft.Level.Width, evt.newValue));
 
             _toolButtons = root.Q("tools");
             BuildTools();
@@ -141,7 +170,7 @@ namespace Game.Editor.LevelEditor.Window
             root.Q("board-area").Add(_board);
 
             // Undo, redo and the bound time field change the draft outside the tools; this brings the view along.
-            var draft = new SerializedObject(_draft);
+            var draft = new SerializedObject(Draft);
             root.Bind(draft);
             root.TrackSerializedObjectValue(draft, _ => Refresh());
             Refresh();
@@ -163,7 +192,7 @@ namespace Game.Editor.LevelEditor.Window
         {
             if (!TrySave())
             {
-                EditorUtility.DisplayDialog(Title, $"{_asset.name} has errors and was not saved. Fix them first.", "OK");
+                EditorUtility.DisplayDialog(Title, $"{LevelName} has errors and was not saved. Fix them first.", "OK");
                 return;
             }
             base.SaveChanges();
@@ -180,8 +209,8 @@ namespace Game.Editor.LevelEditor.Window
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            _draft.Record("Recolor");
-            selection.Recolor(_draft.Level, colorId);
+            Draft.Record("Recolor");
+            selection.Recolor(Draft.Level, colorId);
             Refresh();
         }
 
@@ -190,55 +219,111 @@ namespace Game.Editor.LevelEditor.Window
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            _draft.Record("Delete");
-            selection.Delete(_draft.Level);
+            Draft.Record("Delete");
+            selection.Delete(Draft.Level);
             _selectTool.ClearSelection();
             Refresh();
         }
 
-        // Shortcuts stay quiet while a number is typed into a field.
+        internal void ToggleLevelList() => ShowLevelList(!_levelsShown);
+
+        // Shortcuts stay quiet while text is typed into a field: a number field or the level search.
         internal bool IsEditingText()
         {
             var focused = rootVisualElement.focusController?.focusedElement as VisualElement;
-            return focused != null && (focused is IntegerField || focused.GetFirstAncestorOfType<IntegerField>() != null);
+            // The focused element is the field or its inner text input; GetFirstOfType checks it and its ancestors.
+            return focused != null && (focused.GetFirstOfType<IntegerField>() != null || focused.GetFirstOfType<TextField>() != null);
         }
 
-        // The working copy is never saved: after the editor restarts the window remembers its level but not the copy,
-        // so the level is loaded again from its asset.
-        private void RecoverDraft()
+        private void Open(LevelAsset asset) => Load(() => _document.Open(asset));
+
+        private void NewLevel() => Load(_document.StartNew);
+
+        // Asks nothing: the copy keeps the unsaved changes and the original keeps what was last saved, so nothing is lost.
+        private void DuplicateLevel()
         {
-            _draft = LevelDraft.Create();
-            if (_asset != null)
-                _draft.Load(_asset.Level);
+            _document.Duplicate();
+            _selectTool.ClearSelection();
+            Refresh();
         }
 
-        // Every way of opening a level comes here, so unsaved changes are never dropped without asking. Opening the level
-        // that is already open loads it again from its asset, which is how Revert works; clearing the field keeps the
-        // working copy.
-        private void Open(LevelAsset asset)
+        // The open level is copied as it is in the window, the same as the toolbar's Duplicate; another one as saved.
+        private void DuplicateLevel(LevelAsset level)
         {
-            if (asset != null && ConfirmDiscard())
+            if (level == _document.Asset)
             {
-                _asset = asset;
-                _draft.Load(asset.Level);
+                DuplicateLevel();
+                return;
+            }
+            Load(() =>
+            {
+                _document.Open(level);
+                _document.Duplicate();
+            });
+        }
+
+        // Only the question and what the window shows; LevelLibrary.Delete is what deleting means.
+        private void DeleteLevel(int index)
+        {
+            var level = _library.Levels[index];
+            var question = level != null
+                ? $"Delete {level.name}? It is removed from the game and its file goes to the trash."
+                : "Remove this missing level from the list?";
+            if (!EditorUtility.DisplayDialog(Title, question, level != null ? "Delete" : "Remove", "Cancel"))
+                return;
+            var deletesOpenLevel = level != null && level == _document.Asset;
+            _library.Delete(index);
+            if (deletesOpenLevel)
+            {
+                _document.Unload();
                 _selectTool.ClearSelection();
             }
-            _levelField?.SetValueWithoutNotify(_asset);
+            Refresh();
+        }
+
+        // Every way of opening another level comes here, so unsaved changes are never dropped without asking. Duplicate
+        // does not: it drops nothing.
+        private void Load(Action load)
+        {
+            if (!ConfirmDiscard())
+                return;
+            load();
+            _selectTool.ClearSelection();
             Refresh();
         }
 
         private bool ConfirmDiscard() => !hasUnsavedChanges ||
-            EditorUtility.DisplayDialog(Title, $"Discard the unsaved changes to {_asset.name}?", "Discard", "Keep editing");
+            EditorUtility.DisplayDialog(Title, $"Discard the unsaved changes to {LevelName}?", "Discard", "Keep editing");
 
         private bool TrySave()
         {
-            if (_asset == null || LevelValidator.Validate(_draft.Level).HasErrors)
+            if (!_document.TrySave(_library))
                 return false;
-            _draft.WriteTo(_asset.Level);
-            EditorUtility.SetDirty(_asset);
-            AssetDatabase.SaveAssetIfDirty(_asset);
             Refresh();
             return true;
+        }
+
+        // Saves first, so the game plays the level as it is in the window; a level with errors is neither saved nor played.
+        private void Play()
+        {
+            if (TrySave() && !LevelPlayStarter.TryPlay(_document.Asset, out var problem))
+                ShowNotification(new GUIContent(problem));
+        }
+
+        private void BuildLevelList()
+        {
+            if (_library == null)
+            {
+                _levelsPane.Add(new HelpBox("No level catalog found.", HelpBoxMessageType.Error));
+                return;
+            }
+            _levels = new LevelListPanel(_library);
+            _levels.Picked += Open;
+            _levels.DuplicateRequested += DuplicateLevel;
+            _levels.DeleteRequested += DeleteLevel;
+            // The catalog also changes outside the panel: a save adds a level, its inspector reorders it.
+            _levels.TrackSerializedObjectValue(new SerializedObject(_catalog), _ => _levels.Rebuild());
+            _levelsPane.Add(_levels);
         }
 
         private void BuildTools()
@@ -277,9 +362,16 @@ namespace Game.Editor.LevelEditor.Window
             {
                 var colorId = i;
                 var material = _palette.For(i);
-                var key = i < LevelEditorShortcuts.ColorKeyCount ? $" ({LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(i))})" : "";
-                var swatch = new Button(() => PickColor(colorId)) { tooltip = ColorName(i) + key };
+                var key = i < LevelEditorShortcuts.ColorKeyCount ? LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(i)) : "";
+                var swatch = new Button(() => PickColor(colorId)) { tooltip = key.Length > 0 ? $"{ColorName(i)} ({key})" : ColorName(i) };
                 swatch.AddToClassList("color-swatch");
+                // The key in a dark corner badge, readable on every color, as the tool buttons show theirs.
+                if (key.Length > 0)
+                {
+                    var badge = new Label(key);
+                    badge.AddToClassList("color-swatch-key");
+                    swatch.Add(badge);
+                }
                 swatch.style.backgroundColor = material != null ? material.color : Color.magenta;
                 _colors.Add(swatch);
             }
@@ -302,6 +394,22 @@ namespace Game.Editor.LevelEditor.Window
             return material != null ? material.name.Substring(material.name.LastIndexOf('_') + 1) : $"Missing color {colorId}";
         }
 
+        // Hidden with its resize handle; the open level's name stays in the toolbar.
+        private void ShowLevelList(bool shown)
+        {
+            _levelsShown = shown;
+            _levelsToggle.SetValueWithoutNotify(shown);
+            var display = shown ? DisplayStyle.Flex : DisplayStyle.None;
+            _levelsPane.style.display = display;
+            _levelsHandle.style.display = display;
+        }
+
+        private void SetLevelsWidth(float width)
+        {
+            _levelsWidth = Mathf.Clamp(width, LevelsWidthRange.x, LevelsWidthRange.y);
+            _levelsPane.style.width = _levelsWidth;
+        }
+
         private void SetSideWidth(float width)
         {
             _sideWidth = Mathf.Clamp(width, SideWidthRange.x, SideWidthRange.y);
@@ -316,29 +424,29 @@ namespace Game.Editor.LevelEditor.Window
 
         private void Resize(int width, int height)
         {
-            _draft.Record("Resize Board");
-            LevelEdits.Resize(_draft.Level, Mathf.Max(1, width), Mathf.Max(1, height));
+            Draft.Record("Resize Board");
+            LevelEdits.Resize(Draft.Level, Mathf.Max(1, width), Mathf.Max(1, height));
             Refresh();
         }
 
         private void OnPressed(Cell cell)
         {
-            _draft.BeginStroke();
-            Tool.Press(_draft.Level, cell, _colorId);
+            Draft.BeginStroke();
+            Tool.Press(Draft.Level, cell, _colorId);
             // Refreshed even when the level did not change: a press can change the selection.
             Refresh();
         }
 
         private void OnDragged(Cell cell)
         {
-            if (Tool.Drag(_draft.Level, cell))
+            if (Tool.Drag(Draft.Level, cell))
                 Refresh();
         }
 
         private void OnReleased()
         {
             Tool.Release();
-            _draft.EndStroke(Tool.Name);
+            Draft.EndStroke(Tool.Name);
         }
 
         private void OnHovered(Cell cell)
@@ -365,7 +473,7 @@ namespace Game.Editor.LevelEditor.Window
         // and what is wrong with the block or door under the pointer.
         private void UpdateStatus()
         {
-            var hint = _hovering ? Tool.Describe(_draft.Level, _hoverCell) : Tool.Tooltip;
+            var hint = _hovering ? Tool.Describe(Draft.Level, _hoverCell) : Tool.Tooltip;
             var problem = _hovering ? ProblemAt(_hoverCell) : null;
             _status.text = problem == null ? $"{Tool.Name} tool: {hint}" : $"{Tool.Name} tool: {hint}\nProblem here: {problem}";
         }
@@ -376,10 +484,10 @@ namespace Game.Editor.LevelEditor.Window
                 return null;
             foreach (var problem in _report.Problems)
             {
-                var subject = LevelProblemGuide.SubjectOf(problem, _draft.Level);
+                var subject = LevelProblemGuide.SubjectOf(problem, Draft.Level);
                 if (subject == null)
                     continue;
-                foreach (var subjectCell in subject.Cells(_draft.Level))
+                foreach (var subjectCell in subject.Cells(Draft.Level))
                 {
                     if (subjectCell == cell)
                         return LevelProblemGuide.Explain(problem.Kind);
@@ -392,13 +500,18 @@ namespace Game.Editor.LevelEditor.Window
         {
             if (_board == null)
                 return;
-            var hasLevel = _asset != null;
+            _levels?.ShowOpen(_document.Asset);
+            var hasLevel = _document.IsOpen;
             _noLevel.style.display = hasLevel ? DisplayStyle.None : DisplayStyle.Flex;
             _content.style.display = hasLevel ? DisplayStyle.Flex : DisplayStyle.None;
             if (!hasLevel)
+            {
+                UpdateToolbar(false);
+                LevelPreviewSource.ReleaseEdited();
                 return;
+            }
 
-            var level = _draft.Level;
+            var level = Draft.Level;
             if (_selectTool.Selection != null && !_selectTool.Selection.Exists(level))
                 _selectTool.ClearSelection();
             _width.SetValueWithoutNotify(level.Width);
@@ -411,12 +524,21 @@ namespace Game.Editor.LevelEditor.Window
             _report = LevelValidator.Validate(level);
             _problems.Show(_report, level);
             DrawBoard();
-            _save.SetEnabled(!_report.HasErrors);
-            hasUnsavedChanges = !_draft.Matches(_asset.Level);
-            _unsaved.style.display = hasUnsavedChanges ? DisplayStyle.Flex : DisplayStyle.None;
-            _revert.SetEnabled(hasUnsavedChanges);
+            UpdateToolbar(!_report.HasErrors);
             UpdateStatus();
             LevelPreviewSource.ShowEdited(level);
+        }
+
+        // With no level open every button but New is off, so none is clicked to no effect.
+        private void UpdateToolbar(bool canSave)
+        {
+            _levelName.text = _document.IsOpen ? LevelName : "No level open";
+            _save.SetEnabled(canSave);
+            _play.SetEnabled(canSave);
+            hasUnsavedChanges = _document.HasUnsavedChanges;
+            _unsaved.style.display = hasUnsavedChanges ? DisplayStyle.Flex : DisplayStyle.None;
+            _revert.SetEnabled(_document.CanRevert);
+            _duplicate.SetEnabled(_document.IsOpen && _library != null);
         }
 
         // Every problem's block or door in its severity's color, the cell at fault stronger; the selection; and the
@@ -429,17 +551,17 @@ namespace Game.Editor.LevelEditor.Window
                 MarkProblem(problem, $"problem--{LevelProblemList.SeverityName(problem.Severity)}");
             var selection = ShownSelection;
             if (selection != null)
-                Mark(selection.Cells(_draft.Level), SelectedClass);
+                Mark(selection.Cells(Draft.Level), SelectedClass);
             if (_problems.Focused != LevelProblemList.NoProblem)
                 MarkProblem(problems[_problems.Focused], FocusClass);
-            _board.Show(_draft.Level, _palette, _marks);
+            _board.Show(Draft.Level, _palette, _marks);
         }
 
         private void MarkProblem(LevelProblem problem, string className)
         {
-            var subject = LevelProblemGuide.SubjectOf(problem, _draft.Level);
+            var subject = LevelProblemGuide.SubjectOf(problem, Draft.Level);
             if (subject != null)
-                Mark(subject.Cells(_draft.Level), className);
+                Mark(subject.Cells(Draft.Level), className);
             if (problem.Cell.HasValue)
                 _marks.Add(new BoardMark(problem.Cell.Value, FaultClass));
         }
@@ -458,6 +580,6 @@ namespace Game.Editor.LevelEditor.Window
         }
 
         private string NameOf(ILevelSelection selection) =>
-            $"{ColorName(selection.ColorId(_draft.Level))} {selection.Describe(_draft.Level)}";
+            $"{ColorName(selection.ColorId(Draft.Level))} {selection.Describe(Draft.Level)}";
     }
 }

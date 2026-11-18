@@ -34,11 +34,10 @@
 | `DisconnectedBlock` | error | a block whose cells are not one group of edge-touching cells (it is moved and built as one piece) |
 | `DoorOutsideSide` | error | a door shorter than one cell or past the end of its side |
 | `DoorsOverlap` | error | a door covering a cell of the same side that an earlier door covers |
-| `BlockStartsAtItsDoor` | error | a block that already touches a covering door of its color, so it would leave before the player moves anything; decided by the board's own exit rule, checked only when the level has no other errors |
 | `BlockCannotLeave` | warning | no door of the block's color is as wide as the block's extent along the door's side |
 
 - Errors make a level unplayable and are not saved; warnings are shown but do not stop saving.
-- `BlockCannotLeave` checks widths only; whether the block can reach the door is the solver's question (phase 3).
+- `BlockCannotLeave` checks widths only; whether the block can reach the door is the solver's question (phase 7).
 - The level editor ([Level editor](LevelEditor.md)) shows the report and saves only without errors; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.
 
 ## Rules & invariants
