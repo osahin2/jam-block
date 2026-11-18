@@ -12,6 +12,8 @@
         "Core.Save",
         "Core.Scenes",
         "Core.UI",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
         "Unity.InputSystem",
         "VContainer",
         "UniTask"

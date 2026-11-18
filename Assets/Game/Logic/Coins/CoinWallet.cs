@@ -2,15 +2,20 @@ using System;
 
 namespace Game.Logic.Coins
 {
-    // The player's coin balance. Coins are only earned so far; the balance never goes below zero.
+    // The player's coin balance. Coins are only earned so far; the balance never goes below zero. It starts from the
+    // store and every change is written back at once, so the count is the same after leaving a level or the app.
     public sealed class CoinWallet
     {
+        private readonly ICoinStore _store;
+
         public int Balance { get; private set; }
 
-        public CoinWallet(int balance)
+        public CoinWallet(ICoinStore store)
         {
+            _store = store;
+            var balance = store.Load();
             if (balance < 0)
-                throw new ArgumentOutOfRangeException(nameof(balance), balance, "A balance cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(store), balance, "A stored balance cannot be negative.");
             Balance = balance;
         }
 
@@ -19,6 +24,7 @@ namespace Game.Logic.Coins
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "An amount to add cannot be negative.");
             Balance += amount;
+            _store.Save(Balance);
         }
     }
 }

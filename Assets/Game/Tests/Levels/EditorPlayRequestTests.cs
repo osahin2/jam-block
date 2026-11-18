@@ -26,6 +26,18 @@ namespace Game.Tests.Levels
         }
 
         [Test]
+        public void IsPending_IsTrueFromARequestUntilItIsTaken()
+        {
+            Assert.IsFalse(_request.IsPending);
+            _request.Request(AnyLevelAsset());
+
+            Assert.IsTrue(_request.IsPending);
+            Assert.IsTrue(_request.IsPending, "looking does not take the request");
+            _request.TryTake(out _);
+            Assert.IsFalse(_request.IsPending);
+        }
+
+        [Test]
         public void TryTake_GivesARequestOnlyOnce()
         {
             _request.Request(AnyLevelAsset());

@@ -11,7 +11,21 @@ namespace Game.Levels
     {
 #if UNITY_EDITOR
         private const string Key = "Game.EditorPlayRequest";
+#endif
 
+        public bool IsPending
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return SessionState.GetString(Key, string.Empty).Length > 0;
+#else
+                return false;
+#endif
+            }
+        }
+
+#if UNITY_EDITOR
         public void Request(LevelAsset level) =>
             SessionState.SetString(Key, AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)));
 #endif

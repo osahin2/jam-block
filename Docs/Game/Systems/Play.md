@@ -8,7 +8,7 @@
 - Entry points: `PlaySession.Start(level)` (`Play/Flow/PlaySession.cs`); `PlayInstaller` (`Play/PlayInstaller.asset`). `BoardInteraction` (`Play/Flow/BoardInteraction.cs`) is used only by the session.
 
 ## How it works
-- **Scene.** `Game.unity` holds the camera, a light and `GameScope`, which registers the camera and runs its installer list (`LevelsInstaller`, `PlayInstaller`). `GameEntry` starts the level the level editor asked to play (`EditorPlayRequest`, taken once; never in a build), else the first level of the `LevelCatalog`. The scene has no parent scope yet; it gets one when the Boot scene exists.
+- **Scene.** `Game.unity` holds the camera, a light and `GameScope`, a child of the Boot scope ([App flow](AppFlow.md)), which registers the camera and runs its installer list (`PlayInstaller`). `GameEntry` starts the level the level editor asked to play (`EditorPlayRequest`, taken once; never in a build), else the player's current level (`LevelSequence.Current`).
 - **Layout.** `BoardLayout` puts the board on the XZ plane centered on the origin, row 0 at the far edge (+Z). It converts cells and drag poses to world positions and world points to board positions in cells.
 - **Building.** `BoardBuilder` creates one `Board` root with a ground tile per cell, the frame (two half-cell wall pieces per edge cell, a door piece per cell a door covers, a wall piece on each corner) and one `BlockView` per block. Every piece is placed in the root's local space, so the board can be built under a parent (the level editor's scene preview does). `BlockPieceBuilder` builds a block from the supplied quarter pieces ([Supplied assets](../SuppliedAssets.md)): the piece of each quarter follows from its side and diagonal neighbours, and one inner-corner piece covers the three quarters around a concave corner. Model files are turned per file (blocks lie flat with a 90 degree turn around X, frame pieces turn their cap up).
 - **Input.** `BoardPointer` (a VContainer `ITickable`) reads `Pointer.current`, so mouse and touch work the same, and casts a ray onto the plane of the blocks' tops. It calls back on press, move and release.
@@ -27,7 +27,7 @@
 - During a diagonal drag a block can be drawn up to half a cell into the cell diagonal to it, when both straight neighbours are free but the diagonal one is not.
 - A door longer than one cell is a row of one-cell door pieces with a visible seam.
 - `BoardPointer` polls `Pointer.current` and ignores the EventSystem, so a press on UI over the board also reaches the board; it moves to EventSystem handlers on one board-sized collider with the HUD (phase 4).
-- The timer runs but is not shown, and nothing happens on win or fail beyond the board stopping: no HUD, popups, pause or restart (phase 4). Without a request from the level editor the scene opens the first level; saved progress comes with the home screen (phase 5).
+- The timer runs but is not shown, and nothing happens on win or fail beyond the board stopping: no HUD, popups, pause or restart (phase 4). There is no way back to Home from a level yet.
 
 ## Tests
 - `Tests/Play/BlockDragTests`: offsets toward free and blocked cells, steps past half a cell, several cells at once, stopping at a block, going around an obstacle, the grab point, leaving through a door.

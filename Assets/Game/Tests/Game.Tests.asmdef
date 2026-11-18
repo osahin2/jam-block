@@ -7,6 +7,7 @@
         "Game",
         "Game.Editor",
         "Core.Installers",
+        "Core.Levels",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

@@ -152,12 +152,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentReference:
-    TypeName: 
+    TypeName: Game.Bootstrap.BootScope
   autoRun: 1
   autoInjectGameObjects: []
   _camera: {fileID: 822166612}
   _installers:
-  - {fileID: 11400000, guid: 4528c5ff6340343338e472478425000f, type: 2}
   - {fileID: 11400000, guid: 56af1a31ea61d48128e29f01d52b3dac, type: 2}
 --- !u!4 &337092994
 Transform:
@@ -278,7 +277,6 @@ GameObject:
   m_Component:
   - component: {fileID: 822166614}
   - component: {fileID: 822166612}
-  - component: {fileID: 822166613}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -337,14 +335,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &822166613
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 822166611}
-  m_Enabled: 1
 --- !u!4 &822166614
 Transform:
   m_ObjectHideFlags: 0

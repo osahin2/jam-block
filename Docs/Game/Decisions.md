@@ -130,7 +130,7 @@ Format:
 - Instead of: ending the drag inside the attempt, which leaves the view with a block between cells and no call that tells it so.
 
 ## The coin wallet only earns
-- Why: the case asks for a coin inventory whose count stays correct, and nothing in its required scope spends coins: the reference spends them on boosters, the shop, lives and the out-of-time offer, all left out above. `CoinWallet` keeps the balance non-negative and rejects negative amounts as programmer errors; saving is the `Game` side's job. The first spend planned is the out-of-time offer, optional after the required scope (phase 7 in the plan).
+- Why: the case asks for a coin inventory whose count stays correct, and nothing in its required scope spends coins: the reference spends them on boosters, the shop, lives and the out-of-time offer, all left out above. `CoinWallet` keeps the balance non-negative and rejects negative amounts as programmer errors. The first spend planned is the out-of-time offer, optional after the required scope (phase 7 in the plan).
 - Instead of: a spend rule nothing calls, which is dead code; or building the out-of-time offer before the editor, which the evaluation weighs more.
 
 ## Board input through the EventSystem on one board-sized collider
@@ -166,7 +166,7 @@ Format:
 - Instead of: creating the asset and the catalog entry on New, which leaves an empty, invalid level in the game until the designer finishes or deletes it by hand.
 
 ## Play from the editor starts from the first build scene and hands over the level asset
-- Why: the game then starts the way a build does, through the same scenes and scopes; when the Boot scene comes first in phase 5, the editor needs no change. `EditorSceneManager.playModeStartScene` starts play mode there without closing the designer's open scenes, which come back when play mode ends. The request is the level asset's GUID, not a copy of its data: the editor saves before playing, so the asset is what the window shows, and the game knows which catalog level it plays, which win and next level need.
+- Why: the game then starts the way a build does, through the same scenes and scopes; the Boot scene sees the request and opens the Game scene instead of Home. `EditorSceneManager.playModeStartScene`, kept on the Boot scene by Core.Scenes, starts play mode there without closing the designer's open scenes, which come back when play mode ends. The request is the level asset's GUID, not a copy of its data: the editor saves before playing, so the asset is what the window shows, and the game knows which catalog level it plays, which win and next level need.
 - Instead of: opening `Game.unity` in place of the open scenes, which asks to save them and leaves the designer elsewhere after play; or a copy of the level data, which loses the level's place in the catalog.
 
 ## A designer mostly changes an existing level
@@ -176,3 +176,19 @@ Format:
 ## The level editor manages the levels in a searchable list
 - Why: the catalog's order is the play order, and a designer keeps opening, reordering, duplicating and deleting levels; doing all of it in one list in the editor saves going to the catalog's inspector and the Project window. A `ListView` draws only the rows on screen and the search finds a level by its play number or name, so the list stays usable with thousands of levels. A deleted level's file goes to the trash, not away for good.
 - Instead of: a dropdown menu of every level, unusable past a few dozen; or Unity's `AdvancedDropdown`, which is searchable but IMGUI, against the window's UI Toolkit only rule.
+
+## The held block's outline is an own inverted-hull shader
+- Why: the reference draws a white outline around the held block. A small URP shader draws the block's pieces a second time, pushed out along their normals with front faces culled, so only a rim around the block shows; one shared material that `BlockView` turns on and off on its pooled pieces, so a grab allocates nothing. If corners crack or seams between quarter pieces show, a stencil pass (the technique of the MIT-licensed Quick Outline) is added to the same shader.
+- Instead of: an outline package. Quick Outline was written for the built-in pipeline, collects a block's renderers once and adds instanced materials on every enable, which fits neither pooled pieces nor allocation-free grabs; UnityFx.Outline's URP package shows no sign of supporting URP 14. A screen-space outline (mask, dilate, composite) gives an even width but needs an own renderer feature and a full-screen pass every frame on mobile, too much for one held block.
+
+## The coin wallet saves itself through a port it is given
+- Why: the case's coin criterion is that the count stays right after leaving a level, so every change must reach the disk. `CoinWallet` reads its balance from an `ICoinStore` once and writes every change to it; the interface is in `Game.Logic`, the Core.Save implementation in `Game`. The rest of the game knows only the wallet, the logic stays engine-free and its tests use an in-memory store.
+- Instead of: a `Game` class wrapping the wallet that saves after each call, which mostly forwards and lets a caller that uses the wallet directly forget to save.
+
+## A win moves the player's progress only on the player's own level
+- Why: progress is Core's completed-level count. A level played from the level editor is a designer's test, so it never moves the player's progress; after its win the game continues with the catalog's next level, so a designer can play on through the order, or with the player's level when the tested level is not in the catalog yet.
+- Instead of: completing whatever level was won, which lets a test of level 4 skip levels 1 to 3; or the catalog's first level after an uncatalogued level, which loses the player's place.
+
+## Content scenes switch through one SceneFlow in the Boot scope
+- Why: Core's switch needs a token that outlives the scene being left; `SceneFlow` supplies it once, names the scenes in one place, and gives Home and Game a plain `ToHome()` and `ToGame()` with nothing to await.
+- Instead of: every caller holding scene names and a token, where a token tied to the calling scene would cancel the switch halfway.
