@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor
+namespace Game.Editor.LevelEditor
 {
     // Editor tools run outside the game's scopes, so they find the settings assets they need in the project.
     internal static class EditorAssets

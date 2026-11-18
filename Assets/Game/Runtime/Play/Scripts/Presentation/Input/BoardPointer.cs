@@ -1,10 +1,9 @@
 using System;
-using Game.Play.Settings;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer.Unity;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Forwards the pointer (mouse or touch) as points on the plane of the blocks' tops.
     public sealed class BoardPointer : ITickable

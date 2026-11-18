@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Editor.LevelEditor.Levels
+namespace Game.Editor.LevelEditor
 {
     // Whether a level matches what the designer typed in the level list: its play number, or a part of its name in any
     // case. An empty query matches every level.

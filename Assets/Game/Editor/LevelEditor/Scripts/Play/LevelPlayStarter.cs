@@ -2,7 +2,7 @@ using Game.Levels;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
-namespace Game.Editor.LevelEditor.Play
+namespace Game.Editor.LevelEditor
 {
     // Plays a level from the scene a build starts with, leaving the scenes open in the editor as they are. Core.Scenes
     // keeps the play mode start scene on the first build scene (Boot), which sees the request and opens the game.

@@ -2,7 +2,7 @@ using Game.Data.Levels;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The copy of a level the editor works on, with its undo history. Only a level without errors is written back to
     // its asset, so a broken level never reaches the game.

@@ -1,6 +1,5 @@
 using Core.Levels;
 using Game.Levels;
-using Game.Levels.Settings;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;

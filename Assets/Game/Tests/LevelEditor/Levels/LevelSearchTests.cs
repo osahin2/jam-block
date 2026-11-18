@@ -1,4 +1,4 @@
-using Game.Editor.LevelEditor.Levels;
+using Game.Editor.LevelEditor;
 using NUnit.Framework;
 
 namespace Game.Tests.LevelEditor

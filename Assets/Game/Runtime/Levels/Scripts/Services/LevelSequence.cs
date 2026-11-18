@@ -1,5 +1,4 @@
 using Core.Levels;
-using Game.Levels.Settings;
 
 namespace Game.Levels
 {

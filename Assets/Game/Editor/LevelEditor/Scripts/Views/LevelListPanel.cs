@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Game.Editor.LevelEditor.Levels;
 using Game.Levels;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The game's levels in play order, searched by play number or name. A click opens a level, dragging a row changes
     // the play order, and the right-click menu opens, duplicates, shows or deletes a level. The list draws only the rows

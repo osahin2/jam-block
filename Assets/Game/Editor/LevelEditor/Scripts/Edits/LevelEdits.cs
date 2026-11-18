@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // The changes the level editor's tools make to a level. They keep each edit sensible (a block grows only by a free
     // cell touching it, a moved block or door stays on the board and off the others, a smaller board drops what falls

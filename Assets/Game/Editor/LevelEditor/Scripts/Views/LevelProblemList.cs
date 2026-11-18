@@ -1,10 +1,9 @@
 using System;
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Editing;
 using Game.Logic.Levels;
 using UnityEngine.UIElements;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The problem list under the board: a count, then one row per problem saying what it is about and what is wrong.
     // Hovering a row focuses its problem; clicking a row about a block or door picks that block or door.

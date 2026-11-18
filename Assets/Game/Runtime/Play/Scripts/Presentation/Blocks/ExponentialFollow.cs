@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Frame-rate independent exponential approach: the distance to the target halves every half-life, however the
     // time is split into frames, and a long frame can never pass the target.

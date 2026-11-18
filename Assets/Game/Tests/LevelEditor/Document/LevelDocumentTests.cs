@@ -1,8 +1,6 @@
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Levels;
-using Game.Editor.LevelEditor.Window;
+using Game.Editor.LevelEditor;
 using Game.Levels;
-using Game.Levels.Settings;
 using Game.Tests.Levels;
 using NUnit.Framework;
 using UnityEditor;

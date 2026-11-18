@@ -1,6 +1,6 @@
 using Game.Data.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // One way of editing the board with the pointer. Cells run from -1 to the board's size, so the ring just outside
     // the board is where doors are placed. Press and Drag return whether the level changed; a press that changes only

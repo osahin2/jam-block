@@ -1,7 +1,7 @@
 using System.Text;
 using Game.Levels;
 using Game.Logic.Levels;
-using Game.Play.Settings;
+using Game.Play;
 using NUnit.Framework;
 using UnityEditor;
 

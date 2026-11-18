@@ -1,11 +1,10 @@
 using System;
 using Game.Data.Levels;
 using Game.Logic.Play;
-using Game.Play.Settings;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Builds a level's ground, frame, doors and blocks under one root object. The game builds it at the scene root;
     // the level editor's scene preview builds it under its own object.

@@ -2,7 +2,7 @@ using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Board cells to world positions and back. The board lies on the XZ plane centered on the origin; row 0 is the
     // far edge (+Z), so rows run toward the camera.

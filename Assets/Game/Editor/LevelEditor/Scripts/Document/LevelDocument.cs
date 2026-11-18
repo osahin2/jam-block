@@ -1,12 +1,11 @@
 using System;
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Levels;
 using Game.Levels;
 using Game.Logic.Levels;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The level open in the editor: a level asset, a new level that has no asset until its first save, or none. It is
     // edited through its working copy, and only a copy without errors is written, so a level with errors never becomes

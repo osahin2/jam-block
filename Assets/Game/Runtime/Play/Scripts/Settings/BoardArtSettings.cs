@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Play.Settings
+namespace Game.Play
 {
     [CreateAssetMenu(menuName = "Game/Play/Board Art Settings")]
     public sealed class BoardArtSettings : ScriptableObject

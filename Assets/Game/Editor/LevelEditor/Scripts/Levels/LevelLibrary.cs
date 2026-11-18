@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Game.Levels;
-using Game.Levels.Settings;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Game.Editor.LevelEditor.Levels
+namespace Game.Editor.LevelEditor
 {
     // The game's levels as the editor sees them: the catalog in play order, and where a new level is saved.
     public sealed class LevelLibrary

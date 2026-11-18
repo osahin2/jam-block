@@ -1,8 +1,7 @@
 using DG.Tweening;
-using Game.Play.Settings;
 using UnityEngine;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Follows its target smoothly while dragged (per frame, hand-written). One-shot motions are tweens: the snap onto
     // a cell on release, and the snap in front of the door, the hold and the slide out when the block leaves.

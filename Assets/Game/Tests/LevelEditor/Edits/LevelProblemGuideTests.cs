@@ -1,6 +1,6 @@
 using System;
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Editing;
+using Game.Editor.LevelEditor;
 using Game.Logic.Levels;
 using Game.Tests.Levels;
 using NUnit.Framework;

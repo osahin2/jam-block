@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Play.Settings;
 using UnityEngine;
 
-namespace Game.Play.Presentation
+namespace Game.Play
 {
     // Builds a block's mesh from the supplied quarter pieces. Each cell has four quarters; a quarter's piece follows
     // from its two side neighbours and the diagonal one: none gives an outer corner, one an edge, both with the

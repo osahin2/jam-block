@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Editing;
-using Game.Play.Settings;
+using Game.Play;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // Draws a level from above inside a frame that holds its doors, and turns the pointer into cells, the ring of
     // cells just outside the board included. A fast drag reports every cell it passes, so a drawn stroke has no gaps.

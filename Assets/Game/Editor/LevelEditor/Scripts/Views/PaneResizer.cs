@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // Lets a thin handle be dragged to resize the pane next to it. The new size goes back through the callback, where
     // the window keeps it within its limits and across reloads.

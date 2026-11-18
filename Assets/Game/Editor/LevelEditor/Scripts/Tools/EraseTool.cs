@@ -1,6 +1,6 @@
 using Game.Data.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // Erases block cells under the stroke and whole doors.
     public sealed class EraseTool : ILevelEditorTool

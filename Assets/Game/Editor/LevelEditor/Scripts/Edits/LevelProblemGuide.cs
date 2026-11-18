@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Logic.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // How the editor tells a designer about a validator problem: what is wrong in plain words, and the block or door
     // it is about as a selection, so the window can mark it on the board and select it.

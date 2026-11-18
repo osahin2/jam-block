@@ -1,9 +1,8 @@
 using Game.Data.Levels;
 using Game.Logic.Play;
-using Game.Play.Presentation;
 using UnityEngine;
 
-namespace Game.Play.Flow
+namespace Game.Play
 {
     // Connects the pointer, the level attempt and the block views: a touch goes to the attempt in board cells, the
     // pose that comes back goes to its block's view.

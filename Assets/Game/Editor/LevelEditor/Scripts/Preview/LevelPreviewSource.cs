@@ -3,7 +3,7 @@ using Game.Levels;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
-namespace Game.Editor.LevelEditor.Preview
+namespace Game.Editor.LevelEditor
 {
     // Decides which level the scene preview shows: the level open in the level editor, live; otherwise the level
     // asset last selected in the Project window. Changes are gathered into one rebuild per editor update. In play mode

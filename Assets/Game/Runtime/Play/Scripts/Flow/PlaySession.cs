@@ -1,12 +1,10 @@
 using System;
 using Game.Data.Levels;
 using Game.Logic.Play;
-using Game.Play.Presentation;
-using Game.Play.Settings;
 using UnityEngine;
 using VContainer.Unity;
 
-namespace Game.Play.Flow
+namespace Game.Play
 {
     // Entry of the play feature: builds a level, hands the board to the interaction and runs the level's time. On the
     // first frame the attempt is no longer playing, won or failed, the session ends it in one place: the board stops,

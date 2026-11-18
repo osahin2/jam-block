@@ -1,21 +1,16 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Editing;
-using Game.Editor.LevelEditor.Levels;
-using Game.Editor.LevelEditor.Play;
-using Game.Editor.LevelEditor.Preview;
 using Game.Levels;
-using Game.Levels.Settings;
 using Game.Logic.Levels;
-using Game.Play.Settings;
+using Game.Play;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The level editor: shows a level's working copy, sends pointer input to the chosen tool and writes the copy back
     // to the asset on save. Its state is in serialized fields, so it survives script reloads with its undo history.

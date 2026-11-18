@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.Home.UI
+namespace Game.Home
 {
     // The home screen: the player's level on the level button and the coin count.
     public sealed class HomeScreen : UIScreen

@@ -1,7 +1,4 @@
 using Core.Installers;
-using Game.Play.Flow;
-using Game.Play.Presentation;
-using Game.Play.Settings;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;

@@ -1,11 +1,10 @@
 using Game.Bootstrap;
 using Game.Data.Levels;
-using Game.Play.Presentation;
-using Game.Play.Settings;
+using Game.Play;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Game.Editor.LevelEditor.Preview
+namespace Game.Editor.LevelEditor
 {
     // Shows a level in the open Game scene, built by the game's own BoardBuilder, so the Scene view and the Game view
     // show what the game will build. Its objects are never saved and cannot be edited: the level is edited in the

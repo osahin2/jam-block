@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // Holds the block itself, not its index, so removing an earlier block never makes it mean another one.
     public sealed class BlockSelection : ILevelSelection

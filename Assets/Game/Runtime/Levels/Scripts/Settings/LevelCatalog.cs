@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Levels.Settings
+namespace Game.Levels
 {
     // The levels of the game in play order.
     [CreateAssetMenu(menuName = "Game/Levels/Level Catalog")]

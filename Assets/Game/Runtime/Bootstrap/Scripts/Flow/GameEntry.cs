@@ -1,6 +1,6 @@
 using System;
 using Game.Levels;
-using Game.Play.Flow;
+using Game.Play;
 using VContainer.Unity;
 
 namespace Game.Bootstrap

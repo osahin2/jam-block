@@ -1,6 +1,6 @@
 using Game.Data.Levels;
-using Game.Editor.LevelEditor.Preview;
-using Game.Play.Presentation;
+using Game.Editor.LevelEditor;
+using Game.Play;
 using Game.Tests.Levels;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;

@@ -1,6 +1,5 @@
 using System.Linq;
-using Game.Editor.LevelEditor.Editing;
-using Game.Editor.LevelEditor.Window;
+using Game.Editor.LevelEditor;
 using NUnit.Framework;
 using UnityEditor.ShortcutManagement;
 

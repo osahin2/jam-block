@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Play.Settings
+namespace Game.Play
 {
     // Block and door material per color id of the level data.
     [CreateAssetMenu(menuName = "Game/Play/Color Palette")]

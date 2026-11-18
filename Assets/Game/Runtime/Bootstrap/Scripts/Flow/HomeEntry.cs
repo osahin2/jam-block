@@ -1,6 +1,6 @@
 using Core.Levels;
 using Core.UI;
-using Game.Home.UI;
+using Game.Home;
 using Game.Logic.Coins;
 using VContainer.Unity;
 

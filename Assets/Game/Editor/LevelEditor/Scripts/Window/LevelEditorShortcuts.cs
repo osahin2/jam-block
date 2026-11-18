@@ -1,8 +1,7 @@
-using Game.Editor.LevelEditor.Editing;
 using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
-namespace Game.Editor.LevelEditor.Window
+namespace Game.Editor.LevelEditor
 {
     // The level editor's keyboard shortcuts. They work while the window has focus and are listed under "Level Editor"
     // in Unity's Shortcuts window, where a designer can rebind them; the window shows the current keys.

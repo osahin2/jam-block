@@ -1,6 +1,5 @@
 using Core.Installers;
 using Core.Levels;
-using Game.Levels.Settings;
 using UnityEngine;
 using VContainer;
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
 
-namespace Game.Editor.LevelEditor.Editing
+namespace Game.Editor.LevelEditor
 {
     // Holds the door itself, not its index, so removing an earlier door never makes it mean another one. A door moves
     // only along its own side.

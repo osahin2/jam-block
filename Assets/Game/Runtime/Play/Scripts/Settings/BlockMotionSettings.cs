@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-namespace Game.Play.Settings
+namespace Game.Play
 {
     [CreateAssetMenu(menuName = "Game/Play/Block Motion Settings")]
     public sealed class BlockMotionSettings : ScriptableObject
