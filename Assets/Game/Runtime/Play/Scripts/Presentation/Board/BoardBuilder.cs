@@ -2,12 +2,11 @@ using System;
 using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Game.Play
 {
-    // Builds a level's ground, frame, doors and blocks under one root object. The game builds it at the scene root;
-    // the level editor's scene preview builds it under its own object.
+    // Builds a level's ground, frame, doors and blocks under the parent it is given, from the pieces of the source it
+    // is given. It owns neither: the caller creates the parent and releases the pieces.
     public sealed class BoardBuilder
     {
         private static readonly Side[] Sides = (Side[])Enum.GetValues(typeof(Side));
@@ -19,63 +18,54 @@ namespace Game.Play
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
         private readonly BlockMotionSettings _motion;
-        private readonly BlockPieceBuilder _pieces;
-        private GameObject _root;
+        private readonly BlockPieceBuilder _blockPieces;
 
-        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, BlockPieceBuilder pieces)
+        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, BlockPieceBuilder blockPieces)
         {
             _art = art;
             _palette = palette;
             _motion = motion;
-            _pieces = pieces;
+            _blockPieces = blockPieces;
         }
 
-        public BlockView[] Build(LevelData level, BoardLayout layout, Transform parent = null)
+        // Every piece is placed in the parent's local space, so the board follows the parent it is built under.
+        public BlockView[] Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
-            Clear();
-            _root = new GameObject("Board");
-            _root.transform.SetParent(parent, false);
-            BuildGround(level, layout);
-            BuildFrame(level, layout);
-            return BuildBlocks(level, layout);
+            BuildGround(level, layout, parent, pieces);
+            BuildFrame(level, layout, parent, pieces);
+            return BuildBlocks(level, layout, parent, pieces);
         }
 
-        private void Clear()
-        {
-            if (_root != null)
-                Object.Destroy(_root);
-        }
-
-        private void BuildGround(LevelData level, BoardLayout layout)
+        private void BuildGround(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             for (var y = 0; y < level.Height; y++)
             {
                 for (var x = 0; x < level.Width; x++)
-                    Spawn(_art.Ground, _art.GroundMaterial, layout.CellCenter(new Cell(x, y)), Quaternion.identity);
+                    Spawn(_art.Ground, layout.CellCenter(new Cell(x, y)), Quaternion.identity, parent, pieces);
             }
         }
 
-        private void BuildFrame(LevelData level, BoardLayout layout)
+        private void BuildFrame(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             foreach (var side in Sides)
-                BuildSide(level, layout, side);
+                BuildSide(level, layout, side, parent, pieces);
 
-            var half = _art.Scale * 0.5f;
-            Wall(new Vector3(layout.Left - half, 0f, layout.Top + half));
-            Wall(new Vector3(layout.Right + half, 0f, layout.Top + half));
-            Wall(new Vector3(layout.Left - half, 0f, layout.Bottom - half));
-            Wall(new Vector3(layout.Right + half, 0f, layout.Bottom - half));
+            var half = _art.FrameWidth * 0.5f;
+            Wall(new Vector3(layout.Left - half, 0f, layout.Top + half), parent, pieces);
+            Wall(new Vector3(layout.Right + half, 0f, layout.Top + half), parent, pieces);
+            Wall(new Vector3(layout.Left - half, 0f, layout.Bottom - half), parent, pieces);
+            Wall(new Vector3(layout.Right + half, 0f, layout.Bottom - half), parent, pieces);
         }
 
         // Each cell along a side gets a door piece when a door covers it, else two half-cell wall pieces.
-        private void BuildSide(LevelData level, BoardLayout layout, Side side)
+        private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces)
         {
             var outward = Direction.OutOf(side).Offset;
             var outwardWorld = layout.ToWorld(Direction.OutOf(side));
             var along = side.IsHorizontal() ? Vector3.right : Vector3.forward;
             var turn = side.IsHorizontal() ? Quaternion.identity : AlongZ;
-            var frameOffset = outwardWorld * (layout.CellSize * 0.5f + _art.Scale * 0.5f);
-            var wallOffset = along * (_art.Scale * 0.5f);
+            var frameOffset = outwardWorld * (layout.CellSize * 0.5f + _art.FrameWidth * 0.5f);
+            var wallOffset = along * (_art.FrameWidth * 0.5f);
             for (var i = 0; i < side.Length(level.Width, level.Height); i++)
             {
                 var edgeCell = side.IsHorizontal()
@@ -85,42 +75,40 @@ namespace Game.Play
                 var door = DoorAt(level, side, i);
                 if (door != null)
                 {
-                    Spawn(_art.Door, _palette.For(door.ColorId), center + Lift(_art.FrameLift), turn * CapUp);
+                    var piece = Spawn(_art.Door, center + Lift(_art.FrameLift), turn * CapUp, parent, pieces);
+                    piece.sharedMaterial = _palette.For(door.ColorId);
                     continue;
                 }
-                Wall(center - wallOffset);
-                Wall(center + wallOffset);
+                Wall(center - wallOffset, parent, pieces);
+                Wall(center + wallOffset, parent, pieces);
             }
         }
 
-        private BlockView[] BuildBlocks(LevelData level, BoardLayout layout)
+        private BlockView[] BuildBlocks(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             var views = new BlockView[level.Blocks.Count];
             for (var i = 0; i < views.Length; i++)
             {
                 var block = level.Blocks[i];
-                var view = new GameObject($"Block {i}").AddComponent<BlockView>();
+                var view = pieces.Take(_art.Block, parent);
                 view.Init(_motion);
-                view.transform.SetParent(_root.transform, false);
-                _pieces.Build(view.transform, block.Shape, _palette.For(block.ColorId));
+                _blockPieces.Build(view.transform, block.Shape, _palette.For(block.ColorId), pieces);
                 view.SetPose(layout.CellCenter(block.Position));
                 views[i] = view;
             }
             return views;
         }
 
-        private void Wall(Vector3 position) => Spawn(_art.Wall, _art.WallMaterial, position + Lift(_art.FrameLift), CapUp);
+        private void Wall(Vector3 position, Transform parent, IBoardPieceSource pieces) =>
+            Spawn(_art.Wall, position + Lift(_art.FrameLift), CapUp, parent, pieces);
 
-        private void Spawn(Mesh mesh, Material material, Vector3 position, Quaternion rotation)
+        private MeshRenderer Spawn(MeshRenderer prefab, Vector3 position, Quaternion rotation, Transform parent, IBoardPieceSource pieces)
         {
-            var piece = new GameObject(mesh.name, typeof(MeshFilter), typeof(MeshRenderer));
-            piece.GetComponent<MeshFilter>().sharedMesh = mesh;
-            piece.GetComponent<MeshRenderer>().sharedMaterial = material;
-            piece.transform.SetParent(_root.transform, false);
-            // Local, like the blocks, so the board follows the parent it is built under.
-            piece.transform.localPosition = position;
-            piece.transform.localRotation = rotation;
-            piece.transform.localScale = Vector3.one * _art.Scale;
+            var piece = pieces.Take(prefab, parent);
+            var transform = piece.transform;
+            transform.SetLocalPositionAndRotation(position, rotation);
+            transform.localScale = Vector3.one * _art.Scale;
+            return piece;
         }
 
         private static DoorData DoorAt(LevelData level, Side side, int index)

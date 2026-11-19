@@ -4,10 +4,11 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Builds a block's mesh from the supplied quarter pieces. Each cell has four quarters; a quarter's piece follows
-    // from its two side neighbours and the diagonal one: none gives an outer corner, one an edge, both with the
-    // diagonal the center. Where both side neighbours exist without the diagonal, one inner-corner piece covers the
-    // three quarters around that concave corner. Piece math is in model units, where a cell is 2 wide.
+    // Builds a block from the supplied quarter pieces, taken from the given source under the block's object. Each cell
+    // has four quarters; a quarter's piece follows from its two side neighbours and the diagonal one: none gives an
+    // outer corner, one an edge, both with the diagonal the center. Where both side neighbours exist without the
+    // diagonal, one inner-corner piece covers the three quarters around that concave corner. Piece math is in model
+    // units, where a cell is 2 wide.
     public sealed class BlockPieceBuilder
     {
         private static readonly Vector2Int[] Quarters =
@@ -27,7 +28,7 @@ namespace Game.Play
             _art = art;
         }
 
-        public void Build(Transform parent, IReadOnlyList<Cell> shape, Material material)
+        public void Build(Transform parent, IReadOnlyList<Cell> shape, Material material, IBoardPieceSource pieces)
         {
             _cells.Clear();
             _covered.Clear();
@@ -39,7 +40,7 @@ namespace Game.Play
                 foreach (var quarter in Quarters)
                 {
                     if (IsInnerCorner(cell, quarter))
-                        PlaceInnerCorner(parent, material, cell, quarter);
+                        PlaceInnerCorner(parent, material, cell, quarter, pieces);
                 }
             }
             foreach (var cell in shape)
@@ -47,7 +48,7 @@ namespace Game.Play
                 foreach (var quarter in Quarters)
                 {
                     if (!_covered.Contains((cell, quarter)))
-                        PlaceQuarter(parent, material, cell, quarter);
+                        PlaceQuarter(parent, material, cell, quarter, pieces);
                 }
             }
         }
@@ -55,42 +56,41 @@ namespace Game.Play
         private bool IsInnerCorner(Cell cell, Vector2Int quarter) =>
             HasSide(cell, quarter) && HasAbove(cell, quarter) && !HasDiagonal(cell, quarter);
 
-        private void PlaceInnerCorner(Transform parent, Material material, Cell cell, Vector2Int quarter)
+        private void PlaceInnerCorner(Transform parent, Material material, Cell cell, Vector2Int quarter, IBoardPieceSource pieces)
         {
-            Place(parent, _art.BlockInnerCorner, material, cell, quarter, CornerAngle(quarter));
+            Place(parent, pieces, _art.BlockInnerCorner, material, cell, quarter, CornerAngle(quarter));
             _covered.Add((cell, quarter));
             _covered.Add((new Cell(cell.X + quarter.x, cell.Y), new Vector2Int(-quarter.x, quarter.y)));
             _covered.Add((new Cell(cell.X, cell.Y - quarter.y), new Vector2Int(quarter.x, -quarter.y)));
         }
 
-        private void PlaceQuarter(Transform parent, Material material, Cell cell, Vector2Int quarter)
+        private void PlaceQuarter(Transform parent, Material material, Cell cell, Vector2Int quarter, IBoardPieceSource pieces)
         {
             var side = HasSide(cell, quarter);
             var above = HasAbove(cell, quarter);
             var quarterCenter = (Vector2)quarter * 0.5f;
             if (!side && !above)
             {
-                Place(parent, _art.BlockOuterCorner, material, cell, Vector2.zero, CornerAngle(quarter));
+                Place(parent, pieces, _art.BlockOuterCorner, material, cell, Vector2.zero, CornerAngle(quarter));
                 return;
             }
             if (side && above)
             {
-                Place(parent, _art.BlockCenter, material, cell, quarterCenter - PieceCenter, 0f);
+                Place(parent, pieces, _art.BlockCenter, material, cell, quarterCenter - PieceCenter, 0f);
                 return;
             }
             var rim = side ? new Vector2(0f, quarter.y) : new Vector2(quarter.x, 0f);
             var angle = Mathf.Atan2(rim.y, rim.x) * Mathf.Rad2Deg - 90f;
-            Place(parent, _art.BlockEdge, material, cell, quarterCenter - Rotate(PieceCenter, angle), angle);
+            Place(parent, pieces, _art.BlockEdge, material, cell, quarterCenter - Rotate(PieceCenter, angle), angle);
         }
 
-        private void Place(Transform parent, Mesh mesh, Material material, Cell cell, Vector2 pieceOffset, float angle)
+        private void Place(Transform parent, IBoardPieceSource pieces, MeshRenderer prefab, Material material, Cell cell,
+            Vector2 pieceOffset, float angle)
         {
             var scale = _art.Scale;
-            var piece = new GameObject(mesh.name, typeof(MeshFilter), typeof(MeshRenderer));
-            piece.GetComponent<MeshFilter>().sharedMesh = mesh;
-            piece.GetComponent<MeshRenderer>().sharedMaterial = material;
+            var piece = pieces.Take(prefab, parent);
+            piece.sharedMaterial = material;
             var transform = piece.transform;
-            transform.SetParent(parent, false);
             transform.localPosition = new Vector3(
                 cell.X * _art.CellSize + pieceOffset.x * scale,
                 _art.BlockLift,

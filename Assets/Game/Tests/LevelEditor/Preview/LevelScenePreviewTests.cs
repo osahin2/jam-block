@@ -61,6 +61,34 @@ namespace Game.Tests.LevelEditor
             Assert.IsNull(FindRoot());
         }
 
+        [Test]
+        public void Show_FramesTheGameSceneCamera_OnEachLevelLikeTheGame()
+        {
+            var camera = FindCamera();
+            camera.aspect = 1080f / 1920f;
+
+            _preview.Show(new LevelBuilder(5, 6).Rect(Red, 0, 0, 1, 1).Build());
+            var large = Vector3.Distance(camera.transform.position, FindRoot().transform.position);
+            Assert.That(camera.WorldToViewportPoint(FindRoot().transform.position).x, Is.EqualTo(0.5f).Within(0.002f));
+            _preview.Show(new LevelBuilder(4, 5).Rect(Red, 0, 0, 1, 1).Build());
+            var small = Vector3.Distance(camera.transform.position, FindRoot().transform.position);
+
+            Assert.Less(small, large, "a smaller board brings the camera closer");
+            Assert.IsFalse(_scene.isDirty, "framing the camera does not make the scene need saving");
+        }
+
+        private Camera FindCamera()
+        {
+            foreach (var root in _scene.GetRootGameObjects())
+            {
+                var camera = root.GetComponentInChildren<Camera>();
+                if (camera != null)
+                    return camera;
+            }
+            Assert.Fail("the Game scene has a camera");
+            return null;
+        }
+
         private GameObject FindRoot()
         {
             GameObject found = null;

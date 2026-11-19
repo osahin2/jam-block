@@ -1,22 +1,24 @@
 using Game.Bootstrap;
 using Game.Data.Levels;
 using Game.Play;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Game.Editor.LevelEditor
 {
-    // Shows a level in the open Game scene, built by the game's own BoardBuilder, so the Scene view and the Game view
-    // show what the game will build. Its objects are never saved and cannot be edited: the level is edited in the
-    // level editor only.
+    // Shows a level in the open Game scene through the game's own LevelStage, which builds it where the game's board
+    // root stands and frames the game's camera on it as the game does, so the Scene view and the Game view show what
+    // the game will. Its objects are plain copies of the piece prefabs, never saved and not editable: the level is
+    // edited in the level editor only. Moving the camera does not mark the scene as changed.
     public sealed class LevelScenePreview
     {
         public const string RootName = "Level Preview (not saved)";
         private const HideFlags PreviewFlags = HideFlags.DontSave | HideFlags.NotEditable;
 
-        private BoardArtSettings _art;
+        private readonly PreviewBoardPieces _pieces = new PreviewBoardPieces();
         private ColorPalette _palette;
-        private BoardBuilder _builder;
+        private LevelStage _stage;
         private GameObject _root;
         private string _shown;
 
@@ -29,13 +31,16 @@ namespace Game.Editor.LevelEditor
                 return;
             Clear();
             _shown = snapshot;
-            if (level == null || !TryFindGameScene(out var scene) || !TryLoadSettings() || !CanBuild(level))
+            if (level == null || !TryFindGameScene(out var scene, out var camera, out var board) || !TryLoadSettings() ||
+                !CanBuild(level))
                 return;
             _root = new GameObject(RootName);
+            var boardTransform = board.transform;
+            _root.transform.SetPositionAndRotation(boardTransform.position, boardTransform.rotation);
+            _root.transform.localScale = boardTransform.lossyScale;
             SceneManager.MoveGameObjectToScene(_root, scene);
-            _builder.Build(level, new BoardLayout(level.Width, level.Height, _art.CellSize), _root.transform);
-            foreach (var child in _root.GetComponentsInChildren<Transform>(true))
-                child.gameObject.hideFlags = PreviewFlags;
+            _root.hideFlags = PreviewFlags;
+            _stage.Show(level, _root.transform, _pieces, camera);
         }
 
         public void Clear()
@@ -45,8 +50,9 @@ namespace Game.Editor.LevelEditor
             _root = null;
         }
 
-        // The Game scene is the one whose root holds the game's scope.
-        private static bool TryFindGameScene(out Scene gameScene)
+        // The Game scene is the one whose root holds the game's scope; the scope names the camera the game frames and
+        // the board root the game builds under.
+        private static bool TryFindGameScene(out Scene gameScene, out Camera camera, out BoardRoot board)
         {
             for (var i = 0; i < SceneManager.sceneCount; i++)
             {
@@ -55,28 +61,35 @@ namespace Game.Editor.LevelEditor
                     continue;
                 foreach (var root in scene.GetRootGameObjects())
                 {
-                    if (root.TryGetComponent<GameScope>(out _))
-                    {
-                        gameScene = scene;
-                        return true;
-                    }
+                    // By type object: this assembly does not reference VContainer, which GameScope derives from.
+                    var scope = root.GetComponent(typeof(GameScope));
+                    if (scope == null)
+                        continue;
+                    var fields = new SerializedObject(scope);
+                    gameScene = scene;
+                    camera = fields.FindProperty("_camera").objectReferenceValue as Camera;
+                    board = fields.FindProperty("_board").objectReferenceValue as BoardRoot;
+                    return camera != null && board != null;
                 }
             }
             gameScene = default;
+            camera = null;
+            board = null;
             return false;
         }
 
         // Loaded on first use: while scripts reload, the asset database may not be ready yet.
         private bool TryLoadSettings()
         {
-            if (_builder != null)
+            if (_stage != null)
                 return true;
-            _art = EditorAssets.FindFirst<BoardArtSettings>();
+            var art = EditorAssets.FindFirst<BoardArtSettings>();
             _palette = EditorAssets.FindFirst<ColorPalette>();
             var motion = EditorAssets.FindFirst<BlockMotionSettings>();
-            if (_art == null || _palette == null || motion == null)
+            var framing = EditorAssets.FindFirst<CameraFramingSettings>();
+            if (art == null || _palette == null || motion == null || framing == null)
                 return false;
-            _builder = new BoardBuilder(_art, _palette, motion, new BlockPieceBuilder(_art));
+            _stage = new LevelStage(art, _palette, motion, framing);
             return true;
         }
 

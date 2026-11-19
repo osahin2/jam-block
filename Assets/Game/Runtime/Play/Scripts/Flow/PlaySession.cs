@@ -6,34 +6,40 @@ using VContainer.Unity;
 
 namespace Game.Play
 {
-    // Entry of the play feature: builds a level, hands the board to the interaction and runs the level's time. On the
+    // Entry of the play feature: shows a level, hands the board to the interaction and runs the level's time. On the
     // first frame the attempt is no longer playing, won or failed, the session ends it in one place: the board stops,
-    // a held block goes back onto its cell and the caller hears which way the level ended. Every start builds the
-    // level again from its data, so a restart or the next level keeps nothing from the attempt before.
+    // a held block goes back onto its cell and the caller hears which way the level ended. The session owns the board:
+    // every start gives the pieces of the board before back to their pools and builds the level again from its data,
+    // so a restart or the next level keeps nothing from the attempt before and instantiates nothing.
     public sealed class PlaySession : ITickable
     {
-        private readonly BoardBuilder _builder;
+        private readonly LevelStage _stage;
+        private readonly PooledBoardPieces _pieces;
+        private readonly BoardRoot _board;
+        private readonly Camera _camera;
         private readonly BoardInteraction _interaction;
-        private readonly BoardArtSettings _art;
         private LevelAttempt _attempt;
         private Action _onWon;
         private Action _onFailed;
 
-        public PlaySession(BoardBuilder builder, BoardInteraction interaction, BoardArtSettings art)
+        public PlaySession(LevelStage stage, PooledBoardPieces pieces, BoardRoot board, Camera camera, BoardInteraction interaction)
         {
-            _builder = builder;
+            _stage = stage;
+            _pieces = pieces;
+            _board = board;
+            _camera = camera;
             _interaction = interaction;
-            _art = art;
         }
 
         // Plays the level until it is won or failed and then calls back once. The callback may start the next level.
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
+            _pieces.ReleaseAll();
             _attempt = new LevelAttempt(level);
             _onWon = onWon;
             _onFailed = onFailed;
-            var layout = new BoardLayout(level.Width, level.Height, _art.CellSize);
-            _interaction.Begin(level, _attempt, layout, _builder.Build(level, layout));
+            var staged = _stage.Show(level, _board.transform, _pieces, _camera);
+            _interaction.Begin(level, _attempt, staged.Layout, staged.Blocks);
         }
 
         public void Tick()

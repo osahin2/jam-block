@@ -24,7 +24,7 @@ Game systems get a note each in `Game/Systems/` as they are built.
 - [Level attempt](Game/Systems/LevelAttempt.md) - one try at a level: board, drag and timer behind `LevelAttempt`; timer starts on the first touch, pauses, fails at zero; won when the last block leaves
 - [Coins](Game/Systems/Coins.md) - `CoinWallet`: the coin balance, earned only, never negative, saved after every change through an `ICoinStore` port
 - [App flow](Game/Systems/AppFlow.md) - Boot, Home and Game scenes, the Boot scope's app-wide services, `SceneFlow`, which level is played and which comes after a win (`LevelSequence`)
-- [Play](Game/Systems/Play.md) - the Game scene: board built from the supplied models, blocks from quarter pieces, pointer input, the play session that connects the level attempt and views and ends a level once (win: next level, fail: same level again)
+- [Play](Game/Systems/Play.md) - the Game scene: board built from pooled prefabs of the supplied models, blocks from quarter pieces, the camera framed to each level, one `LevelStage` shared with the level editor's preview, pointer input, the play session that connects the level attempt and views and ends a level once (win: next level, fail: same level again)
 - [Level editor](Game/Systems/LevelEditor.md) - UI Toolkit window over a working copy of a level: a searchable level list (open, reorder by drag, duplicate, delete), New and Duplicate, a new level becoming an asset on its first save, Play saving and starting the game with that level; board drawn from above, select, block, door and erase tools as strategies, rebindable shortcuts, problems marked on the board and listed in plain words, the level previewed in the Game scene, undo per stroke, save only without errors
 
 ## Core
