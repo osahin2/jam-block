@@ -14,16 +14,16 @@ namespace Game.Play
         // the excess when given back and makes it again on the next build.
         private const int MaxIdlePerPrefab = 256;
 
-        private readonly Pools<MeshRenderer> _pieces;
+        private readonly Pools<BoardPiece> _pieces;
         private readonly Pools<BlockView> _blocks;
 
         public PooledBoardPieces(BoardRoot root)
         {
-            _pieces = new Pools<MeshRenderer>(root.IdlePieces);
+            _pieces = new Pools<BoardPiece>(root.IdlePieces);
             _blocks = new Pools<BlockView>(root.IdlePieces);
         }
 
-        public MeshRenderer Take(MeshRenderer prefab, Transform parent) => _pieces.Get(prefab, parent);
+        public BoardPiece Take(BoardPiece prefab, Transform parent) => _pieces.Get(prefab, parent);
 
         public BlockView Take(BlockView prefab, Transform parent) => _blocks.Get(prefab, parent);
 

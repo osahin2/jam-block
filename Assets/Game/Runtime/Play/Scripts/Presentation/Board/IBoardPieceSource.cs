@@ -9,7 +9,7 @@ namespace Game.Play
     public interface IBoardPieceSource
     {
         // An instance of the prefab, active under the parent with the prefab's local pose.
-        MeshRenderer Take(MeshRenderer prefab, Transform parent);
+        BoardPiece Take(BoardPiece prefab, Transform parent);
 
         // An instance of the block prefab, active under the parent with the prefab's local pose.
         BlockView Take(BlockView prefab, Transform parent);

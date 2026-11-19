@@ -101,7 +101,7 @@ namespace Game.Tests.Play
 
         // Every instance the pools made, on the board or idle.
         private int CountAll() =>
-            _idle.childCount + _board.GetComponentsInChildren<MeshRenderer>(true).Length +
+            _idle.childCount + _board.GetComponentsInChildren<BoardPiece>(true).Length +
             _board.GetComponentsInChildren<BlockView>(true).Length;
 
         private static T Load<T>() where T : Object

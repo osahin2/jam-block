@@ -7,17 +7,16 @@ namespace Game.Play
     // Builds a block from the supplied quarter pieces, taken from the given source under the block's object. Each cell
     // has four quarters; a quarter's piece follows from its two side neighbours and the diagonal one: none gives an
     // outer corner, one an edge, both with the diagonal the center. Where both side neighbours exist without the
-    // diagonal, one inner-corner piece covers the three quarters around that concave corner. Piece math is in model
-    // units, where a cell is 2 wide.
+    // diagonal, one inner-corner piece covers the three quarters around that concave corner. A piece's pivot is on its
+    // bottom, at the quarter's own center or, for the inner corner, at its concave corner, so a piece is placed there
+    // and turned about it.
+    // Piece math is in model units, where a cell is 2 wide.
     public sealed class BlockPieceBuilder
     {
         private static readonly Vector2Int[] Quarters =
         {
             new Vector2Int(1, 1), new Vector2Int(-1, 1), new Vector2Int(-1, -1), new Vector2Int(1, -1)
         };
-        // Pieces lie on their XY plane with the top facing -Z; this turns the top up and their +Y to world +Z.
-        private static readonly Quaternion LayFlat = Quaternion.Euler(90f, 0f, 0f);
-        private static readonly Vector2 PieceCenter = new Vector2(0.5f, 0.5f);
 
         private readonly BoardArtSettings _art;
         private readonly HashSet<Cell> _cells = new HashSet<Cell>();
@@ -71,31 +70,31 @@ namespace Game.Play
             var quarterCenter = (Vector2)quarter * 0.5f;
             if (!side && !above)
             {
-                Place(parent, pieces, _art.BlockOuterCorner, material, cell, Vector2.zero, CornerAngle(quarter));
+                Place(parent, pieces, _art.BlockOuterCorner, material, cell, quarterCenter, CornerAngle(quarter));
                 return;
             }
             if (side && above)
             {
-                Place(parent, pieces, _art.BlockCenter, material, cell, quarterCenter - PieceCenter, 0f);
+                Place(parent, pieces, _art.BlockCenter, material, cell, quarterCenter, 0f);
                 return;
             }
             var rim = side ? new Vector2(0f, quarter.y) : new Vector2(quarter.x, 0f);
             var angle = Mathf.Atan2(rim.y, rim.x) * Mathf.Rad2Deg - 90f;
-            Place(parent, pieces, _art.BlockEdge, material, cell, quarterCenter - Rotate(PieceCenter, angle), angle);
+            Place(parent, pieces, _art.BlockEdge, material, cell, quarterCenter, angle);
         }
 
-        private void Place(Transform parent, IBoardPieceSource pieces, MeshRenderer prefab, Material material, Cell cell,
-            Vector2 pieceOffset, float angle)
+        private void Place(Transform parent, IBoardPieceSource pieces, BoardPiece prefab, Material material, Cell cell,
+            Vector2 pivot, float angle)
         {
             var scale = _art.Scale;
             var piece = pieces.Take(prefab, parent);
-            piece.sharedMaterial = material;
+            piece.SetMaterial(material);
             var transform = piece.transform;
             transform.localPosition = new Vector3(
-                cell.X * _art.CellSize + pieceOffset.x * scale,
+                cell.X * _art.CellSize + pivot.x * scale,
                 _art.BlockLift,
-                -cell.Y * _art.CellSize + pieceOffset.y * scale);
-            transform.localRotation = Quaternion.Euler(0f, -angle, 0f) * LayFlat;
+                -cell.Y * _art.CellSize + pivot.y * scale);
+            transform.localRotation = Quaternion.Euler(0f, -angle, 0f);
             transform.localScale = Vector3.one * scale;
         }
 
@@ -108,13 +107,5 @@ namespace Game.Play
             _cells.Contains(new Cell(cell.X + quarter.x, cell.Y - quarter.y));
 
         private static float CornerAngle(Vector2Int quarter) => Mathf.Atan2(quarter.y, quarter.x) * Mathf.Rad2Deg - 45f;
-
-        private static Vector2 Rotate(Vector2 vector, float degrees)
-        {
-            var radians = degrees * Mathf.Deg2Rad;
-            var cos = Mathf.Cos(radians);
-            var sin = Mathf.Sin(radians);
-            return new Vector2(vector.x * cos - vector.y * sin, vector.x * sin + vector.y * cos);
-        }
     }
 }

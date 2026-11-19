@@ -14,7 +14,6 @@ namespace Game.Editor.LevelEditor
     public sealed class LevelScenePreview
     {
         public const string RootName = "Level Preview (not saved)";
-        private const HideFlags PreviewFlags = HideFlags.DontSave | HideFlags.NotEditable;
 
         private readonly PreviewBoardPieces _pieces = new PreviewBoardPieces();
         private ColorPalette _palette;
@@ -39,7 +38,7 @@ namespace Game.Editor.LevelEditor
             _root.transform.SetPositionAndRotation(boardTransform.position, boardTransform.rotation);
             _root.transform.localScale = boardTransform.lossyScale;
             SceneManager.MoveGameObjectToScene(_root, scene);
-            _root.hideFlags = PreviewFlags;
+            _root.hideFlags = PreviewBoardPieces.PreviewFlags;
             _stage.Show(level, _root.transform, _pieces, camera);
         }
 

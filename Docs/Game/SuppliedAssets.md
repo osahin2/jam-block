@@ -28,7 +28,7 @@ Units below are model units after import. The board is read as one cell = 2 unit
 - `ModularBlock_InnerCorner` is centered on the concave corner point of an L block and covers the three quarters around it, which then get no piece of their own.
 - A 1 x 1 block is four outer corners. Any rectangle or L shape can be built.
 
-**Frame** pieces are bars with a rounded closed end at `-Y` (the visible cap) and an open end at `+Y`; the cap sits 0.35 units lower than the block top.
+**Frame** pieces are bars with a rounded closed end at `-Y` (the visible cap) and an open end at `+Y`; the cap sits 0.35 units lower than the block top. They are deep: about 3.6 units long, so only the cap end shows above the ground and the rest sinks below it; how much a piece shows is a matter of how far it is raised, not of scaling it. The wall's cap is rounded across its X only, so wall pieces read as one continuous bar when their X runs across the wall. Block edge and corner pieces are deep the same way (1.62 units, the center piece is a 0.31-unit top plate), so a flatter block is a block set lower into the ground.
 | Piece | Footprint |
 |---|---|
 | `Wall` | 1 x 1 unit (half a cell) |

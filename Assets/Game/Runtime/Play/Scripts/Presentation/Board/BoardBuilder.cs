@@ -10,10 +10,6 @@ namespace Game.Play
     public sealed class BoardBuilder
     {
         private static readonly Side[] Sides = (Side[])Enum.GetValues(typeof(Side));
-        // Frame pieces have their visible cap facing -Y.
-        private static readonly Quaternion CapUp = Quaternion.Euler(180f, 0f, 0f);
-        // The door piece is long along X; on the left and right sides it is turned to run along Z.
-        private static readonly Quaternion AlongZ = Quaternion.Euler(0f, 90f, 0f);
 
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
@@ -51,19 +47,20 @@ namespace Game.Play
                 BuildSide(level, layout, side, parent, pieces);
 
             var half = _art.FrameWidth * 0.5f;
-            Wall(new Vector3(layout.Left - half, 0f, layout.Top + half), parent, pieces);
-            Wall(new Vector3(layout.Right + half, 0f, layout.Top + half), parent, pieces);
-            Wall(new Vector3(layout.Left - half, 0f, layout.Bottom - half), parent, pieces);
-            Wall(new Vector3(layout.Right + half, 0f, layout.Bottom - half), parent, pieces);
+            Wall(new Vector3(layout.Left - half, 0f, layout.Top + half), Quaternion.identity, parent, pieces);
+            Wall(new Vector3(layout.Right + half, 0f, layout.Top + half), Quaternion.identity, parent, pieces);
+            Wall(new Vector3(layout.Left - half, 0f, layout.Bottom - half), Quaternion.identity, parent, pieces);
+            Wall(new Vector3(layout.Right + half, 0f, layout.Bottom - half), Quaternion.identity, parent, pieces);
         }
 
-        // Each cell along a side gets a door piece when a door covers it, else two half-cell wall pieces.
+        // Each cell along a side gets a door piece when a door covers it, else two half-cell wall pieces. Frame pieces
+        // face out along their +Z, so each is turned toward the side's outward direction.
         private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces)
         {
             var outward = Direction.OutOf(side).Offset;
             var outwardLocal = layout.ToLocal(Direction.OutOf(side));
             var along = side.IsHorizontal() ? Vector3.right : Vector3.forward;
-            var turn = side.IsHorizontal() ? Quaternion.identity : AlongZ;
+            var turn = Quaternion.LookRotation(outwardLocal, Vector3.up);
             var frameOffset = outwardLocal * (layout.CellSize * 0.5f + _art.FrameWidth * 0.5f);
             var wallOffset = along * (_art.FrameWidth * 0.5f);
             for (var i = 0; i < side.Length(level.Width, level.Height); i++)
@@ -75,12 +72,12 @@ namespace Game.Play
                 var door = DoorAt(level, side, i);
                 if (door != null)
                 {
-                    var piece = Spawn(_art.Door, center + Lift(_art.FrameLift), turn * CapUp, parent, pieces);
-                    piece.sharedMaterial = _palette.For(door.ColorId);
+                    var piece = Spawn(_art.Door, center + Lift(_art.FrameLift), turn, parent, pieces);
+                    piece.SetMaterial(_palette.For(door.ColorId));
                     continue;
                 }
-                Wall(center - wallOffset, parent, pieces);
-                Wall(center + wallOffset, parent, pieces);
+                Wall(center - wallOffset, turn, parent, pieces);
+                Wall(center + wallOffset, turn, parent, pieces);
             }
         }
 
@@ -99,10 +96,10 @@ namespace Game.Play
             return views;
         }
 
-        private void Wall(Vector3 position, Transform parent, IBoardPieceSource pieces) =>
-            Spawn(_art.Wall, position + Lift(_art.FrameLift), CapUp, parent, pieces);
+        private void Wall(Vector3 position, Quaternion rotation, Transform parent, IBoardPieceSource pieces) =>
+            Spawn(_art.Wall, position + Lift(_art.FrameLift), rotation, parent, pieces);
 
-        private MeshRenderer Spawn(MeshRenderer prefab, Vector3 position, Quaternion rotation, Transform parent, IBoardPieceSource pieces)
+        private BoardPiece Spawn(BoardPiece prefab, Vector3 position, Quaternion rotation, Transform parent, IBoardPieceSource pieces)
         {
             var piece = pieces.Take(prefab, parent);
             var transform = piece.transform;
