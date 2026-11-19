@@ -90,7 +90,7 @@ namespace Game.Tests.Play
             Assert.Less(small, large);
         }
 
-        // The box of the board with its frame, from the ground to the block tops.
+        // The box of the board with its frame, from the ground to its highest part.
         private Vector3[] Corners(BoardLayout layout)
         {
             var halfWidth = layout.Right + _art.FrameWidth;
@@ -102,7 +102,7 @@ namespace Game.Tests.Play
                 for (var z = -1; z <= 1; z += 2)
                 {
                     corners[i++] = _board.TransformPoint(new Vector3(x * halfWidth, 0f, z * halfDepth));
-                    corners[i++] = _board.TransformPoint(new Vector3(x * halfWidth, _art.TouchHeight, z * halfDepth));
+                    corners[i++] = _board.TransformPoint(new Vector3(x * halfWidth, layout.Box.max.y, z * halfDepth));
                 }
             }
             return corners;
