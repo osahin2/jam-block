@@ -157,6 +157,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   _camera: {fileID: 822166612}
   _board: {fileID: 1006739434}
+  _input: {fileID: 1006739436}
   _installers:
   - {fileID: 11400000, guid: 56af1a31ea61d48128e29f01d52b3dac, type: 2}
 --- !u!4 &337092994
@@ -309,6 +310,7 @@ GameObject:
   m_Component:
   - component: {fileID: 822166614}
   - component: {fileID: 822166612}
+  - component: {fileID: 822166615}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -382,6 +384,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &822166615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 822166611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c49b4cc203aa6414fae5c798d1d0e7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 4
 --- !u!1 &1006739433
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,6 +410,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1006739435}
   - component: {fileID: 1006739434}
+  - component: {fileID: 1006739437}
+  - component: {fileID: 1006739436}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -427,6 +447,40 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1006739436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1006739433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79113ec2213e64ba583628f0a7b4b98b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _area: {fileID: 1006739437}
+--- !u!65 &1006739437
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1006739433}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

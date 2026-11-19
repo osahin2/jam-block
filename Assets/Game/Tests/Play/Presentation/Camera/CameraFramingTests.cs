@@ -42,9 +42,9 @@ namespace Game.Tests.Play
         public void Frame_FitsTheBoardInsideTheMargins_AndFillsThem(int screenWidth, int screenHeight, int width, int height)
         {
             _camera.aspect = (float)screenWidth / screenHeight;
-            var layout = new BoardLayout(width, height, _art.CellSize);
+            var layout = new BoardLayout(width, height, _art);
 
-            new CameraFraming(_art, _settings).Frame(_camera, layout, _board);
+            new CameraFraming(_settings).Frame(_camera, layout, _board);
 
             var side = _settings.SideMargin;
             var topAndBottom = _settings.TopAndBottomMargin;
@@ -68,7 +68,7 @@ namespace Game.Tests.Play
             var rotation = _camera.transform.rotation;
             _board.position = new Vector3(3f, 1f, -2f);
 
-            new CameraFraming(_art, _settings).Frame(_camera, new BoardLayout(5, 6, _art.CellSize), _board);
+            new CameraFraming(_settings).Frame(_camera, new BoardLayout(5, 6, _art), _board);
 
             Assert.AreEqual(rotation, _camera.transform.rotation);
             var center = _camera.WorldToViewportPoint(_board.position);
@@ -80,11 +80,11 @@ namespace Game.Tests.Play
         public void Frame_ASmallerBoard_BringsTheCameraCloser()
         {
             _camera.aspect = 1080f / 1920f;
-            var framing = new CameraFraming(_art, _settings);
+            var framing = new CameraFraming(_settings);
 
-            framing.Frame(_camera, new BoardLayout(5, 6, _art.CellSize), _board);
+            framing.Frame(_camera, new BoardLayout(5, 6, _art), _board);
             var large = Vector3.Distance(_camera.transform.position, _board.position);
-            framing.Frame(_camera, new BoardLayout(4, 5, _art.CellSize), _board);
+            framing.Frame(_camera, new BoardLayout(4, 5, _art), _board);
             var small = Vector3.Distance(_camera.transform.position, _board.position);
 
             Assert.Less(small, large);

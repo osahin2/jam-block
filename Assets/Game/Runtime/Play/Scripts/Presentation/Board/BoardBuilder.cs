@@ -61,10 +61,10 @@ namespace Game.Play
         private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces)
         {
             var outward = Direction.OutOf(side).Offset;
-            var outwardWorld = layout.ToWorld(Direction.OutOf(side));
+            var outwardLocal = layout.ToLocal(Direction.OutOf(side));
             var along = side.IsHorizontal() ? Vector3.right : Vector3.forward;
             var turn = side.IsHorizontal() ? Quaternion.identity : AlongZ;
-            var frameOffset = outwardWorld * (layout.CellSize * 0.5f + _art.FrameWidth * 0.5f);
+            var frameOffset = outwardLocal * (layout.CellSize * 0.5f + _art.FrameWidth * 0.5f);
             var wallOffset = along * (_art.FrameWidth * 0.5f);
             for (var i = 0; i < side.Length(level.Width, level.Height); i++)
             {

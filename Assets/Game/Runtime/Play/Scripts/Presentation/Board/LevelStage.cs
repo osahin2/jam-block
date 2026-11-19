@@ -17,12 +17,12 @@ namespace Game.Play
         {
             _art = art;
             _builder = new BoardBuilder(art, palette, motion, new BlockPieceBuilder(art));
-            _framing = new CameraFraming(art, framing);
+            _framing = new CameraFraming(framing);
         }
 
         public StagedLevel Show(LevelData level, Transform parent, IBoardPieceSource pieces, Camera camera)
         {
-            var layout = new BoardLayout(level.Width, level.Height, _art.CellSize);
+            var layout = new BoardLayout(level.Width, level.Height, _art);
             var blocks = _builder.Build(level, layout, parent, pieces);
             _framing.Frame(camera, layout, parent);
             return new StagedLevel(layout, blocks);
