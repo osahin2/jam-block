@@ -261,6 +261,19 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void IsPaused_FollowsPauseAndResume()
+        {
+            var attempt = TwoBlocks();
+
+            attempt.Pause();
+            var paused = attempt.IsPaused;
+            attempt.Resume();
+
+            Assert.IsTrue(paused);
+            Assert.IsFalse(attempt.IsPaused);
+        }
+
+        [Test]
         public void Pause_BeforeTheFirstTouch_KeepsTheTimerStoppedAfterResume()
         {
             var attempt = TwoBlocks();

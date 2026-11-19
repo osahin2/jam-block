@@ -15,7 +15,7 @@ namespace Game.Levels
         {
             builder.RegisterInstance(_catalog);
             builder.RegisterCoreLevels(new LevelLoop(_catalog.Levels.Count, 0));
-            builder.Register<LevelSequence>(Lifetime.Singleton);
+            builder.Register<LevelRuns>(Lifetime.Singleton);
             builder.Register<EditorPlayRequest>(Lifetime.Singleton);
         }
     }

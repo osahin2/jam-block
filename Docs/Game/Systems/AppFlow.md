@@ -5,17 +5,17 @@
 ## Code
 - Folder: `Assets/Game/Runtime/Bootstrap/` (scopes, entry flows, `SceneFlow`, the scenes), `Assets/Game/Runtime/Home/`, `Assets/Game/Runtime/Levels/`
 - Assembly: `Game`
-- Entry points: `SceneFlow` (`Runtime/Bootstrap/Scripts/Services/SceneFlow.cs`): `ToHome()`, `ToGame()`; `LevelSequence` (`Runtime/Levels/Scripts/Services/LevelSequence.cs`): `Current`, `CompleteCurrent()`, `After(level)`
+- Entry points: `SceneFlow` (`Runtime/Bootstrap/Scripts/Services/SceneFlow.cs`): `ToHome()`, `ToGame()`; `LevelRuns` (`Runtime/Levels/Scripts/Services/LevelRuns.cs`): `RunForPlayer()`, `RunForTest(level)`, each returning an `ILevelRun` (`Level`, `Number`, `Advance()`)
 
 ## How it works
 - **Scenes.** The Build Settings list Boot, Home, Game; Core.Scenes keeps play mode starting from Boot, also in the editor. Boot is never unloaded; Home and Game are switched on top of it, one at a time, behind Core's fade ([Scenes](../../Base/Systems/Scenes.md)).
-- **Boot** holds `BootScope`, the root scope: Core's Save, Audio, Haptics and Scenes, then its installers, `GameLevelsInstaller` (the catalog, Core's level progression, `LevelSequence`, `EditorPlayRequest`) and `CoinsInstaller` (the saved wallet, [Coins](Coins.md)). It also holds the app's only `AudioListener`, the only `EventSystem` (Input System UI module) and the fade overlay. `BootEntry` opens Game straight away when the level editor asked to play a level, else Home.
+- **Boot** holds `BootScope`, the root scope: Core's Save, Audio, Haptics and Scenes, then its installers, `GameLevelsInstaller` (the catalog, Core's level progression, `LevelRuns`, `EditorPlayRequest`), `CoinsInstaller` (the saved wallet, [Coins](Coins.md)) and `ButtonsInstaller` (the press feedback settings every button uses, [Buttons](Buttons.md)). It also holds the app's only `AudioListener`, the only `EventSystem` (Input System UI module) and the fade overlay. `BootEntry` opens Game straight away when the level editor asked to play a level, else Home.
 - **Home** holds a camera, Core's `UIRoot` and `HomeScope` (a child of `BootScope`). `HomeInstaller` registers the screen catalog; `HomeScope` registers `HomeEntry`, which opens `HomeScreen` with the player's level number and coin count; the level button calls `SceneFlow.ToGame`. A placeholder for phase 5, which adds the top bar, settings, tab bar and touch feedback ([Plan](../Plan.md)).
-- **Game** holds `GameScope`, also a child of `BootScope` ([Play](Play.md)). Its `GameEntry` plays the first level and, when a level ends, the next one after a win or the same one after a fail, in the same scene. Which level is next depends on the run, chosen once when the scene starts: in the player's run a win completes their level (`LevelSequence.CompleteCurrent`); a run started from the level editor is a designer's test, so a win continues with the catalog's next level (`LevelSequence.After`) and never moves progress, also when the tested level is the player's current one.
+- **Game** holds `GameScope`, also a child of `BootScope` ([Play](Play.md)), with its own `UIRoot`. Its `GameEntry` plays the first level and, when a level ends, opens the win or fail popup; continue plays the next level, retry the same one, home (on the fail popup and the settings popup) goes back to Home. Which level is played and what follows a win is the run's, chosen once when the scene starts (`ILevelRun`, a strategy, so no win asks where the run came from):
+  - `PlayerRun` (`LevelRuns.RunForPlayer()`): the player's current level and number; `Advance` completes it (saved by Core), so the next level is the progression's next.
+  - `TestRun` (`LevelRuns.RunForTest(level)`): a run started from the level editor is a designer's test. It plays the tested level, numbered by its place in the catalog, and `Advance` moves to the catalog's next level (the first after the last) without touching progress, also when the tested level is the player's current one. A level outside the catalog has no place, so it shows the player's number and advances to the player's current level.
 - **SceneFlow** is the one place that names scenes. Callers only ask; it runs Core's switch with `Application.exitCancellationToken`, which outlives the scene being left as Core.Scenes requires, and does not return a task: nothing waits on a switch.
-- **LevelSequence** maps Core's progression onto the `LevelCatalog`. `Current` is the catalog level at the progression's index. `CompleteCurrent()` records the player's win of their current level (saved by Core) and returns the new current level. `After(level)` returns the level that follows without touching progress:
-  - a catalog level: the catalog's next level (the first after the last);
-  - a level outside the catalog: the player's current level.
+- **LevelRuns** makes the two runs over the `LevelCatalog` and Core's progression; it holds no state and no rule of its own.
 
 ## Rules & invariants
 - App-wide state (coins, progress, audio and haptics choices) lives only in the Boot scope; content scopes are rebuilt on every switch.
@@ -23,9 +23,9 @@
 - After the last catalog level the progression loops back to the first (`LevelLoop` start index 0).
 
 ## Tests
-- `Tests/Levels/Services/LevelSequenceTests`: current level, completing the current level moves to the next one, the level after the player's current level, after another catalog level and after the last one (wrapping) leaves progress alone, a level outside the catalog goes back to the current level.
+- `Tests/Levels/Services/LevelRunsTests`: the player's run plays the level at the progression's index and its advance completes it; a test run plays the tested level with its catalog number, advances from the player's current level, from another catalog level and from the last one (wrapping) without progress; a level outside the catalog shows the player's number and advances to their level without progress.
 - `Tests/Levels/Services/EditorPlayRequestTests`: `IsPending` from a request until it is taken.
-- `Tests/Bootstrap/InstallerAssetTests`: the Boot and Home installers have no unassigned reference.
+- `Tests/Bootstrap/InstallerAssetTests`: the Boot, Home and Game installers have no unassigned reference.
 - The scene switch itself is Core's, tested there; the scenes are checked by playing them in the editor.
 
 ## Related

@@ -3,6 +3,7 @@
     "rootNamespace": "Core.UI.Tests",
     "references": [
         "Core.UI",
+        "VContainer",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

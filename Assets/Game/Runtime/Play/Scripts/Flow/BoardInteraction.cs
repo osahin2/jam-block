@@ -15,6 +15,20 @@ namespace Game.Play
         private BoardLayout _layout;
         private BlockView[] _blocks;
 
+        // True once no block is still sliding out through its door.
+        public bool IsSettled
+        {
+            get
+            {
+                foreach (var block in _blocks)
+                {
+                    if (block.IsLeaving)
+                        return false;
+                }
+                return true;
+            }
+        }
+
         public BoardInteraction(BoardInputView input, TouchPlane touchPlane)
         {
             _input = input;

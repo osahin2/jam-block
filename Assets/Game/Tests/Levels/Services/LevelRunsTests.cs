@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Game.Tests.Levels
 {
-    public sealed class LevelSequenceTests
+    public sealed class LevelRunsTests
     {
         private LevelAsset[] _levels;
         private LevelCatalog _catalog;
         private FakeProgression _progression;
-        private LevelSequence _sequence;
+        private LevelRuns _runs;
 
         [SetUp]
         public void CreateSequence()
@@ -26,7 +26,7 @@ namespace Game.Tests.Levels
                 levels.GetArrayElementAtIndex(i).objectReferenceValue = _levels[i];
             levels.serializedObject.ApplyModifiedPropertiesWithoutUndo();
             _progression = new FakeProgression();
-            _sequence = new LevelSequence(_catalog, _progression);
+            _runs = new LevelRuns(_catalog, _progression);
         }
 
         [TearDown]
@@ -38,57 +38,85 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void Current_IsTheCatalogLevelAtTheProgressionsIndex()
+        public void RunForPlayer_PlaysTheCatalogLevelAtTheProgressionsIndex()
         {
             _progression.Index = 1;
 
-            Assert.AreSame(_levels[1], _sequence.Current);
+            var run = _runs.RunForPlayer();
+
+            Assert.AreSame(_levels[1], run.Level);
+            Assert.AreEqual(2, run.Number);
         }
 
         [Test]
-        public void CompleteCurrent_CompletesTheCurrentLevelAndGivesTheNextOne()
+        public void RunForPlayer_Advance_CompletesTheLevelAndPlaysTheNextOne()
         {
-            var next = _sequence.CompleteCurrent();
+            var run = _runs.RunForPlayer();
+
+            run.Advance();
 
             Assert.AreEqual(1, _progression.Completed);
-            Assert.AreSame(_levels[1], next);
+            Assert.AreSame(_levels[1], run.Level);
+            Assert.AreEqual(2, run.Number);
+        }
+
+        [Test]
+        public void RunForTest_PlaysTheTestedLevelWithItsPlaceInTheCatalog()
+        {
+            var run = _runs.RunForTest(_levels[2]);
+
+            Assert.AreSame(_levels[2], run.Level);
+            Assert.AreEqual(3, run.Number);
         }
 
         // A designer testing the player's current level from the level editor does not move the player's progress.
         [Test]
-        public void After_TheCurrentLevel_GivesTheCatalogsNextLevelWithoutProgress()
+        public void RunForTest_Advance_FromTheCurrentLevel_PlaysTheCatalogsNextLevelWithoutProgress()
         {
-            var next = _sequence.After(_levels[0]);
+            var run = _runs.RunForTest(_levels[0]);
+
+            run.Advance();
 
             Assert.AreEqual(0, _progression.Completed);
-            Assert.AreSame(_levels[1], next);
+            Assert.AreSame(_levels[1], run.Level);
+            Assert.AreEqual(2, run.Number);
         }
 
         [Test]
-        public void After_AnotherCatalogLevel_GivesTheCatalogsNextLevelWithoutProgress()
+        public void RunForTest_Advance_FromAnotherCatalogLevel_PlaysTheCatalogsNextLevelWithoutProgress()
         {
-            var next = _sequence.After(_levels[1]);
+            var run = _runs.RunForTest(_levels[1]);
+
+            run.Advance();
 
             Assert.AreEqual(0, _progression.Completed);
-            Assert.AreSame(_levels[2], next);
+            Assert.AreSame(_levels[2], run.Level);
         }
 
         [Test]
-        public void After_TheCatalogsLastLevel_GivesTheCatalogsFirstLevel()
+        public void RunForTest_Advance_FromTheCatalogsLastLevel_PlaysTheCatalogsFirstLevel()
         {
-            Assert.AreSame(_levels[0], _sequence.After(_levels[2]));
+            var run = _runs.RunForTest(_levels[2]);
+
+            run.Advance();
+
+            Assert.AreSame(_levels[0], run.Level);
+            Assert.AreEqual(1, run.Number);
         }
 
         [Test]
-        public void After_ALevelOutsideTheCatalog_GivesTheCurrentLevelWithoutProgress()
+        public void RunForTest_ALevelOutsideTheCatalog_ShowsThePlayersNumberAndAdvancesToTheirLevelWithoutProgress()
         {
             _progression.Index = 2;
             var draft = ScriptableObject.CreateInstance<LevelAsset>();
+            var run = _runs.RunForTest(draft);
 
-            var next = _sequence.After(draft);
+            var number = run.Number;
+            run.Advance();
 
+            Assert.AreEqual(3, number);
             Assert.AreEqual(0, _progression.Completed);
-            Assert.AreSame(_levels[2], next);
+            Assert.AreSame(_levels[2], run.Level);
             Object.DestroyImmediate(draft);
         }
 

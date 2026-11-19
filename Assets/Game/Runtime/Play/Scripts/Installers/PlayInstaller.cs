@@ -1,4 +1,5 @@
 using Core.Installers;
+using Core.UI;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -12,14 +13,18 @@ namespace Game.Play
         [SerializeField] private ColorPalette _palette;
         [SerializeField] private BlockMotionSettings _motion;
         [SerializeField] private CameraFramingSettings _framing;
+        [SerializeField] private WinRewardSettings _reward;
+        [SerializeField] private UIScreenCatalog _screens;
 
-        // Needs the scene's BoardRoot, BoardInputView and Camera, registered by the scene's scope.
+        // Needs the scene's BoardRoot, BoardInputView and Camera and Core's UI, registered by the scene's scope.
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(_art);
             builder.RegisterInstance(_palette);
             builder.RegisterInstance(_motion);
             builder.RegisterInstance(_framing);
+            builder.RegisterInstance(_reward);
+            builder.RegisterUIScreens(_screens);
             builder.Register<PooledBoardPieces>(Lifetime.Scoped);
             builder.Register<LevelStage>(Lifetime.Scoped);
             builder.Register<TouchPlane>(Lifetime.Scoped);

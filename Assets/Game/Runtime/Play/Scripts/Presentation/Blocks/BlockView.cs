@@ -4,7 +4,8 @@ using UnityEngine;
 namespace Game.Play
 {
     // Follows its target smoothly while dragged (per frame, hand-written). One-shot motions are tweens: the snap onto
-    // a cell on release, and the snap in front of the door, the hold and the slide out when the block leaves. A tween
+    // a cell on release, and the snap in front of the door, the hold and the slide out when the block leaves; the
+    // block counts as leaving until it is hidden at the end of the slide, so the level can wait for it. A tween
     // dies when its block is deactivated, so a block given back to its pool mid-motion does not move while idle;
     // taking it again sets its pose, which stops any motion left.
     public sealed class BlockView : MonoBehaviour
@@ -15,6 +16,8 @@ namespace Game.Play
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
+
+        public bool IsLeaving { get; private set; }
 
         public void Init(BlockMotionSettings settings) => _settings = settings;
 
@@ -66,6 +69,7 @@ namespace Game.Play
                 .Append(transform.DOLocalMove(outside, _settings.LeaveDuration).SetEase(_settings.LeaveEase))
                 .OnComplete(Hide)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+            IsLeaving = true;
         }
 
         private Tween Snap(Vector3 position) =>
@@ -74,10 +78,15 @@ namespace Game.Play
         private void StopMotion()
         {
             enabled = false;
+            IsLeaving = false;
             _motion?.Kill();
             _motion = null;
         }
 
-        private void Hide() => gameObject.SetActive(false);
+        private void Hide()
+        {
+            IsLeaving = false;
+            gameObject.SetActive(false);
+        }
     }
 }

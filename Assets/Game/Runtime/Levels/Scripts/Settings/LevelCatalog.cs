@@ -12,5 +12,8 @@ namespace Game.Levels
         [SerializeField] private LevelAsset[] _levels = Array.Empty<LevelAsset>();
 
         public IReadOnlyList<LevelAsset> Levels => _levels;
+
+        // The level's place in the play order, or -1 when the catalog does not list it.
+        public int IndexOf(LevelAsset level) => Array.IndexOf(_levels, level);
     }
 }

@@ -19,8 +19,8 @@
 ## Features
 A feature is something added or removed as a unit: the play session, the home screen, settings, the coin wallet, the level editor. An entity (a block, a door) is not a feature.
 
-- **One entry class per feature.** The rest of the game calls only it, e.g. `PlaySession.Start(LevelData level, Action<PlayResult> onEnded)`. Its result comes back as a return value or through the callback given to the entry; the feature does not publish events for others to find.
-- **Everything else in the feature is used only inside it.** Within one assembly `internal` cannot enforce this, so it is a review rule: a class outside the feature that names anything but the entry class (and the data types it takes or returns) is a finding.
+- **One entry class per feature.** The rest of the game calls only it, e.g. `PlaySession.Start(LevelData level, Action onWon, Action onFailed)`. Its result comes back as a return value or through the callback given to the entry; the feature does not publish events for others to find.
+- **Everything else in the feature is used only inside it.** Within one assembly `internal` cannot enforce this, so it is a review rule: a class outside the feature that names anything but the entry class (and the data types it takes or returns) is a finding. A feature's UI screens, and the settings asset whose values they show, are entry points too: a scene's flow opens them through Core's `IUIService` and passes what they show and the callbacks of their buttons (`GameEntry` opening `LevelHud`, `HomeEntry` opening `HomeScreen`).
 - **The flow inside a feature** is one orchestrator that owns the order of steps; it reads top to bottom (see [Logic and view](LogicAndView.md)).
 - A feature's code spreads over the assemblies by role, under the same feature folder name in each: the play rules in `Logic/Play/` and their views in `Runtime/Play/`; the level format in `Data/Levels/` and its asset in `Runtime/Levels/`.
 

@@ -435,6 +435,7 @@ MonoBehaviour:
   _installers:
   - {fileID: 11400000, guid: 4528c5ff6340343338e472478425000f, type: 2}
   - {fileID: 11400000, guid: bd2db4f20eedf42bab1a6dfec35594b8, type: 2}
+  - {fileID: 11400000, guid: 140cf15fb9adc4c9c86b5ae4c2361d5b, type: 2}
 --- !u!4 &2081613697
 Transform:
   m_ObjectHideFlags: 0

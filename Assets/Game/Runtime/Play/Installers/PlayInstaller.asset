@@ -16,3 +16,5 @@ MonoBehaviour:
   _palette: {fileID: 11400000, guid: 0672da40e665243728e3356807915345, type: 2}
   _motion: {fileID: 11400000, guid: 36282dd428158447892c226cd9e61f68, type: 2}
   _framing: {fileID: 11400000, guid: 859904e593a6d46ee8b35dde5ab6a619, type: 2}
+  _reward: {fileID: 11400000, guid: 1841d6de924944f9c9c4d89429723cc3, type: 2}
+  _screens: {fileID: 11400000, guid: c44c2ca582f47450ca21676369dd7bf5, type: 2}

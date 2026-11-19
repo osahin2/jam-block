@@ -11,7 +11,7 @@
 - `new CoinWallet(store)` reads the balance once from an `ICoinStore`; `Balance` reads it; `Add(amount)` raises it and writes the new balance to the store at once.
 - `ICoinStore` is the wallet's port for persistence, declared in `Game.Logic`; `SavedCoinStore` in `Game` implements it with Core.Save, one `CoinsDocument` (`Game.Data`) under the key `coins`. The logic stays engine-free and tests use an in-memory store.
 - `CoinsInstaller` registers the store and one wallet in the Boot scope, so Home and Game show and change the same balance and it is the same after leaving a level ([App flow](AppFlow.md)).
-- The reward amount is one global setting, paid when the player continues from the win screen ([Decisions](../Decisions.md)).
+- The reward amount is one global setting (`WinRewardSettings`, [Play](Play.md)), paid when the player continues from the level complete popup, also in a run started from the level editor ([Decisions](../Decisions.md)). The HUD shows the balance each time a level starts.
 
 ## Rules & invariants
 - A negative stored balance or a negative amount throws `ArgumentOutOfRangeException`: both are programmer errors, not player actions. A rejected amount saves nothing.

@@ -186,7 +186,7 @@ Format:
 - Instead of: a `Game` class wrapping the wallet that saves after each call, which mostly forwards and lets a caller that uses the wallet directly forget to save.
 
 ## A win moves the player's progress only in the player's own run
-- Why: progress is Core's completed-level count. A run started from the level editor is a designer's test, so it never moves the player's progress, also when the tested level is the player's current one; after its win the game continues with the catalog's next level, so a designer can play on through the order, or with the player's level when the tested level is not in the catalog yet. `GameEntry` chooses what follows a win once, when the Game scene starts (`LevelSequence.CompleteCurrent` or `After`), so no win asks where the run came from.
+- Why: progress is Core's completed-level count. A run started from the level editor is a designer's test, so it never moves the player's progress, also when the tested level is the player's current one; after its win the game continues with the catalog's next level, so a designer can play on through the order, or with the player's level when the tested level is not in the catalog yet. `GameEntry` chooses the run once, when the Game scene starts: an `ILevelRun` strategy (`PlayerRun` or `TestRun`, made by `LevelRuns`) that gives the level, its number and what `Advance` does after a win, so no win, HUD or popup asks where the run came from.
 - Instead of: completing whatever level was won, which lets a test of level 4 skip levels 1 to 3; completing a won level when it equals the player's current one, which counts a designer's test of that level; or the catalog's first level after an uncatalogued level, which loses the player's place.
 
 ## Content scenes switch through one SceneFlow in the Boot scope
@@ -212,3 +212,39 @@ Format:
 ## The board interaction sizes the board's collider, not the stage or the builder
 - Why: the collider is input, and input belongs to the play session's touch path. `BoardInteraction.Begin` already gets each level's layout, so it fits `BoardInputView`'s collider to `BoardLayout.Box` (the board with its frame, ground to block tops), the one property `CameraFraming` frames too, so the two cannot drift apart. The view sits on the board root's object, so the collider is in the board's own space and cannot be nudged away from the drawn board. `LevelStage` and `BoardBuilder` stay about what is seen, and the level editor's scene preview, which has no input, is untouched.
 - Instead of: sizing it in `LevelStage.Show`, which would take an input view the preview has to pass as null; or building it as a piece in `BoardBuilder` (as the plan first said), which would put unused colliders into the preview and a collider into the piece pools.
+
+## The Game scene's flow is one method per step, with the screens' buttons as its transitions
+- Why: the flow has five steps (play, pause, won, continue, failed) and each screen's `Show` takes the callbacks of its buttons, so `GameEntry` reads top to bottom as the flow chart: `Won` opens the complete popup with `Continue`, `Failed` the failed popup with `Play` and `ToHome`. No step needs state of its own beyond the run and the HUD, and a new screen is one more method.
+- Instead of: a state machine with a class per state, which spreads five short methods over five files and a transition table for no behavior the methods lack; screens awaited with UniTask, which the conventions keep for work that is really awaited and which leaves a pending task when the scene is left from a popup.
+
+## The run that is played is a strategy chosen once
+- Why: the player's run and a designer's test run differ in three things: which level, which number, what a win does to progress. `ILevelRun` holds all three, so the flow calls `_run.Level`, `_run.Number` and `_run.Advance()` with no branch on where the run came from; a third kind (a daily level) is one more class.
+- Instead of: methods for each kind on the former `LevelSequence` (`CompleteCurrent`, `After`) with the flow keeping the level and choosing between them, which put the run's kind into the flow and needed the number worked out a second time for the HUD.
+
+## A level ends on a settled board and never while paused
+- Why: the reference opens the win screen after the last block has left through its door. The attempt knows the win the moment the last block is out, but its slide out is still playing; the session ends the level the first frame the outcome is not playing, the attempt is not paused and no block view is leaving (`BoardInteraction.IsSettled`). The same check keeps the win popup from opening over a pause. Between the decision and the end the HUD's restart and pause do nothing (`PlaySession.IsDecided`), so a tap during the last slide cannot restart or leave a level the player has just won (found in review).
+- Instead of: a delay as long as the slide, which drifts from the motion settings; a callback from the last block's tween into the session, which gives the view a say in when a level ends; ending at once and letting the popup wait, which needs every popup to know about the board.
+
+## The HUD pulls the time and writes it only when the shown second changes
+- Why: the time changes every frame but the display once a second. The HUD reads `PlaySession.RemainingSeconds`, rounds up to whole seconds and, only on a new second, writes mm:ss into a fixed char buffer given to TMP's `SetCharArray`, so the countdown allocates nothing and the session does not know the HUD exists.
+- Instead of: the session pushing the time to the HUD every frame, which couples the play feature to its view; `string.Format` or `ToString("mm\\:ss")` per frame, which allocates.
+
+## The settings popup is a feature of its own
+- Why: the Game scene opens it as pause and the Home screen opens it in phase 5, so it belongs to neither Play nor Home. `Preferences` has its own catalog and installer; a scene that shows the popup lists the installer. The switches write straight to Core's audio and haptics services, which already save the choices, so the game keeps no copy.
+- Instead of: the popup in Play, which Home would then reach into; a game-side settings model mirroring Core's saved state.
+
+## The win reward is paid in a test run too
+- Why: a designer testing a level from the editor sees the same complete popup and HUD as the player; paying the reward keeps that flow identical and costs nothing a designer cares about. Only the level progression is the player's own.
+- Instead of: a run-dependent reward, which adds a branch for no benefit to the test.
+
+## One press feedback component with its tuning in a settings asset
+- Why: every button should answer a touch the same way. `PressFeedback` sits next to a button and shrinks it while pressed with a DOTween scale in unscaled time; its scale, durations and eases are one `ButtonFeedbackSettings` asset in the Boot scope, injected because screens are created through the container. The `Button`'s own transition is off, so the scale is the only press visual.
+- Instead of: the `Button`'s Animation transition, which needs an Animator Controller per button style and runs an Animator on every button; a scale per button in each prefab, which spreads one tuning over many prefabs.
+
+## Screen catalogs are registered through a scoped factory in Core
+- Why: each feature registers its own catalog, and VContainer's collection rejects two singleton registrations of the same implementation type, which `RegisterInstance` always is; the Game scene's second catalog (Preferences next to Play) threw `Conflict implementation type: UIScreenCatalog`. `Register(_ => catalog, Lifetime.Scoped)` gives the same asset in each scope and lets any number of catalogs reach the service. The fix is in Core, with a test, and goes back to the template.
+- Instead of: one catalog per scene listing every screen, which makes a scene's asset change with every feature; a wrapper type per feature's catalog, which only works around the container.
+
+## No camera offset for the HUD
+- Why: the camera frames each board with the same margin above and below. The authored boards are bound by the screen's width, so at 1080 x 1920 and 20:9 the board sits well below the HUD; an offset would move every board off center for a case that does not occur.
+- Instead of: a top offset in `CameraFramingSettings` now. If a tall board ever needs it, the framing's single top-and-bottom margin splits into a top and a bottom margin, solved the same exact way.
