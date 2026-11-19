@@ -30,7 +30,7 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 7. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
 
 ## A new UI screen
-A prefab variant of Core's `UIScreenTemplate`: the script in the feature's `Scripts/UI/`, the prefab in its `Prefabs/`, added to the feature's `UIScreenCatalog` (in `Settings/`). Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
+A prefab variant of Core's `UIScreenTemplate`: the script in the feature's `Scripts/UI/`, the prefab in its `Prefabs/` (in `Prefabs/UI/` once the feature has prefabs of another concept too), added to the feature's `UIScreenCatalog` (in `Settings/`). Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
 
 ## A new level
 Made in the level editor only, never by editing the saved file. Format: the level data note in `Docs/Game/Systems/`.
