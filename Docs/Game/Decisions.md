@@ -274,6 +274,10 @@ Format:
 - Why: in the reference the block starts at once, slowly, reaches the cut a moment later and a longer block takes longer to pass; a constant acceleration from rest over the block's length plus the frame's width matches all three, with one tuning value. The duration follows from the length (`SlideDuration`), and the ease is a quadratic ease in, which is exactly that motion. The door's drop and rise and the cube burst are timed from the same slide.
 - Instead of: a fixed distance and duration for every block, as before, where a long block was cut off early and a short one hung on.
 
+## A leaving block snaps onto its door cell before it slides
+- Why: after a fast drag the drawn block trails the cell where the rule let it leave by up to a cell or more. Sliding from there, from rest, made it drift toward the door from afar. Jumping onto the door cell looked abrupt. The reference snaps the block in front of its door and then sends it out, and the stop at the door reads strongly, so the block snaps there with the release's snap (time and ease) and slides from rest after it. The door drops as the snap starts, and the burst is timed from the snap's start.
+- Instead of: a jump onto the door cell, as at first; a slide from where the block is drawn, as after the tenth review; a slide that carries the drag's speed, which removes the stop the reference shows.
+
 ## The cube burst lives on the door prefab
 - Why: the cubes come from the door line, in the door's color (a door always matches its block), so a particle system under the door's root, scaled with the door's length (shape scaling) and given the door's material, needs no pool, color lookup or placement of its own. The cube is Unity's built-in cube mesh: the supplied assets have no cube, and a primitive is not art.
 - Instead of: a pooled burst prefab placed and colored per exit.

@@ -69,15 +69,16 @@ namespace Game.Play
             _motion = Snap(position).SetLink(gameObject, LinkBehaviour.KillOnDisable);
         }
 
-        // A quadratic ease in from rest is a constant acceleration. It starts where the block is drawn, which may trail
-        // its door cell during a drag.
-        public void Leave(Vector3 outside, float slideDuration)
+        // The snap starts where the block is drawn, which may trail its door cell during a drag. A quadratic ease in
+        // from rest is a constant acceleration.
+        public void Leave(Vector3 doorCell, Vector3 outside, float slideDuration)
         {
             _outline.Hide();
             StopMotion();
             _target = outside;
-            _motion = transform.DOLocalMove(outside, slideDuration)
-                .SetEase(Ease.InQuad)
+            _motion = DOTween.Sequence()
+                .Append(Snap(doorCell))
+                .Append(transform.DOLocalMove(outside, slideDuration).SetEase(Ease.InQuad))
                 .OnComplete(Hide)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
             IsLeaving = true;

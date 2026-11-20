@@ -46,21 +46,21 @@ namespace Game.Tests.Play
         {
             _view.Hold();
 
-            _view.Leave(Vector3.forward, 0.3f);
+            _view.Leave(Vector3.zero, Vector3.forward, 0.3f);
 
             Assert.IsFalse(_outline.IsShown);
         }
 
         [Test]
-        public void Leave_WhileTrailingItsTarget_StartsFromWhereTheBlockIsDrawn()
+        public void Leave_WhileTrailingItsTarget_SnapsFromWhereTheBlockIsDrawn()
         {
             _view.SetPose(Vector3.left);
             _view.Follow(Vector3.zero);
 
-            _view.Leave(Vector3.forward, 0.3f);
+            _view.Leave(Vector3.zero, Vector3.forward, 0.3f);
 
-            Assert.AreEqual(Vector3.left, _view.transform.localPosition);
-            Assert.IsFalse(_view.enabled, "the slide replaces the drag's follow");
+            Assert.AreEqual(Vector3.left, _view.transform.localPosition, "the snap tweens there, it does not jump");
+            Assert.IsFalse(_view.enabled, "the snap replaces the drag's follow");
             Assert.IsTrue(_view.IsLeaving);
         }
 
