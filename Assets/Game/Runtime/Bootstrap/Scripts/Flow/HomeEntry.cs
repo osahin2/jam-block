@@ -6,7 +6,6 @@ using VContainer.Unity;
 
 namespace Game.Bootstrap
 {
-    // Entry of the Home scene: shows the home screen; its level button opens the game at the player's level.
     public sealed class HomeEntry : IStartable
     {
         private readonly IUIService _ui;

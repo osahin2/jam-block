@@ -3,8 +3,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // A selected block or door. Each kind knows how it is drawn, moved, recolored and deleted, so the select tool
-    // and the window treat both the same way.
     public interface ILevelSelection
     {
         bool Exists(LevelData level);

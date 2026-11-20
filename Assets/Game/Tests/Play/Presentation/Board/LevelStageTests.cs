@@ -8,8 +8,6 @@ using UnityEngine;
 
 namespace Game.Tests.Play
 {
-    // Shows the catalog's levels with the project's settings and prefabs, so the framing is checked against the pieces
-    // as built, not against the box the framing assumes.
     public sealed class LevelStageTests
     {
         private const float Tolerance = 0.002f;

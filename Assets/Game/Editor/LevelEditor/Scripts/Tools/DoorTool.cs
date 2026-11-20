@@ -2,8 +2,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // A press on the frame places a one-cell door in the chosen color; dragging along the side makes it longer. A
-    // drag that starts on a door moves its nearer end, so a door can be made longer or shorter.
     public sealed class DoorTool : ILevelEditorTool
     {
         private int _door = LevelEdits.NoDoor;

@@ -4,16 +4,9 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Builds a block from the supplied quarter pieces, taken from the given source under the block's object and handed
-    // to its view. Each cell
-    // has four quarters; a quarter's piece follows from its two side neighbours and the diagonal one: none gives an
-    // outer corner, one an edge, both with the diagonal the center. Where both side neighbours exist without the
-    // diagonal, one inner-corner piece covers the three quarters around that concave corner. A piece's pivot is on its
-    // bottom, at the quarter's own center or, for the inner corner, at its concave corner, so a piece is placed there
-    // and turned about it.
-    // Piece math is in model units, where a cell is 2 wide.
     public sealed class BlockPieceBuilder
     {
+        // Piece math is in model units, where a cell is 2 wide.
         private static readonly Vector2Int[] Quarters =
         {
             new Vector2Int(1, 1), new Vector2Int(-1, 1), new Vector2Int(-1, -1), new Vector2Int(1, -1)

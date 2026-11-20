@@ -3,9 +3,9 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // Holds the block itself, not its index, so removing an earlier block never makes it mean another one.
     public sealed class BlockSelection : ILevelSelection
     {
+        // The block itself, not its index, so removing an earlier block never makes it mean another one.
         private readonly BlockData _block;
         private Cell _start;
 

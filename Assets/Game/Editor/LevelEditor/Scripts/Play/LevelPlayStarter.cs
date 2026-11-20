@@ -4,12 +4,10 @@ using UnityEditor.SceneManagement;
 
 namespace Game.Editor.LevelEditor
 {
-    // Plays a level from the scene a build starts with, leaving the scenes open in the editor as they are. Core.Scenes
-    // keeps the play mode start scene on the first build scene (Boot), which sees the request and opens the game.
     internal static class LevelPlayStarter
     {
-        // Checks everything that would stop play mode before writing anything, so a refused play leaves no request
-        // behind. The problem is a sentence for the designer.
+        // Everything that would stop play mode is checked before anything is written, so a refused play leaves no
+        // request behind.
         public static bool TryPlay(LevelAsset level, out string problem)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

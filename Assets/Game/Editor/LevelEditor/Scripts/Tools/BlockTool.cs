@@ -2,7 +2,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // One drag draws one block in the chosen color; a drag that starts on a block extends that block.
     public sealed class BlockTool : ILevelEditorTool
     {
         private int _block = LevelEdits.NoBlock;

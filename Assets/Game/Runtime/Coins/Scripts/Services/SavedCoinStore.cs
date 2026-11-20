@@ -4,7 +4,6 @@ using Game.Logic.Coins;
 
 namespace Game.Coins
 {
-    // Keeps the coin balance in one save document.
     public sealed class SavedCoinStore : ICoinStore
     {
         private const string Key = "coins";

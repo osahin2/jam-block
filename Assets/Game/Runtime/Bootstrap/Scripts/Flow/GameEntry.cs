@@ -7,12 +7,6 @@ using VContainer.Unity;
 
 namespace Game.Bootstrap
 {
-    // The Game scene's flow: one method per step, each screen's buttons lead to the next one. The HUD stays open over
-    // every level; restart plays the level again, pause stops it under the settings popup, whose close resumes it and
-    // whose home leaves the scene. A win opens the level complete popup, whose continue pays the reward and plays the
-    // next level; a fail opens the level failed popup, with retry and home. Which level is next is the run's, chosen
-    // once at the start: the player's run completes their level, a run started from the level editor is a designer's
-    // test that never moves progress.
     public sealed class GameEntry : IStartable
     {
         private readonly PlaySession _session;

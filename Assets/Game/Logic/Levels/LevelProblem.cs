@@ -11,7 +11,6 @@ namespace Game.Logic.Levels
         public LevelPart Part { get; }
         // The block or door the problem is about, by its index in the level.
         public int Index { get; }
-        // The one cell at fault, when there is one.
         public Cell? Cell { get; }
 
         private LevelProblem(LevelProblemKind kind, Severity severity, LevelPart part, int index, Cell? cell)

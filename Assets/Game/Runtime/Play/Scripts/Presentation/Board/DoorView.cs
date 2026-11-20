@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // A door on the frame. When a block leaves through it, the door drops into the frame at once with the arrow on its
-    // top, throws cubes of its color from the door line while the block passes and rises again once the block is gone.
-    // Only the model drops; the root stays, so the burst under it stays on the door line. The tweens die when the door
-    // is deactivated, so a door given back to its pool mid-motion does not move while idle.
     public sealed class DoorView : MonoBehaviour
     {
         [SerializeField] private BoardPiece _piece;
@@ -25,9 +21,8 @@ namespace Game.Play
         private float _drop;
         private Sequence _passing;
 
-        // Called by the builder once the door and its arrow are placed. The drop is in the board root's units and the
-        // burst height above the ground; the rest pose is taken from the first use, while the instance is still as the
-        // prefab made it (Awake does not run in the level editor's preview).
+        // The rest pose is taken on first use, while the instance is as the prefab made it: Awake does not run in
+        // the level editor's preview.
         public void Init(Material material, Transform arrow, float drop, float burstHeight, BlockMotionSettings motion)
         {
             if (!_hasRest)
@@ -51,6 +46,7 @@ namespace Game.Play
         }
 
         // Seconds from the block's start: its front reaches the cut line, and it is gone.
+        // Only the model drops; the root stays, so the burst under it stays on the door line.
         public void LetThrough(float reach, float gone)
         {
             StopPassing();

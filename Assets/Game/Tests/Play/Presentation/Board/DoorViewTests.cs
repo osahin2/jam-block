@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Game.Tests.Play
 {
-    // A door built with the project's settings and prefab; its tweens are moved by hand, as edit mode does not run them.
     public sealed class DoorViewTests
     {
         private const int Red = 1;

@@ -2,10 +2,8 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // One way of editing the board with the pointer. Cells run from -1 to the board's size, so the ring just outside
-    // the board is where doors are placed. Press and Drag return whether the level changed; a press that changes only
-    // the tool's own state, such as the select tool's selection, returns false. Describe says what a press at the cell
-    // would do, for the line under the board.
+    // Cells run from -1 to the board's size: the ring outside the board is where doors go. Press and Drag return
+    // whether the level changed, false when only the tool's own state, such as a selection, did.
     public interface ILevelEditorTool
     {
         string Name { get; }

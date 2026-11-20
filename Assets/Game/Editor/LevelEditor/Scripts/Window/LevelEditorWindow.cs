@@ -12,8 +12,6 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    // The level editor: shows a level's working copy, sends pointer input to the chosen tool and writes the copy back
-    // to the asset on save. Its state is in serialized fields, so it survives script reloads with its undo history.
     public sealed class LevelEditorWindow : EditorWindow
     {
         private const string Title = "Level Editor";
@@ -195,7 +193,6 @@ namespace Game.Editor.LevelEditor
 
         internal void UseTool<T>() where T : ILevelEditorTool => ChooseTool(Array.FindIndex(_tools, tool => tool is T));
 
-        // Picks the color for new blocks and doors; with a selection, recolors it too.
         internal void PickColor(int colorId)
         {
             if (_palette == null || !_palette.Has(colorId))
@@ -222,7 +219,6 @@ namespace Game.Editor.LevelEditor
 
         internal void ToggleLevelList() => ShowLevelList(!_levelsShown);
 
-        // Shortcuts stay quiet while text is typed into a field: a number field or the level search.
         internal bool IsEditingText()
         {
             var focused = rootVisualElement.focusController?.focusedElement as VisualElement;
@@ -242,7 +238,6 @@ namespace Game.Editor.LevelEditor
             Refresh();
         }
 
-        // The open level is copied as it is in the window, the same as the toolbar's Duplicate; another one as saved.
         private void DuplicateLevel(LevelAsset level)
         {
             if (level == _document.Asset)
@@ -257,7 +252,6 @@ namespace Game.Editor.LevelEditor
             });
         }
 
-        // Only the question and what the window shows; LevelLibrary.Delete is what deleting means.
         private void DeleteLevel(int index)
         {
             var level = _library.Levels[index];
@@ -276,8 +270,7 @@ namespace Game.Editor.LevelEditor
             Refresh();
         }
 
-        // Every way of opening another level comes here, so unsaved changes are never dropped without asking. Duplicate
-        // does not: it drops nothing.
+        // Every way of opening another level comes here, so unsaved changes are never dropped without asking.
         private void Load(Action load)
         {
             if (!ConfirmDiscard())
@@ -360,7 +353,6 @@ namespace Game.Editor.LevelEditor
                 var key = i < LevelEditorShortcuts.ColorKeyCount ? LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(i)) : "";
                 var swatch = new Button(() => PickColor(colorId)) { tooltip = key.Length > 0 ? $"{ColorName(i)} ({key})" : ColorName(i) };
                 swatch.AddToClassList("color-swatch");
-                // The key in a dark corner badge, readable on every color, as the tool buttons show theirs.
                 if (key.Length > 0)
                 {
                     var badge = new Label(key);
@@ -389,7 +381,6 @@ namespace Game.Editor.LevelEditor
             return material != null ? material.name.Substring(material.name.LastIndexOf('_') + 1) : $"Missing color {colorId}";
         }
 
-        // Hidden with its resize handle; the open level's name stays in the toolbar.
         private void ShowLevelList(bool shown)
         {
             _levelsShown = shown;
@@ -464,8 +455,6 @@ namespace Game.Editor.LevelEditor
             Refresh();
         }
 
-        // What the selected tool would do under the pointer, or what it does at all when the pointer is off the board,
-        // and what is wrong with the block or door under the pointer.
         private void UpdateStatus()
         {
             var hint = _hovering ? Tool.Describe(Draft.Level, _hoverCell) : Tool.Tooltip;
@@ -524,7 +513,6 @@ namespace Game.Editor.LevelEditor
             LevelPreviewSource.ShowEdited(level);
         }
 
-        // With no level open every button but New is off, so none is clicked to no effect.
         private void UpdateToolbar(bool canSave)
         {
             _levelName.text = _document.IsOpen ? LevelName : "No level open";
@@ -536,8 +524,6 @@ namespace Game.Editor.LevelEditor
             _duplicate.SetEnabled(_document.IsOpen && _library != null);
         }
 
-        // Every problem's block or door in its severity's color, the cell at fault stronger; the selection; and the
-        // problem under the pointer in the list over everything.
         private void DrawBoard()
         {
             _marks.Clear();

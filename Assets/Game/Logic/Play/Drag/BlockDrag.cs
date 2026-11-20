@@ -1,7 +1,5 @@
 namespace Game.Logic.Play
 {
-    // Turns a finger position into whole-cell steps and a sub-cell offset. Positions are in cells from the board's
-    // top-left corner, x to the right and y down.
     public sealed class BlockDrag
     {
         private const float HalfCell = 0.5f;
@@ -58,8 +56,6 @@ namespace Game.Logic.Play
 
         public void End() => Block = Board.NoBlock;
 
-        // Steps one cell toward a target at least half a cell away; returns whether the block moved, and the door it
-        // left through.
         private bool StepToward(float delta, Direction backward, Direction forward, out int exitDoor)
         {
             exitDoor = StepResult.NoDoor;

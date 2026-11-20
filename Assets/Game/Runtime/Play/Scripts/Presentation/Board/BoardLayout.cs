@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Board cells to positions in the board root's local space, the space the board is built in, and back. The board
-    // lies on the XZ plane centered on the origin; row 0 is the far edge (+Z), so rows run toward the camera.
     public sealed class BoardLayout
     {
         public float CellSize { get; }
@@ -13,10 +11,7 @@ namespace Game.Play
         public float Right => -Left;
         public float Top { get; }
         public float Bottom => -Top;
-        // How far the frame reaches out from the board's edge.
         public float FrameWidth { get; }
-        // The board with its frame, from the ground to its highest part (the blocks' tops or the door arrows' on the
-        // frame): what the camera frames and the input covers.
         public Bounds Box { get; }
 
         public BoardLayout(int width, int height, BoardArtSettings art)
@@ -30,6 +25,7 @@ namespace Game.Play
             Box = new Bounds(new Vector3(0f, highest * 0.5f, 0f), size);
         }
 
+        // Row 0 is the far edge (+Z), so rows run toward the camera.
         public Vector3 CellCenter(Cell cell) =>
             new Vector3(Left + (cell.X + 0.5f) * CellSize, 0f, Top - (cell.Y + 0.5f) * CellSize);
 

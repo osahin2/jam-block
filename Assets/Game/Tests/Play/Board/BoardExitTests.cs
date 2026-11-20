@@ -125,7 +125,7 @@ namespace Game.Tests.Play
             Assert.IsTrue(result.HasLeft);
         }
 
-        // A touch calls it, so a block at its door leaves on a tap; its own cells between a part and the door are free.
+        // Its own cells between a part and the door count as free.
         [Test]
         public void TryLeave_TallBlockAtItsDoor_LeavesThroughIt()
         {

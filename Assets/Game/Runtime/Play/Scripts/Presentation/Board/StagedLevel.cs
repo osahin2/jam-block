@@ -1,7 +1,5 @@
 namespace Game.Play
 {
-    // A level as shown on the board: the layout its views were placed with, one view per block and one per door, each
-    // in level order.
     public readonly struct StagedLevel
     {
         public BoardLayout Layout { get; }

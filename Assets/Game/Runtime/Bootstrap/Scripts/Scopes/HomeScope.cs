@@ -6,7 +6,6 @@ using VContainer.Unity;
 
 namespace Game.Bootstrap
 {
-    // The Home scene's scope, a child of the Boot scope.
     public sealed class HomeScope : LifetimeScope
     {
         [SerializeField] private UIRoot _uiRoot;

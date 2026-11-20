@@ -7,17 +7,15 @@ namespace Game.Play
     {
         // The supplied models are made for a cell of 2 model units; block pieces are 1-unit quarters of a cell.
         public const float ModelCellSize = 2f;
-        // Height of a block piece from its bottom, where its pivot is, to its top, in model units, measured from
-        // BlockPlates.fbx.
+        // Bottom, where the pivot is, to top; measured from BlockPlates.fbx.
         private const float BlockHeight = 0.519f;
-        // Height of the wall and door pieces' cap above their pivot, in model units, measured from WallAndDoor.fbx.
+        // Measured from WallAndDoor.fbx.
         private const float FrameTopAbovePivot = 0.611f;
-        // Length of the wall and door pieces along their X, in model units, measured from WallAndDoor.fbx. Both are
-        // straight extrusions along X (their vertices lie only on their two ends), so a piece stretched along X keeps
+        // Measured from WallAndDoor.fbx. Wall and door are straight extrusions along X, so a stretched piece keeps
         // its cross-section.
         private const float WallModelLength = 1f;
         private const float DoorModelLength = 2f;
-        // Height of the door arrow from its bottom, where its pivot is, in model units, measured from WallAndDoor.fbx.
+        // Bottom, where the pivot is, to top; measured from WallAndDoor.fbx.
         private const float ArrowHeight = 0.126f;
 
         [SerializeField] private float _cellSize = 2f;
@@ -56,18 +54,12 @@ namespace Game.Play
         public float FrameLift => _frameLift * Scale;
         public float WallWidth => _wallThickness * Scale;
         public float DoorWidth => _doorThickness * Scale;
-        // Scale along X that makes a wall or door piece one cell long.
         public float WallScalePerCell => _cellSize / WallModelLength;
         public float DoorScalePerCell => _cellSize / DoorModelLength;
-        // How far the frame reaches out from the board's edge.
         public float FrameWidth => Mathf.Max(WallWidth, DoorWidth);
-        // The frame's top above the ground.
         public float FrameTop => (_frameLift + FrameTopAbovePivot) * Scale;
-        // The door arrows' top above the ground; they stand on the frame's top.
         public float ArrowTop => FrameTop + ArrowHeight * Scale;
-        // How far a door drops while a block passes.
         public float DoorDrop => FrameTop - _doorOpenHeight * Scale;
-        // The block tops, where a touch meets a block.
         public float TouchHeight => (_blockLift + BlockHeight) * Scale;
         public BoardPiece BlockCenter => _blockCenter;
         public BoardPiece BlockEdge => _blockEdge;

@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Core.Scenes
 {
-    // A full-screen overlay that fades in and out; it ignores progress. The fade duration is part of the prefab's
-    // visual design, like a screen's layout. The prefab starts covered, so the boot screen is hidden.
     public sealed class ScreenFadeTransition : MonoBehaviour, ISceneTransition
     {
         [SerializeField] private CanvasGroup _group;

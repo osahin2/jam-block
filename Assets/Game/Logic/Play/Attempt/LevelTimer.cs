@@ -1,7 +1,5 @@
 namespace Game.Logic.Play
 {
-    // Counts a level's time limit down. It runs from the first touch on the board until it expires, except while
-    // paused; the caller passes the frame time.
     public sealed class LevelTimer
     {
         public float RemainingSeconds { get; private set; }

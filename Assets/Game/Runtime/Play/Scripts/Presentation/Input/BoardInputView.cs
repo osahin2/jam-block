@@ -4,11 +4,6 @@ using UnityEngine.EventSystems;
 
 namespace Game.Play
 {
-    // The board's place in the EventSystem: one collider over the board, frame included, on the board root's object,
-    // so the collider is in the space the board is built in. A press the UI above it does not take arrives here; the
-    // first pointer's press, drag and release go on as screen positions. The EventSystem sends a drag and a release to
-    // the object that was pressed, so a drag that leaves the collider and a release outside it still arrive. Other
-    // pointers and buttons are ignored.
     public sealed class BoardInputView : MonoBehaviour, IPointerDownHandler, IInitializePotentialDragHandler, IDragHandler,
         IPointerUpHandler
     {
@@ -30,7 +25,6 @@ namespace Game.Play
             _pointer = NoPointer;
         }
 
-        // Fits the collider to a box in the board root's local space.
         public void Cover(Bounds box)
         {
             _area.center = box.center;
@@ -51,6 +45,7 @@ namespace Game.Play
             eventData.useDragThreshold = false;
         }
 
+        // The EventSystem sends drag and release to the pressed object, so both arrive outside the collider too.
         public void OnDrag(PointerEventData eventData)
         {
             if (IsHeld(eventData))

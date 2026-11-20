@@ -3,9 +3,6 @@ using Game.Data.Levels;
 
 namespace Game.Logic.Play
 {
-    // One try at a level: the board, the drag and the timer, and whether the level is won or failed. The first touch
-    // on the board starts the timer; the board takes touches only while the level is playing and not paused.
-    // Positions are in cells from the board's top-left corner. A restart is a new attempt.
     public sealed class LevelAttempt
     {
         public const int NoBlock = Board.NoBlock;
@@ -27,9 +24,8 @@ namespace Game.Logic.Play
             _timer = new LevelTimer(level.TimeLimitSeconds);
         }
 
-        // Returns true when a block is under the finger. A block that touches its door with its way out free leaves at
-        // once, as a tap does in the reference, and the pose says so; any other block is now held and the pose is
-        // DragPose.None.
+        // A block at its door with its way out free leaves at once and the pose says so; any other block is held
+        // and the pose is DragPose.None.
         public bool Grab(float x, float y, out DragPose pose)
         {
             pose = DragPose.None;
@@ -50,7 +46,6 @@ namespace Game.Logic.Play
             return true;
         }
 
-        // Returns false when no block is held or the board takes no touches; the held block then stays where it is.
         public bool MoveTo(float x, float y, out DragPose pose)
         {
             pose = DragPose.None;
@@ -61,8 +56,7 @@ namespace Game.Logic.Play
             return true;
         }
 
-        // Returns the block that was held, or NoBlock. Always allowed, so a held block can be put back after the
-        // level fails or pauses.
+        // Always allowed, so a held block can be put back after the level fails or pauses.
         public int Release()
         {
             var block = _drag.Block;

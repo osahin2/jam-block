@@ -4,8 +4,6 @@ using Game.Data.Levels;
 
 namespace Game.Logic.Levels
 {
-    // The one place that says what a valid level is: the level editor shows the report before saving, and a test
-    // checks every level asset in the project. The game plays a level as given.
     public static class LevelValidator
     {
         private const int Free = -1;

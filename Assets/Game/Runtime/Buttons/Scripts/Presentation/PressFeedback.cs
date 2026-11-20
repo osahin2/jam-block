@@ -6,9 +6,6 @@ using VContainer;
 
 namespace Game.Buttons
 {
-    // The touch feedback of every button: shrinks it while pressed and springs it back on release, in unscaled time.
-    // Screens are created through the container, so the settings arrive by injection. A button that is not
-    // interactable does not react; one hidden while pressed comes back at its size at rest.
     [RequireComponent(typeof(Selectable))]
     public sealed class PressFeedback : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {

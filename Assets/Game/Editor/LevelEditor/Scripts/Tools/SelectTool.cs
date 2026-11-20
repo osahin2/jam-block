@@ -2,7 +2,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // Picks a block or a door; dragging moves it. The window recolors or deletes the selection.
     public sealed class SelectTool : ILevelEditorTool
     {
         private Cell _grab;

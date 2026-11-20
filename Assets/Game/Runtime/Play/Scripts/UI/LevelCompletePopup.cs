@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 namespace Game.Play
 {
-    // Opens once the last block has left: the coins the win pays and a continue button.
     public sealed class LevelCompletePopup : UIScreen
     {
         [SerializeField] private TMP_Text _rewardLabel;

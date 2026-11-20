@@ -4,7 +4,6 @@ using Random = UnityEngine.Random;
 
 namespace Core.Audio
 {
-    // One sound event. Clips are variations of the same sound; each play picks one and a pitch in the range.
     [CreateAssetMenu(menuName = "Core/Audio/Sfx Cue", fileName = "SfxCue")]
     public sealed class SfxCue : ScriptableObject
     {

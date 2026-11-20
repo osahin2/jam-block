@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Core.Audio.Tests
 {
-    // Creates and later destroys the engine objects a test needs.
     internal sealed class AudioTestObjects
     {
         private readonly List<Object> _created = new List<Object>();

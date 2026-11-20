@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace Game.Tests.Play
 {
-    // Uses the project's settings and prefabs, so the game's real pieces are pooled.
     public sealed class PooledBoardPiecesTests
     {
         private const int Red = 1;
@@ -100,7 +99,6 @@ namespace Game.Tests.Play
         private static LevelData TwoBlocks() =>
             new LevelBuilder(4, 5).Rect(Red, 0, 0, 2, 2).Rect(Red, 1, 3, 3, 1).Door(Red, Side.Top, 0, 2).Build();
 
-        // Every instance the pools made, on the board or idle.
         private int CountAll() =>
             _idle.childCount + _board.GetComponentsInChildren<BoardPiece>(true).Length +
             _board.GetComponentsInChildren<BlockView>(true).Length;

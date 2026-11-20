@@ -9,7 +9,6 @@ using VContainer.Unity;
 
 namespace Game.Bootstrap
 {
-    // The root scope in the Boot scene, which stays loaded: the app-wide services every content scene shares.
     public sealed class BootScope : LifetimeScope
     {
         [SerializeField] private AudioServiceSettings _audio;

@@ -2,12 +2,11 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // The level's time as the HUD shows it: whole seconds rounded up, so 00:00 shows only once the time is over,
-    // written as mm:ss into a buffer the caller keeps, so a new second allocates nothing.
     public static class CountdownText
     {
         public const int Length = 5;
 
+        // Rounded up, so 00:00 shows only once the time is over.
         public static int WholeSeconds(float remainingSeconds) => Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
 
         public static void Write(int wholeSeconds, char[] text)

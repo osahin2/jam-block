@@ -20,7 +20,7 @@ Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. 
 - Tuning values and content references live in ScriptableObject settings assets, one per concern, registered by the feature's `ScriptableObjectInstaller` (Core.Installers).
 - A class has one reason to change; no classes that only forward. No dead or commented-out code.
 - Async (UniTask) only where something is really awaited.
-- Member order, one type per file, naming, interface contracts (Liskov) and extension points (open-closed): `Docs/Conventions/CodeStyle.md`. A hook checks the member order after every C# edit; fix what it reports.
+- Member order, one type per file, naming, interface contracts (Liskov) and extension points (open-closed): `Docs/Conventions/CodeStyle.md`. Comments only for why (CodeStyle). Hooks check the member order and the comments after every C# edit; fix what they report.
 
 ## Hard rules
 - Never edit `.unity`, `.prefab`, `.asset`, `.meta` or `ProjectSettings/` by hand; use editor scripts (skill `unity-editor`). Never create `.meta` files.

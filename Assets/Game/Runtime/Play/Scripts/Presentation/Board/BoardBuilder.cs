@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Builds a level's ground, frame, doors and blocks under the parent it is given, from the pieces of the source it
-    // is given. It owns neither: the caller creates the parent and releases the pieces.
     public sealed class BoardBuilder
     {
         private static readonly Side[] Sides = (Side[])Enum.GetValues(typeof(Side));
@@ -29,7 +27,6 @@ namespace Game.Play
             _blockPieces = blockPieces;
         }
 
-        // Every piece is placed in the parent's local space, so the board follows the parent it is built under.
         public StagedLevel Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             BuildGround(level, layout, parent, pieces);
@@ -46,7 +43,6 @@ namespace Game.Play
             }
         }
 
-        // Returns the door views in level order.
         private DoorView[] BuildFrame(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             var doors = new DoorView[level.Doors.Count];
@@ -58,8 +54,6 @@ namespace Game.Play
             return doors;
         }
 
-        // A corner piece is a square of the wall's thickness outside the board's corner, turned so its rounded corner
-        // points away from the board.
         private void BuildCorner(BoardLayout layout, Vector2Int corner, Transform parent, IBoardPieceSource pieces)
         {
             var half = _art.WallWidth * 0.5f;
@@ -70,10 +64,8 @@ namespace Game.Play
             Spawn(_art.FrameCorner, position, turn, scale, parent, pieces);
         }
 
-        // A side is one door piece per door and one wall piece per run of cells between doors and corners, each
-        // stretched along its cells, so the frame reads as smooth bars. Frame pieces face out along their +Z, so each
-        // is turned toward the side's outward direction and its Z scale is its thickness; its inner face lies on the
-        // board's edge. Each door carries an arrow on its top at its middle, pointing out of the board.
+        // Frame pieces face out along their +Z, so each is turned toward its side's outward direction and its Z
+        // scale is its thickness; the inner face lies on the board's edge.
         private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces,
             DoorView[] doors)
         {
@@ -109,7 +101,6 @@ namespace Game.Play
             }
         }
 
-        // The middle of the board's edge along the cells from start to end (exclusive) of a side, at the frame's lift.
         private Vector3 RunMiddle(LevelData level, BoardLayout layout, Side side, int start, int end)
         {
             var first = layout.CellCenter(EdgeCell(level, side, start));
@@ -156,7 +147,6 @@ namespace Game.Play
             return null;
         }
 
-        // Where the next door of the side starts at or after the given cell, or the side's length if none does.
         private static int NextDoorStart(LevelData level, Side side, int from, int length)
         {
             var next = length;
@@ -168,7 +158,6 @@ namespace Game.Play
             return next;
         }
 
-        // The board cell along a side that touches the frame at the given index.
         private static Cell EdgeCell(LevelData level, Side side, int along)
         {
             var outward = Direction.OutOf(side).Offset;

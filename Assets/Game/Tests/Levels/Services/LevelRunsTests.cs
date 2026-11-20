@@ -69,7 +69,6 @@ namespace Game.Tests.Levels
             Assert.AreEqual(3, run.Number);
         }
 
-        // A designer testing the player's current level from the level editor does not move the player's progress.
         [Test]
         public void RunForTest_Advance_FromTheCurrentLevel_PlaysTheCatalogsNextLevelWithoutProgress()
         {
@@ -120,7 +119,6 @@ namespace Game.Tests.Levels
             Object.DestroyImmediate(draft);
         }
 
-        // Moves one index per completed level; the loop after the last level is Core's and tested there.
         private sealed class FakeProgression : ILevelProgression
         {
             public int Index { get; set; }
@@ -128,6 +126,7 @@ namespace Game.Tests.Levels
             public int CurrentLevelNumber => Index + 1;
             public int CurrentLevelIndex => Index;
 
+            // No loop after the last level: that is Core's and tested there.
             public void CompleteCurrentLevel()
             {
                 Completed++;

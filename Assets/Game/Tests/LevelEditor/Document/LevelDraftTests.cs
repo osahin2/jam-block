@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace Game.Tests.LevelEditor
 {
-    // Undo runs for real here, on strokes recorded the way the window records them.
     public sealed class LevelDraftTests
     {
         private const int Red = 1;

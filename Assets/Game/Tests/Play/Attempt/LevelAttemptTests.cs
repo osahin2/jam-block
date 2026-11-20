@@ -124,7 +124,6 @@ namespace Game.Tests.Play
             Assert.AreEqual(TimeLimit, attempt.RemainingSeconds, Tolerance);
         }
 
-        // The win is known when the move that takes the last block out returns, not one tick later.
         [Test]
         public void MoveTo_TheLastBlockOut_WinsBeforeTheNextTick()
         {
@@ -137,7 +136,6 @@ namespace Game.Tests.Play
             Assert.AreEqual(LevelOutcome.Won, attempt.Outcome);
         }
 
-        // Tick reports the outcome as it stands, so every tick after the end returns it, not only the one that changed it.
         [Test]
         public void Tick_AfterTheLevelFailed_ReturnsFailedAgain()
         {
@@ -148,7 +146,6 @@ namespace Game.Tests.Play
             Assert.AreEqual(LevelOutcome.Failed, attempt.Tick(1f));
         }
 
-        // A tap is enough: a block that touches its door with its way out free leaves on the touch, without a drag.
         [Test]
         public void Grab_OnABlockAtItsDoor_LeavesAtOnceWithoutHoldingIt()
         {
@@ -179,8 +176,7 @@ namespace Game.Tests.Play
             Assert.AreEqual(LevelOutcome.Won, attempt.Outcome);
         }
 
-        // The board's way-out rule holds on a touch too: a block between the door and the L's other part keeps it on
-        // the board, and the touch holds it for a drag.
+        // A block between the door and the L's other part keeps the L on the board.
         [Test]
         public void Grab_OnABlockAtItsDoorWithABlockInTheWay_HoldsIt()
         {

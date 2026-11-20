@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Game.Tests.Play
 {
-    // Builds with the project's settings and prefabs, so the frame is checked against the real pieces' meshes.
     public sealed class BoardBuilderTests
     {
         private const int Red = 1;
@@ -87,7 +86,6 @@ namespace Game.Tests.Play
         private StagedLevel Build(LevelData level) =>
             _builder.Build(level, new BoardLayout(level.Width, level.Height, _art), _board, new PreviewBoardPieces());
 
-        // The pieces made from the prefab beyond the board's far edge, ordered along X.
         private List<T> TopPieces<T>(T prefab, BoardLayout layout) where T : Component
         {
             var top = Pieces(prefab).FindAll(piece => piece.transform.localPosition.z > layout.Top);

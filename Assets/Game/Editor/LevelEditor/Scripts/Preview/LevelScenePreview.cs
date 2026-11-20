@@ -7,10 +7,6 @@ using UnityEngine.SceneManagement;
 
 namespace Game.Editor.LevelEditor
 {
-    // Shows a level in the open Game scene through the game's own LevelStage, which builds it where the game's board
-    // root stands and frames the game's camera on it as the game does, so the Scene view and the Game view show what
-    // the game will. Its objects are plain copies of the piece prefabs, never saved and not editable: the level is
-    // edited in the level editor only. Moving the camera does not mark the scene as changed.
     public sealed class LevelScenePreview
     {
         public const string RootName = "Level Preview (not saved)";
@@ -21,8 +17,7 @@ namespace Game.Editor.LevelEditor
         private GameObject _root;
         private string _shown;
 
-        // Builds nothing when no Game scene is open or the level cannot be built. A level equal to the one on show is
-        // not built again, so a refresh that changed nothing costs no rebuild.
+        // A level equal to the one on show is not built again, so a refresh that changed nothing costs no rebuild.
         public void Show(LevelData level)
         {
             var snapshot = level != null ? JsonUtility.ToJson(level) : null;
@@ -49,8 +44,6 @@ namespace Game.Editor.LevelEditor
             _root = null;
         }
 
-        // The Game scene is the one whose root holds the game's scope; the scope names the camera the game frames and
-        // the board root the game builds under.
         private static bool TryFindGameScene(out Scene gameScene, out Camera camera, out BoardRoot board)
         {
             for (var i = 0; i < SceneManager.sceneCount; i++)

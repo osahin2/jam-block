@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Game.Tests.LevelEditor
 {
-    // Creates real assets in a folder of its own, removed after each test; the catalog starts empty in that folder.
     public sealed class LevelLibraryTests
     {
         private const string Folder = "Assets/LevelLibraryTests";

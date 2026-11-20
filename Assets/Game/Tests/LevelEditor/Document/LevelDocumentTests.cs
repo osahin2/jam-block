@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Game.Tests.LevelEditor
 {
-    // Saves into real assets in a folder of its own with its own catalog, removed after each test.
     public sealed class LevelDocumentTests
     {
         private const string Folder = "Assets/LevelDocumentTests";

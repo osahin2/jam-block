@@ -3,10 +3,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // The changes the level editor's tools make to a level. They keep each edit sensible (a block grows only by a free
-    // cell touching it, a moved block or door stays on the board and off the others, a smaller board drops what falls
-    // outside); what a valid level is stays in LevelValidator. Cells just outside the board form the ring where doors
-    // are: column -1 and Width, row -1 and Height.
     public static class LevelEdits
     {
         public const int NoBlock = -1;
@@ -37,7 +33,6 @@ namespace Game.Editor.LevelEditor
             return NoDoor;
         }
 
-        // The side a ring cell lies on; board cells and the four corners have none.
         public static bool TryGetSide(LevelData level, Cell cell, out Side side)
         {
             var onColumn = cell.X >= 0 && cell.X < level.Width;
@@ -109,7 +104,7 @@ namespace Game.Editor.LevelEditor
             return true;
         }
 
-        // A block left without cells is removed; one left in two pieces is the validator's to report.
+        // A block left in two pieces is the validator's to report.
         public static bool TryRemoveBlockCell(LevelData level, Cell cell)
         {
             var index = BlockAt(level, cell);
@@ -130,7 +125,6 @@ namespace Game.Editor.LevelEditor
             return level.Doors.Count - 1;
         }
 
-        // Moves or resizes a door along its side; refused past the side's ends or over another door.
         public static bool TrySetDoorSpan(LevelData level, int index, int start, int end)
         {
             var door = level.Doors[index];

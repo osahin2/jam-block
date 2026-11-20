@@ -8,8 +8,6 @@ using VContainer;
 
 namespace Game.Preferences
 {
-    // The player's sound, music and vibration choices, written straight to Core's audio and haptics services, which
-    // save them. What close and home lead to is the caller's.
     public sealed class SettingsPopup : UIScreen
     {
         [SerializeField] private SwitchView _sound;

@@ -7,14 +7,10 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    // Draws a level from above inside a frame that holds its doors, and turns the pointer into cells, the ring of
-    // cells just outside the board included. A fast drag reports every cell it passes, so a drawn stroke has no gaps.
-    // The cell under the pointer is highlighted, the whole block or door when it is on one, so it is clear what a press
-    // hits.
     public sealed class LevelBoardView : VisualElement
     {
         private const float OutlineWidth = 3f;
-        // Empty cells are drawn as tiles with a gap, as a share of the cell size.
+        // A share of the cell size.
         private const float TileInset = 0.05f;
         private static readonly Color MissingColor = Color.magenta;
 
@@ -49,8 +45,6 @@ namespace Game.Editor.LevelEditor
             RegisterCallback<PointerLeaveEvent>(_ => EndHover());
         }
 
-        // Marks are drawn over the level in their order: over the whole cell on the board, over the frame half in the
-        // ring.
         public void Show(LevelData level, ColorPalette palette, IReadOnlyList<BoardMark> marks)
         {
             _level = level;
@@ -97,8 +91,6 @@ namespace Game.Editor.LevelEditor
                 var tile = CellRect(cell);
                 return Box(new Rect(tile.x + inset, tile.y + inset, tile.width - 2f * inset, tile.height - 2f * inset), "board-tile");
             }
-            // A block fills its cells whole, with a thick edge where the neighbour is not the same block, so it reads
-            // as one piece.
             var element = Box(CellRect(cell), "board-block");
             element.style.backgroundColor = ColorOf(_level.Blocks[block].ColorId);
             element.style.borderTopWidth = Outline(cell, new Cell(0, -1), block);
@@ -108,7 +100,6 @@ namespace Game.Editor.LevelEditor
             return element;
         }
 
-        // The ring cell's half next to the board, so the ring reads as a wall around it; a door shows in its color.
         // The pointer still maps the whole ring cell, which keeps the doors easy to hit.
         private VisualElement FrameCell(Cell cell)
         {
@@ -166,10 +157,8 @@ namespace Game.Editor.LevelEditor
             HoverEnded?.Invoke();
         }
 
-        // Where a cell is drawn: whole on the board, the half next to the board in the ring.
         private Rect PieceRect(Cell cell) => _level.IsOnBoard(cell) ? CellRect(cell) : FrameRect(cell);
 
-        // The half of a ring cell next to the board.
         private Rect FrameRect(Cell cell)
         {
             var half = _cellSize / 2f;

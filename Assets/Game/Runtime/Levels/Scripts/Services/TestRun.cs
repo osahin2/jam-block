@@ -2,15 +2,13 @@ using Core.Levels;
 
 namespace Game.Levels
 {
-    // A designer's test started from the level editor: it plays the tested level and then on through the catalog's
-    // order (the first after the last), numbered by the catalog, and never moves the player's progress. A level
-    // outside the catalog has no place of its own, so it takes the player's: their number, then their level.
     public sealed class TestRun : ILevelRun
     {
         private readonly LevelCatalog _catalog;
         private readonly ILevelProgression _progression;
 
         public LevelAsset Level { get; private set; }
+        // A level outside the catalog has no place of its own, so it takes the player's: their number, then their level.
         public int Number
         {
             get

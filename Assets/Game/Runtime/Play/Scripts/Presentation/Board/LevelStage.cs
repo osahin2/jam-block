@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Shows a level: lays the board out, builds it under the given parent from the given pieces, tells the block shader
-    // where the board is and frames the camera on it. The play session and the level editor's scene preview both show a level through this one method, so the
-    // preview matches the game; each brings its own parent and pieces, and releases them itself. It makes its builder
-    // and framing from the settings, so a caller outside the play feature knows only this class and the settings.
     public sealed class LevelStage
     {
         private readonly BoardArtSettings _art;

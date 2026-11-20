@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 namespace Game.Home
 {
-    // The home screen: the player's level on the level button and the coin count.
     public sealed class HomeScreen : UIScreen
     {
         [SerializeField] private Button _levelButton;

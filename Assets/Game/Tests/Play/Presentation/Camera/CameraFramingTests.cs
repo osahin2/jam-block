@@ -90,7 +90,6 @@ namespace Game.Tests.Play
             Assert.Less(small, large);
         }
 
-        // The box of the board with its frame, from the ground to its highest part.
         private Vector3[] Corners(BoardLayout layout)
         {
             var halfWidth = layout.Right + _art.FrameWidth;

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Core.UI
 {
-    // One catalog per feature, registered with RegisterUIScreens; a screen type may appear in only one catalog.
     [CreateAssetMenu(menuName = "Core/UI Screen Catalog", fileName = "Screens")]
     public sealed class UIScreenCatalog : ScriptableObject
     {

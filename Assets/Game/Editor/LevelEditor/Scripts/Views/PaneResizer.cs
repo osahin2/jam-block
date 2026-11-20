@@ -4,8 +4,6 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    // Lets a thin handle be dragged to resize the pane next to it. The new size goes back through the callback, where
-    // the window keeps it within its limits and across reloads.
     internal sealed class PaneResizer : PointerManipulator
     {
         // The drag direction that makes the pane bigger, in panel coordinates (y down).

@@ -7,9 +7,6 @@ using VContainer;
 
 namespace Game.Play
 {
-    // The level's controls over the board: its number, the time left, the coin count, restart and pause. It stays open
-    // while levels follow each other, so its buttons keep their callbacks until the next Show. The time is read from
-    // the play session every frame and written only when the shown second changes.
     public sealed class LevelHud : UIScreen
     {
         [SerializeField] private TMP_Text _levelLabel;

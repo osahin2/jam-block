@@ -5,8 +5,6 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    // The problem list under the board: a count, then one row per problem saying what it is about and what is wrong.
-    // Hovering a row focuses its problem; clicking a row about a block or door picks that block or door.
     public sealed class LevelProblemList : VisualElement
     {
         public const int NoProblem = -1;
@@ -18,7 +16,6 @@ namespace Game.Editor.LevelEditor
         private readonly ScrollView _rows = new ScrollView();
         private readonly Func<ILevelSelection, string> _nameOf;
 
-        // The index of the problem under the pointer in the last report shown, or NoProblem.
         public int Focused { get; private set; } = NoProblem;
 
         public LevelProblemList(Func<ILevelSelection, string> nameOf)
@@ -31,7 +28,6 @@ namespace Game.Editor.LevelEditor
             Add(_rows);
         }
 
-        // The USS modifier for a severity: "error" or "warning".
         public static string SeverityName(Severity severity) => severity.ToString().ToLowerInvariant();
 
         public void Show(LevelReport report, LevelData level)

@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // The room left between the board, frame included, and the screen's edges, as fractions of the screen.
     [CreateAssetMenu(menuName = "Game/Play/Camera Framing Settings")]
     public sealed class CameraFramingSettings : ScriptableObject
     {

@@ -22,13 +22,10 @@ namespace Game.Data.Levels
 
         public static bool operator !=(Cell a, Cell b) => !a.Equals(b);
 
-        // Inside a grid of the given size, which starts at (0, 0).
         public bool IsInside(int width, int height) => X >= 0 && X < width && Y >= 0 && Y < height;
 
-        // The cell's index in a row-major array of a grid this wide.
         public int IndexIn(int width) => Y * width + X;
 
-        // Shares an edge with the other cell; cells meeting only at a corner do not touch.
         public bool Touches(Cell other) => Math.Abs(X - other.X) + Math.Abs(Y - other.Y) == 1;
 
         public bool Equals(Cell other) => X == other.X && Y == other.Y;

@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Game.Bootstrap
 {
-    // Moves the app between its content scenes. Callers only ask; the switch runs on its own with a token that
-    // outlives the scene being left, as Core.Scenes requires.
     public sealed class SceneFlow
     {
         private const string HomeScene = "Home";
@@ -19,6 +17,7 @@ namespace Game.Bootstrap
 
         public void ToGame() => SwitchTo(GameScene);
 
+        // Core.Scenes needs a token that outlives the scene being left.
         private void SwitchTo(string scene) => _scenes.SwitchToAsync(scene, Application.exitCancellationToken).Forget();
     }
 }

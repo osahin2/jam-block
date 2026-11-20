@@ -74,7 +74,6 @@ namespace Game.Tests.Play
             Assert.IsFalse(_plane.TryProject(center, out _));
         }
 
-        // The top of the cell's blocks, seen on screen and projected back, lands on the cell's center.
         private void AssertProjectsOntoCellCenter(int x, int y)
         {
             var top = _layout.CellCenter(new Cell(x, y)) + new Vector3(0f, _art.TouchHeight, 0f);

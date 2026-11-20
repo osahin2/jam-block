@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // The coins a won level pays, the same for every level, as in the reference's first levels.
     [CreateAssetMenu(menuName = "Game/Play/Win Reward Settings")]
     public sealed class WinRewardSettings : ScriptableObject
     {

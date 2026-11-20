@@ -5,8 +5,6 @@ using Game.Logic.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // How the editor tells a designer about a validator problem: what is wrong in plain words, and the block or door
-    // it is about as a selection, so the window can mark it on the board and select it.
     public static class LevelProblemGuide
     {
         private static readonly Dictionary<LevelProblemKind, string> Explanations = new Dictionary<LevelProblemKind, string>
@@ -35,7 +33,6 @@ namespace Game.Editor.LevelEditor
         public static string Explain(LevelProblemKind kind) =>
             Explanations.TryGetValue(kind, out var explanation) ? explanation : kind.ToString();
 
-        // The block or door of the level the problem was found in; null for a problem about the whole level.
         public static ILevelSelection SubjectOf(LevelProblem problem, LevelData level) =>
             Subjects.TryGetValue(problem.Part, out var create) ? create(level, problem.Index) : null;
     }

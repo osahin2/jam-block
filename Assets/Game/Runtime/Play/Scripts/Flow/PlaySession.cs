@@ -6,13 +6,6 @@ using VContainer.Unity;
 
 namespace Game.Play
 {
-    // Entry of the play feature: shows a level, hands the board to the interaction and runs the level's time, which it
-    // stops while paused. A level ends in one place: the first frame the attempt is won or failed, not paused, and no
-    // block is still sliding out through its door, so the caller's next screen comes after the last block has gone.
-    // Then the board stops, a held block goes back onto its cell and the caller hears which way the level ended. The
-    // session owns the board: every start gives the pieces of the board before back to their pools and builds the
-    // level again from its data, so a restart or the next level keeps nothing from the attempt before and
-    // instantiates nothing.
     public sealed class PlaySession : ITickable
     {
         private readonly LevelStage _stage;
@@ -25,11 +18,9 @@ namespace Game.Play
         private Action _onWon;
         private Action _onFailed;
 
-        // The time left in the level being played, or as it ended.
         public float RemainingSeconds => _attempt == null ? 0f : _attempt.RemainingSeconds;
 
-        // True from the moment the level is won or failed, also while the last block is still sliding out and the
-        // callback has not come yet; the level may then only end, not be restarted or left.
+        // Also true while the last block slides out before the callback; the level may then only end.
         public bool IsDecided => _attempt != null && _attempt.Outcome != LevelOutcome.Playing;
 
         public PlaySession(LevelStage stage, PooledBoardPieces pieces, BoardRoot board, Camera camera, BoardInteraction interaction)
@@ -41,8 +32,7 @@ namespace Game.Play
             _interaction = interaction;
         }
 
-        // Plays the level until it is won or failed and then calls back once. The callback may start the next level.
-        // A start while a level is playing abandons it without a callback.
+        // The callback may start the next level; a start while a level plays abandons it without a callback.
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
             _pieces.ReleaseAll();
@@ -63,7 +53,6 @@ namespace Game.Play
                 End(outcome);
         }
 
-        // Stops the time and the board, and puts a held block back onto its cell.
         public void Pause()
         {
             _attempt.Pause();

@@ -5,11 +5,6 @@ using UnityEditor.SceneManagement;
 
 namespace Game.Editor.LevelEditor
 {
-    // Decides which level the scene preview shows: the level open in the level editor, live; otherwise the level
-    // asset last selected in the Project window. Changes are gathered into one rebuild per editor update. In play mode
-    // the game builds the level itself, so the preview is removed.
-    // A static hook because it must follow the Project selection while no level editor window is open; only the
-    // window calls it.
     [InitializeOnLoad]
     internal static class LevelPreviewSource
     {
@@ -18,6 +13,7 @@ namespace Game.Editor.LevelEditor
         private static LevelAsset _selected;
         private static bool _rebuildRequested;
 
+        // Static: it follows the Project selection while no level editor window is open.
         static LevelPreviewSource()
         {
             Selection.selectionChanged += OnSelectionChanged;

@@ -2,7 +2,6 @@ using Game.Data.Levels;
 
 namespace Game.Editor.LevelEditor
 {
-    // A cell the board draws a style over: a selection, a problem, the problem under the pointer.
     public readonly struct BoardMark
     {
         public Cell Cell { get; }

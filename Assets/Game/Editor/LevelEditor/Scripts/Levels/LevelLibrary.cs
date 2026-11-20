@@ -8,7 +8,6 @@ using Object = UnityEngine.Object;
 
 namespace Game.Editor.LevelEditor
 {
-    // The game's levels as the editor sees them: the catalog in play order, and where a new level is saved.
     public sealed class LevelLibrary
     {
         private const string LevelsProperty = "_levels";
@@ -22,7 +21,6 @@ namespace Game.Editor.LevelEditor
 
         public string NextName() => Path.GetFileNameWithoutExtension(NextPath());
 
-        // Creates an empty level asset under the next name and appends it to the catalog; the caller writes the level.
         public LevelAsset Create()
         {
             var asset = ScriptableObject.CreateInstance<LevelAsset>();
@@ -35,11 +33,8 @@ namespace Game.Editor.LevelEditor
             return asset;
         }
 
-        // Changes the play order: the level at from ends up at to.
         public void Move(int from, int to) => ChangeCatalog(levels => levels.MoveArrayElement(from, to));
 
-        // Takes the entry out of the catalog, leaving no empty entry, and moves its level's file to the trash, so a level
-        // deleted by mistake can be brought back from there. An entry whose asset was deleted elsewhere is only taken out.
         public void Delete(int index)
         {
             var level = _catalog.Levels[index];
@@ -53,7 +48,6 @@ namespace Game.Editor.LevelEditor
                 AssetDatabase.MoveAssetToTrash(AssetDatabase.GetAssetPath(level));
         }
 
-        // Through the serialized catalog, the editor's way to change an asset, saved at once.
         private void ChangeCatalog(Action<SerializedProperty> change)
         {
             var catalog = new SerializedObject(_catalog);
@@ -64,7 +58,6 @@ namespace Game.Editor.LevelEditor
 
         private static string PathOf(string folder, int number) => $"{folder}/Level_{number:00}.asset";
 
-        // Asks the asset database without loading the asset.
         private static bool Exists(string path) =>
             !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(path, AssetPathToGUIDOptions.OnlyExistingAssets));
 
@@ -74,7 +67,6 @@ namespace Game.Editor.LevelEditor
             return path.Substring(0, path.LastIndexOf('/'));
         }
 
-        // The number after the catalog's last level, skipping names a file in the folder already has.
         private string NextPath()
         {
             var folder = Folder();
@@ -84,8 +76,7 @@ namespace Game.Editor.LevelEditor
             return PathOf(folder, number);
         }
 
-        // Next to the catalog's last level, so moving the levels' folder needs no change here; the catalog's own folder
-        // while it lists no level.
+        // Next to the catalog's last level, so moving the levels' folder needs no change here.
         private string Folder()
         {
             var levels = _catalog.Levels;

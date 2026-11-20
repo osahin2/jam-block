@@ -8,16 +8,12 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    // The game's levels in play order, searched by play number or name. A click opens a level, dragging a row changes
-    // the play order, and the right-click menu opens, duplicates, shows or deletes a level. The list draws only the rows
-    // on screen, so a catalog of thousands of levels stays quick. What opening, duplicating and deleting do is the
-    // window's; the panel reports them.
     public sealed class LevelListPanel : VisualElement
     {
         private const float RowHeight = 20f;
         private const string MissingName = "Missing level";
         private const string MissingClass = "level-row--missing";
-        // How far, squared and in pixels, the pointer may move between press and release for a click; further is a drag.
+        // Squared pixels the pointer may move between press and release for a click; further is a drag.
         private const float ClickToleranceSqr = 16f;
         private static readonly int[] NoRows = Array.Empty<int>();
 
@@ -57,7 +53,6 @@ namespace Game.Editor.LevelEditor
             Rebuild();
         }
 
-        // Marks the open level, none for a new level; scrolls to it when another level was opened.
         public void ShowOpen(LevelAsset open)
         {
             var changed = open != _open;
@@ -65,7 +60,6 @@ namespace Game.Editor.LevelEditor
             SelectOpen(changed);
         }
 
-        // The catalog changed: its order, or a level added or removed.
         public void Rebuild()
         {
             _shown.Clear();
@@ -131,7 +125,6 @@ namespace Game.Editor.LevelEditor
             row.EnableInClassList(MissingClass, level == null);
         }
 
-        // An entry whose asset was deleted outside the editor can only be taken out of the list.
         private void FillMenu(ContextualMenuPopulateEvent evt, int index)
         {
             var level = _library.Levels[index];
@@ -143,10 +136,7 @@ namespace Game.Editor.LevelEditor
             evt.menu.AppendAction(level != null ? "Delete..." : "Remove from the list", _ => DeleteRequested?.Invoke(index));
         }
 
-        // A press and release in about one place; the dragged row also ends under the pointer, so a click event alone
-        // would open a level after every drag. Clicking the open level again changes nothing; it would otherwise reload
-        // it, which is what Revert does. The selection goes back to the open level afterwards, also when the window kept
-        // the level that was open (the designer chose to keep editing) or the row was a missing level.
+        // The dragged row also ends under the pointer, so a click event alone would open a level after every drag.
         private void OnRowClicked(ClickEvent evt, int index)
         {
             var level = _library.Levels[index];

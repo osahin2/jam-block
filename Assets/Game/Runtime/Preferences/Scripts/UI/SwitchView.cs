@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 namespace Game.Preferences
 {
-    // A switch for one on/off choice: the on knob or the off knob shows the state; a click flips it and tells the
-    // listener the new state.
     public sealed class SwitchView : MonoBehaviour
     {
         [SerializeField] private Button _button;

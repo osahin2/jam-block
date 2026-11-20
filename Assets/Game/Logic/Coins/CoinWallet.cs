@@ -2,8 +2,6 @@ using System;
 
 namespace Game.Logic.Coins
 {
-    // The player's coin balance. Coins are only earned so far; the balance never goes below zero. It starts from the
-    // store and every change is written back at once, so the count is the same after leaving a level or the app.
     public sealed class CoinWallet
     {
         private readonly ICoinStore _store;

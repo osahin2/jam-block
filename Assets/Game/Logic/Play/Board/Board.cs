@@ -38,8 +38,7 @@ namespace Game.Logic.Play
 
         internal bool Contains(Cell cell) => cell.IsInside(Width, Height);
 
-        // True when the block leaves where it stands, through exitDoor; it is then taken off the board. False, with
-        // StepResult.NoDoor, when it stays, and always for a block that has already left.
+        // A block that leaves is taken off the board, so it never leaves twice.
         public bool TryLeave(int block, out int exitDoor)
         {
             exitDoor = StepResult.NoDoor;
@@ -96,7 +95,7 @@ namespace Game.Logic.Play
                 _occupant[IndexOf(block.CellAt(i))] = occupant;
         }
 
-        // The first door, in level order, the block leaves through.
+        // The first matching door in level order.
         private int FindExitDoor(int index)
         {
             for (var i = 0; i < _doors.Length; i++)
@@ -107,8 +106,6 @@ namespace Game.Logic.Play
             return StepResult.NoDoor;
         }
 
-        // A block leaves through a door of its color on a side it touches, when the door spans the block's whole extent
-        // along that side and no other block stands between the block and the door. Cheapest checks first.
         private bool LeavesThrough(int index, DoorData door)
         {
             var block = _blocks[index];
@@ -132,8 +129,7 @@ namespace Game.Logic.Play
             return false;
         }
 
-        // The block slides out straight through the door, so every cell from each of its cells to the side must be free
-        // or its own: a part further from the door would otherwise pass through another block.
+        // The block slides out straight, so every cell from each of its cells to the side must be free or its own.
         private bool IsWayOutFree(int index, Side side)
         {
             var block = _blocks[index];

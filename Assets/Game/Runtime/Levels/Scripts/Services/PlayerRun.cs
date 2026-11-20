@@ -2,7 +2,6 @@ using Core.Levels;
 
 namespace Game.Levels
 {
-    // The player's own run: their current level, numbered as they count it; a win completes it and saves the progress.
     public sealed class PlayerRun : ILevelRun
     {
         private readonly LevelCatalog _catalog;

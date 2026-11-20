@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Builds the scene side of the module: one "Core.Audio" object that survives scene loads, holding the two music
-    // sources, the template and the pool of sound effect sources, and the ticker.
     internal static class AudioServiceFactory
     {
         public static AudioService Create(AudioServiceSettings settings, ISaveService save)

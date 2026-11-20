@@ -9,7 +9,7 @@ namespace Game.Logic.Play
 
         public int Block { get; }
         public Cell Position { get; }
-        // Sub-cell offset in cells, toward a free neighbour only and at most half a cell.
+        // In cells, toward a free neighbour only, at most half a cell.
         public float OffsetX { get; }
         public float OffsetY { get; }
         public int ExitDoor { get; }
@@ -24,7 +24,6 @@ namespace Game.Logic.Play
             ExitDoor = exitDoor;
         }
 
-        // A block that left from the cell it stood on, with no offset.
         public static DragPose Left(int block, Cell position, int exitDoor) => new DragPose(block, position, 0f, 0f, exitDoor);
     }
 }

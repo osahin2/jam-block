@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 namespace Game.Play
 {
-    // Opens when the time runs out: retry plays the level again from its start, home leaves it.
     public sealed class LevelFailedPopup : UIScreen
     {
         [SerializeField] private Button _retryButton;

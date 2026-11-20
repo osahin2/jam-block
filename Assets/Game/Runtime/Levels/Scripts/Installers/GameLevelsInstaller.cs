@@ -5,7 +5,6 @@ using VContainer;
 
 namespace Game.Levels
 {
-    // In the Boot scope: the catalog and the player's progress through it are the same in every scene.
     [CreateAssetMenu(menuName = "Game/Levels/Levels Installer")]
     public sealed class GameLevelsInstaller : ScriptableObjectInstaller
     {

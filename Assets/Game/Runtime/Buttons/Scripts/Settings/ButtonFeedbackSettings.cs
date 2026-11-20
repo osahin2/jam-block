@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Game.Buttons
 {
-    // How every button in the game answers a touch: it shrinks while pressed and springs back on release.
     [CreateAssetMenu(menuName = "Game/Buttons/Button Feedback Settings")]
     public sealed class ButtonFeedbackSettings : ScriptableObject
     {

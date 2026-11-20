@@ -4,12 +4,10 @@ using UnityEditor;
 
 namespace Game.Levels
 {
-    // A level the level editor asked to play. It goes through SessionState, which outlives the domain reload when play
-    // mode starts, and is taken once, so pressing Play in the toolbar afterwards starts the game as usual. A build
-    // never has one.
     public sealed class EditorPlayRequest
     {
 #if UNITY_EDITOR
+        // SessionState outlives the domain reload when play mode starts; a build never has a request.
         private const string Key = "Game.EditorPlayRequest";
 #endif
 
