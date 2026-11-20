@@ -98,10 +98,11 @@ namespace Game.Play
             var frame = _layout.FrameWidth / _layout.CellSize;
             var length = _level.Blocks[pose.Block].ExtentAcross(side) + frame;
             var slide = _motion.SlideDuration(length);
-            var outward = _layout.ToLocal(Direction.OutOf(side));
-            var outside = _layout.CellCenter(pose.Position) + outward * (length * _layout.CellSize);
-            _blocks[pose.Block].Leave(outside, slide);
-            _doors[pose.ExitDoor].LetThrough(_motion.SlideDuration(frame), slide);
+            var doorCell = _layout.CellCenter(pose.Position);
+            var outside = doorCell + _layout.ToLocal(Direction.OutOf(side)) * (length * _layout.CellSize);
+            _blocks[pose.Block].Leave(doorCell, outside, slide);
+            var snap = _motion.SnapDuration;
+            _doors[pose.ExitDoor].LetThrough(snap + _motion.SlideDuration(frame), snap + slide);
         }
     }
 }
