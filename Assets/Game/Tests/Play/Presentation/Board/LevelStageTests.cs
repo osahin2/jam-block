@@ -21,10 +21,10 @@ namespace Game.Tests.Play
         {
             _framing = Load<CameraFramingSettings>();
             _stage = new LevelStage(Load<BoardArtSettings>(), Load<ColorPalette>(), Load<BlockMotionSettings>(), _framing);
-            // The Game scene's camera: a 45 degree field of view, tilted down toward the board.
+            // The Game scene's camera: a 63 degree field of view, tilted steeply down toward the board.
             _camera = new GameObject("Camera").AddComponent<Camera>();
-            _camera.fieldOfView = 45f;
-            _camera.transform.rotation = Quaternion.Euler(71.4f, 0f, 0f);
+            _camera.fieldOfView = 63f;
+            _camera.transform.rotation = Quaternion.Euler(76f, 0f, 0f);
         }
 
         [TearDown]
@@ -32,11 +32,11 @@ namespace Game.Tests.Play
 
         [TestCase(1080, 1920)]
         [TestCase(1080, 2400)]
-        public void Show_EveryCatalogLevel_KeepsEveryPieceInsideTheMargins(int screenWidth, int screenHeight)
+        public void Show_EveryCatalogLevel_KeepsEveryPieceInsideTheWindow(int screenWidth, int screenHeight)
         {
             _camera.aspect = (float)screenWidth / screenHeight;
-            var side = _framing.SideMargin;
-            var topAndBottom = _framing.TopAndBottomMargin;
+            // Batch runs have no notch, so the screen's safe area is all of it.
+            var window = new CameraFraming(_framing).ViewportWindow(new Rect(0f, 0f, 1f, 1f), _camera.aspect);
             var outside = new StringBuilder();
             foreach (var level in Load<LevelCatalog>().Levels)
             {
@@ -52,8 +52,8 @@ namespace Game.Tests.Play
                             (corner & 2) == 0 ? bounds.min.y : bounds.max.y,
                             (corner & 4) == 0 ? bounds.min.z : bounds.max.z);
                         var onScreen = _camera.WorldToViewportPoint(point);
-                        if (onScreen.x < side - Tolerance || onScreen.x > 1f - side + Tolerance ||
-                            onScreen.y < topAndBottom - Tolerance || onScreen.y > 1f - topAndBottom + Tolerance)
+                        if (onScreen.x < window.xMin - Tolerance || onScreen.x > window.xMax + Tolerance ||
+                            onScreen.y < window.yMin - Tolerance || onScreen.y > window.yMax + Tolerance)
                             outside.AppendLine($"{level.name}: {piece.name} at {onScreen}");
                     }
                 }

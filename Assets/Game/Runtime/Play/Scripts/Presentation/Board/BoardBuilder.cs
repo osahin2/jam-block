@@ -41,6 +41,9 @@ namespace Game.Play
                 for (var x = 0; x < level.Width; x++)
                     Spawn(_art.Ground, layout.CellCenter(new Cell(x, y)), Quaternion.identity, Vector3.one * _art.Scale, parent, pieces);
             }
+            var baseSize = new Vector2(layout.Right * 2f + _art.WallWidth, layout.Top * 2f + _art.WallWidth) / _art.GroundTileSize;
+            Spawn(_art.GroundBase, Vector3.zero, Quaternion.identity, new Vector3(baseSize.x, 1f, baseSize.y) * _art.Scale,
+                parent, pieces);
         }
 
         private DoorView[] BuildFrame(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)

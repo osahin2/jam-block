@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: CameraFramingSettings
   m_EditorClassIdentifier: 
   _sideMargin: 0.05
-  _topAndBottomMargin: 0.12
+  _topMargin: 0.44
+  _bottomMargin: 0.37

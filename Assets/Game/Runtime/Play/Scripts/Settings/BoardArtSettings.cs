@@ -17,6 +17,8 @@ namespace Game.Play
         private const float DoorModelLength = 2f;
         // Bottom, where the pivot is, to top; measured from WallAndDoor.fbx.
         private const float ArrowHeight = 0.126f;
+        // Measured from GroundGrid.fbx: a 2-unit cell less the gap between tiles.
+        private const float GroundTileModelSize = 1.95f;
 
         [SerializeField] private float _cellSize = 2f;
         [Tooltip("Raises block pieces above the ground, in model units; 0 sets their bottom on the ground, a negative " +
@@ -40,6 +42,9 @@ namespace Game.Play
         [SerializeField] private BoardPiece _blockOuterCorner;
         [SerializeField] private BoardPiece _blockInnerCorner;
         [SerializeField] private BoardPiece _ground;
+        [Tooltip("Stretched under all the ground tiles and half the wall around them, a little lower than the tiles, so " +
+                 "it shows as thin lines between them.")]
+        [SerializeField] private BoardPiece _groundBase;
         [SerializeField] private BoardPiece _wall;
         [SerializeField] private DoorView _door;
         [Tooltip("The frame's corner piece: a square of the wall's thickness, its rounded corner toward +X +Z.")]
@@ -57,6 +62,7 @@ namespace Game.Play
         public float WallScalePerCell => _cellSize / WallModelLength;
         public float DoorScalePerCell => _cellSize / DoorModelLength;
         public float FrameWidth => Mathf.Max(WallWidth, DoorWidth);
+        public float GroundTileSize => GroundTileModelSize * Scale;
         public float FrameTop => (_frameLift + FrameTopAbovePivot) * Scale;
         public float ArrowTop => FrameTop + ArrowHeight * Scale;
         public float DoorDrop => FrameTop - _doorOpenHeight * Scale;
@@ -66,6 +72,7 @@ namespace Game.Play
         public BoardPiece BlockOuterCorner => _blockOuterCorner;
         public BoardPiece BlockInnerCorner => _blockInnerCorner;
         public BoardPiece Ground => _ground;
+        public BoardPiece GroundBase => _groundBase;
         public BoardPiece Wall => _wall;
         public DoorView Door => _door;
         public BoardPiece FrameCorner => _frameCorner;

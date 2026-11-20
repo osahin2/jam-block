@@ -6,7 +6,7 @@ namespace Game.Play
     public sealed class ColorPalette : ScriptableObject
     {
         [SerializeField] private Material[] _colors;
-        [Tooltip("One per color, in the same order as the block materials and in the same color.")]
+        [Tooltip("One per color, in the same order as the block materials; each a darker value that the doors' lit shading brings to its block's color.")]
         [SerializeField] private Material[] _doorColors;
 
         public int Count => _colors.Length;

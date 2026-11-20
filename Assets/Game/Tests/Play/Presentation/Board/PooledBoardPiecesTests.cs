@@ -85,10 +85,10 @@ namespace Game.Tests.Play
             Assert.AreEqual(1, blocks.Length);
             Assert.AreSame(staged.Blocks[0], blocks[0]);
             Assert.AreEqual(staged.Layout.CellCenter(new Cell(1, 1)), blocks[0].transform.localPosition);
-            // One cell of one block is four quarter pieces; 9 ground tiles, one wall piece per side (no doors) and 4
-            // corners.
+            // One cell of one block is four quarter pieces; 9 ground tiles and their base, one wall piece per side (no
+            // doors) and 4 corners.
             Assert.AreEqual(4, blocks[0].GetComponentsInChildren<BoardPiece>().Length);
-            Assert.AreEqual(1 + 9 + 4 + 4, _board.transform.childCount);
+            Assert.AreEqual(1 + 9 + 1 + 4 + 4, _board.transform.childCount);
             foreach (var piece in _board.GetComponentsInChildren<Transform>(true))
                 Assert.IsTrue(piece.gameObject.activeSelf, piece.name);
             Assert.AreEqual(made, CountAll(), "a smaller level is built from the pieces of the larger one");

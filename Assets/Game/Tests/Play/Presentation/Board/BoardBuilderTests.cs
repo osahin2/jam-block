@@ -83,6 +83,23 @@ namespace Game.Tests.Play
             Assert.AreSame(_palette.ForDoor(Other), door.GetComponentInChildren<ParticleSystemRenderer>().sharedMaterial);
         }
 
+        [Test]
+        public void Build_GroundBase_LiesUnderEveryTile_AndReachesUnderTheWalls()
+        {
+            var layout = Build(new LevelBuilder(4, 5).Rect(Red, 1, 0, 2, 1).Build()).Layout;
+
+            var bases = Pieces(_art.GroundBase);
+            Assert.AreEqual(1, bases.Count);
+            var under = bases[0].GetComponentInChildren<MeshRenderer>().bounds;
+            var reach = _art.WallWidth * 0.5f;
+            Assert.AreEqual(layout.Left - reach, under.min.x, Tolerance);
+            Assert.AreEqual(layout.Right + reach, under.max.x, Tolerance);
+            Assert.AreEqual(-layout.Top - reach, under.min.z, Tolerance);
+            Assert.AreEqual(layout.Top + reach, under.max.z, Tolerance);
+            foreach (var tile in Pieces(_art.Ground))
+                Assert.Less(under.max.y, tile.GetComponentInChildren<MeshRenderer>().bounds.max.y, tile.name);
+        }
+
         private StagedLevel Build(LevelData level) =>
             _builder.Build(level, new BoardLayout(level.Width, level.Height, _art), _board, new PreviewBoardPieces());
 

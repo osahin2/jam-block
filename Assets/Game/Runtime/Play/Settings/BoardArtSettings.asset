@@ -27,6 +27,8 @@ MonoBehaviour:
   _blockInnerCorner: {fileID: 2173205173778897707, guid: bd704d73e098c492a994a682dc600e12,
     type: 3}
   _ground: {fileID: 3041680259320840191, guid: 22f77c055271544b99f5771273f63b5e, type: 3}
+  _groundBase: {fileID: 6558518075065220042, guid: 1b989a1bc7598404296eec02de116076,
+    type: 3}
   _wall: {fileID: 3876827613300173413, guid: b7304f73ebf4145ea8a3d4fb908c3a95, type: 3}
   _door: {fileID: 1465487179543627392, guid: 54f083ec43e0e4a34aa17fabe7e817ef, type: 3}
   _frameCorner: {fileID: 1622258170957769826, guid: 1ed2034a4c17845bba63a44d2113a24c,

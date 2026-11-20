@@ -21,8 +21,16 @@ namespace Game.Play
             var layout = new BoardLayout(level.Width, level.Height, _art);
             var staged = _builder.Build(level, layout, parent, pieces);
             BoardClip.Set(layout, parent);
-            _framing.Frame(camera, layout, parent);
+            _framing.Frame(camera, layout, parent, ViewportSafeArea());
             return staged;
+        }
+
+        // The HUD is fitted to the safe area by Core's UI, so the board is framed inside the same area.
+        private static Rect ViewportSafeArea()
+        {
+            var screen = new Vector2(Screen.width, Screen.height);
+            var safeArea = Screen.safeArea;
+            return new Rect(safeArea.position / screen, safeArea.size / screen);
         }
     }
 }
