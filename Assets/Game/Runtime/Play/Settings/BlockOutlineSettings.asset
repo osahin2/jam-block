@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BlockOutlineSettings
   m_EditorClassIdentifier: 
   _color: {r: 1, g: 0.981, b: 0.769, a: 1}
-  _width: 3
+  _width: 6
   _maskShader: {fileID: 4800000, guid: 341b058cd7dee4f5cba5cc59a513619e, type: 3}
   _fillShader: {fileID: 4800000, guid: 4e76d4023d7e0411297c670f878973e2, type: 3}
