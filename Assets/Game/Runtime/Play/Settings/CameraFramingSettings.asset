@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d30ba8b73628846aab60f2331c747881, type: 3}
   m_Name: CameraFramingSettings
   m_EditorClassIdentifier: 
-  _sideMargin: 0.05
-  _topMargin: 0.44
-  _bottomMargin: 0.37
+  _uiReferenceResolution: {x: 1080, y: 1920}
+  _sideMargin: 0.06
+  _topMargin: 360
+  _bottomMargin: 340

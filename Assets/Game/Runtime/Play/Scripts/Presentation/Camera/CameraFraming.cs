@@ -16,13 +16,13 @@ namespace Game.Play
 
         public Rect ViewportWindow(Rect viewportSafeArea, float aspect)
         {
-            var bottom = viewportSafeArea.yMin + _settings.BottomMargin * aspect;
-            var top = viewportSafeArea.yMax - _settings.TopMargin * aspect;
-            var window = Rect.MinMaxRect(viewportSafeArea.xMin + _settings.SideMargin, bottom,
-                viewportSafeArea.xMax - _settings.SideMargin, top);
-            // The margins are made for portrait phones; a wide view, such as the level editor's preview in a
-            // landscape Game view, has no room left between them, so the board takes the safe area.
-            return window.width > 0f && window.height > 0f ? window : viewportSafeArea;
+            // The UI canvases fit their reference resolution into the screen (Expand): a phone scales them by its
+            // width, a tablet or a landscape view by its height. One UI unit is then this share of the screen's height.
+            var reference = _settings.UiReferenceResolution;
+            var unit = Mathf.Min(aspect / reference.x, 1f / reference.y);
+            return Rect.MinMaxRect(viewportSafeArea.xMin + _settings.SideMargin,
+                viewportSafeArea.yMin + _settings.BottomMargin * unit,
+                viewportSafeArea.xMax - _settings.SideMargin, viewportSafeArea.yMax - _settings.TopMargin * unit);
         }
 
         // Perspective shows the board's near half larger than its far half, so a correction made from one

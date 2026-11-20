@@ -1,6 +1,8 @@
 using Game.Play;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game.Tests.Play
 {
@@ -38,7 +40,8 @@ namespace Game.Tests.Play
             Object.DestroyImmediate(_art);
         }
 
-        // 1080 x 1920 and 20:9 (1080 x 2400), the smallest and largest authored boards, a wide one and a deep one.
+        // 1080 x 1920, 20:9 (1080 x 2400), a 10:16 and a 3:4 tablet, the smallest and largest authored boards, a wide
+        // one and a deep one.
         [TestCase(1080, 1920, 5, 6, false)]
         [TestCase(1080, 1920, 4, 5, false)]
         [TestCase(1080, 2400, 5, 6, false)]
@@ -46,6 +49,10 @@ namespace Game.Tests.Play
         [TestCase(1080, 1920, 8, 3, false)]
         [TestCase(1080, 1920, 4, 9, false)]
         [TestCase(1080, 2400, 4, 9, true)]
+        [TestCase(1600, 2560, 5, 6, false)]
+        [TestCase(1600, 2560, 4, 9, false)]
+        [TestCase(1536, 2048, 5, 6, false)]
+        [TestCase(1536, 2048, 8, 3, false)]
         public void Frame_FitsTheBoardInsideTheWindow_AndReachesItOnOneAxis(int screenWidth, int screenHeight, int width,
             int height, bool notched)
         {
@@ -68,6 +75,7 @@ namespace Game.Tests.Play
         [TestCase(1080, 1920, 5, 6)]
         [TestCase(1080, 2400, 5, 6)]
         [TestCase(1080, 1920, 4, 9)]
+        [TestCase(1536, 2048, 5, 6)]
         public void Frame_CentersTheBoardAsSeenInTheWindow(int screenWidth, int screenHeight, int width, int height)
         {
             _camera.aspect = (float)screenWidth / screenHeight;
@@ -113,37 +121,56 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void ViewportWindow_MeasuresTheMarginsInScreenWidths_FromTheSafeAreasEdges()
+        public void ViewportWindow_OnAPhone_MeasuresTheMarginsInUIUnitsScaledByTheWidth()
         {
             var aspect = 1080f / 2400f;
+            var unit = aspect / 1080f;
 
             var window = _framing.ViewportWindow(Notched, aspect);
 
             Assert.AreEqual(_settings.SideMargin, window.xMin, Tolerance);
             Assert.AreEqual(1f - _settings.SideMargin, window.xMax, Tolerance);
-            Assert.AreEqual(Notched.yMin + _settings.BottomMargin * aspect, window.yMin, Tolerance);
-            Assert.AreEqual(Notched.yMax - _settings.TopMargin * aspect, window.yMax, Tolerance);
+            Assert.AreEqual(Notched.yMin + _settings.BottomMargin * unit, window.yMin, Tolerance);
+            Assert.AreEqual(Notched.yMax - _settings.TopMargin * unit, window.yMax, Tolerance);
         }
 
-        [Test]
-        public void ViewportWindow_InAWideView_IsTheSafeArea()
+        [TestCase(1536f, 2048f)]
+        [TestCase(1920f, 1080f)]
+        public void ViewportWindow_OnAWiderScreen_MeasuresTheMarginsInUIUnitsScaledByTheHeight(float width, float height)
         {
-            var window = _framing.ViewportWindow(Notched, 1920f / 1080f);
+            var unit = 1f / 1920f;
 
-            Assert.AreEqual(Notched, window);
+            var window = _framing.ViewportWindow(FullScreen, width / height);
+
+            Assert.AreEqual(_settings.BottomMargin * unit, window.yMin, Tolerance);
+            Assert.AreEqual(1f - _settings.TopMargin * unit, window.yMax, Tolerance);
         }
 
         [Test]
-        public void Frame_InAWideView_FitsTheBoardInsideTheSafeArea()
+        public void Settings_MeasureInTheUIRootsReferenceResolution_WhichFitsTheScreen()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<CameraFramingSettings>(
+                "Assets/Game/Runtime/Play/Settings/CameraFramingSettings.asset");
+            var scaler = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Runtime/Bootstrap/Prefabs/GameUIRoot.prefab")
+                .GetComponentInChildren<CanvasScaler>(true);
+
+            Assert.AreEqual(CanvasScaler.ScaleMode.ScaleWithScreenSize, scaler.uiScaleMode);
+            Assert.AreEqual(CanvasScaler.ScreenMatchMode.Expand, scaler.screenMatchMode);
+            Assert.AreEqual(scaler.referenceResolution, settings.UiReferenceResolution);
+        }
+
+        [Test]
+        public void Frame_InAWideView_FitsTheBoardInsideTheWindow()
         {
             _camera.aspect = 1920f / 1080f;
             var layout = new BoardLayout(5, 6, _art);
 
             _framing.Frame(_camera, layout, _board, FullScreen);
 
+            var window = _framing.ViewportWindow(FullScreen, _camera.aspect);
             var shown = OnScreen(layout);
-            Assert.That(shown.yMin, Is.GreaterThanOrEqualTo(-Tolerance), "bottom");
-            Assert.That(shown.yMax, Is.LessThanOrEqualTo(1f + Tolerance), "top");
+            Assert.That(shown.yMin, Is.GreaterThanOrEqualTo(window.yMin - Tolerance), "bottom");
+            Assert.That(shown.yMax, Is.LessThanOrEqualTo(window.yMax + Tolerance), "top");
             Assert.AreEqual(0.5f, shown.center.x, Tolerance, "across");
         }
 
