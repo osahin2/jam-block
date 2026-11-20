@@ -24,7 +24,7 @@ Never edit `.unity`, `.prefab`, `.asset`, `.meta` or `ProjectSettings/` by hand.
 
 - `unity run` already passes `-batchmode -quit -projectPath -logFile`; forwarding `-quit` again is refused. Arguments after `--` go to Unity unchanged (`-buildTarget Android` is accepted).
 - The method runs after compilation and the editor quits when it returns. Log what it did with `Debug.Log("<Tag>: ...")` and grep the log for the tag; an exception shows up as `Exception` in the log.
-- Use `AssetDatabase` for every asset change (`DeleteAsset`, `MoveAsset`, `CreateAsset`, `SaveAssets`) so `.meta` files stay consistent. For prefabs: `PrefabUtility.LoadPrefabContents` / `SaveAsAsset` / `UnloadPrefabContents`; for scenes: `EditorSceneManager.OpenScene` / `SaveScene`.
+- Use `AssetDatabase` for every asset change (`DeleteAsset`, `MoveAsset`, `CreateAsset`, `SaveAssets`) so `.meta` files stay consistent. For prefabs: `PrefabUtility.LoadPrefabContents` / `SaveAsPrefabAsset` / `UnloadPrefabContents`; for scenes: `EditorSceneManager.OpenScene` / `SaveScene`.
 - Project settings: the `PlayerSettings` and `EditorBuildSettings` APIs. A setting without an API (for example `activeInputHandler`) goes through `new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0])`.
 - A one-off setup script can delete its own folder with `AssetDatabase.DeleteAsset` at the end; the run finishes normally.
 - A file deleted from disk leaves an orphan `.meta`; the next batch run removes it ("A meta data file (.meta) exists but its asset ... can't be found").
