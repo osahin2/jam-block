@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // Follows its target smoothly while dragged (per frame, hand-written). One-shot motions are tweens: the snap onto
-    // a cell on release, and the hold and the slide out when the block leaves (its shader draws it only over the board,
-    // so it is cut away at the door line); the block counts as leaving until it is hidden at the end of the slide, so
-    // the level can wait for it. A tween dies when its block is deactivated, so a block given back to its pool mid-motion
-    // does not move while idle; taking it again sets its pose, which stops any motion left.
     public sealed class BlockView : MonoBehaviour
     {
         // An exponential approach never reaches its target; closer than this the block is put on it.
@@ -61,7 +56,6 @@ namespace Game.Play
 
         public void AddPiece(BoardPiece piece) => _pieces.Add(piece.Renderer);
 
-        // Once the block is built: the outline reads each piece's material now, so a grab only switches it on.
         public void UseOutline(BlockOutlineMaterials materials) =>
             _outline.SetRenderers(_pieces, materials.Mask, materials.Fill);
 
@@ -75,11 +69,13 @@ namespace Game.Play
             _motion = Snap(position).SetLink(gameObject, LinkBehaviour.KillOnDisable);
         }
 
-        // A quadratic ease in from rest is a constant acceleration.
-        public void Leave(Vector3 doorCell, Vector3 outside, float slideDuration)
+        // A quadratic ease in from rest is a constant acceleration. It starts where the block is drawn, which may trail
+        // its door cell during a drag.
+        public void Leave(Vector3 outside, float slideDuration)
         {
             _outline.Hide();
-            SetPose(doorCell);
+            StopMotion();
+            _target = outside;
             _motion = transform.DOLocalMove(outside, slideDuration)
                 .SetEase(Ease.InQuad)
                 .OnComplete(Hide)

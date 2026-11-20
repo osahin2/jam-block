@@ -2,19 +2,10 @@ using UnityEngine;
 
 namespace Game.Play
 {
-    // A factory for the board's pieces. The builder chooses which prefab it needs; the source decides how an instance
-    // is made. It is "taken", not created: a pooled source reuses instances, so the caller that gave the source owns
-    // what was taken and releases it its own way (the game gives pooled pieces back, the level editor's preview
-    // destroys its plain copies with their parent).
+    // A pooled source reuses instances, so whoever gave the source releases what was taken, its own way.
     public interface IBoardPieceSource
     {
-        // An instance of the prefab, active under the parent with the prefab's local pose.
-        BoardPiece Take(BoardPiece prefab, Transform parent);
-
-        // An instance of the block prefab, active under the parent with the prefab's local pose.
-        BlockView Take(BlockView prefab, Transform parent);
-
-        // An instance of the door prefab, active under the parent with the prefab's local pose.
-        DoorView Take(DoorView prefab, Transform parent);
+        // Active under the parent with the prefab's local pose.
+        T Take<T>(T prefab, Transform parent) where T : Component;
     }
 }

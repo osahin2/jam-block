@@ -14,8 +14,8 @@
 //    component no longer shows it.
 //  - Smooth normals are written into UV3 at import by the game's editor code; the run-time computation, the static mesh
 //    registry, the precompute and bake fields, submesh combining, the modes and OnValidate are gone.
-//  - Deactivating its object hides it and forgets the renderers, which go back to their pools and may serve another
-//    block.
+//  - Deactivating its object, or giving it new renderers, hides it on the renderers before and forgets them: they go
+//    back to their pools and may serve another block.
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,7 +30,7 @@ public class Outline : MonoBehaviour {
   public bool IsShown { get; private set; }
 
   public void SetRenderers(IReadOnlyList<Renderer> targets, Material mask, Material fill) {
-    IsShown = false;
+    Hide();
     renderers.Clear();
 
     for (var i = 0; i < targets.Count; i++) {

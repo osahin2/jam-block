@@ -5,7 +5,6 @@ using Object = UnityEngine.Object;
 
 namespace Game.Play
 {
-    // The one mask and one fill material every block's outline shares, drawn over everything (ZTest Always).
     public sealed class BlockOutlineMaterials : IDisposable
     {
         private static readonly int ZTestId = Shader.PropertyToID("_ZTest");
@@ -27,16 +26,8 @@ namespace Game.Play
 
         public void Dispose()
         {
-            Destroy(Mask);
-            Destroy(Fill);
-        }
-
-        private static void Destroy(Object material)
-        {
-            if (Application.isPlaying)
-                Object.Destroy(material);
-            else
-                Object.DestroyImmediate(material);
+            Object.Destroy(Mask);
+            Object.Destroy(Fill);
         }
     }
 }

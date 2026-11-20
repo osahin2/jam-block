@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Game.Editor.Import
 {
-    // The held block's outline (Quick Outline's fill) pushes the pieces out along the normals in UV3. Hard edges split a
-    // corner's vertices with different normals, so the pushed shell would crack there; each vertex gets the average
-    // normal of all vertices at its position instead, written once at import. FBX carries only two-component UVs, so
-    // this cannot be done in the model file.
     public sealed class BlockPlatesImport : AssetPostprocessor
     {
         public const string BlockPlatesPath = "Assets/Art/Models/BlockPlates.fbx";

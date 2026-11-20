@@ -78,6 +78,18 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void SetRenderers_WhileShown_TakesTheOutlineOffTheRenderersBefore()
+        {
+            _outline.Show();
+
+            _outline.SetRenderers(new Renderer[0], _mask, _fill);
+
+            Assert.IsFalse(_outline.IsShown);
+            foreach (var piece in _pieces)
+                Assert.AreEqual(new[] { _own }, piece.sharedMaterials);
+        }
+
+        [Test]
         public void ShowAndHide_AllocateNothing()
         {
             _outline.Show();
