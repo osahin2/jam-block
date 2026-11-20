@@ -14,6 +14,8 @@ namespace Game.Editor.LevelEditor
 
         public BlockView Take(BlockView prefab, Transform parent) => Mark(Object.Instantiate(prefab, parent));
 
+        public DoorView Take(DoorView prefab, Transform parent) => Mark(Object.Instantiate(prefab, parent));
+
         private static T Mark<T>(T piece) where T : Component
         {
             foreach (var part in piece.GetComponentsInChildren<Transform>(true))

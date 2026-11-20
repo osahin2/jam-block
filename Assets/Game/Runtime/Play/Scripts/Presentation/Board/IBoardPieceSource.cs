@@ -13,5 +13,8 @@ namespace Game.Play
 
         // An instance of the block prefab, active under the parent with the prefab's local pose.
         BlockView Take(BlockView prefab, Transform parent);
+
+        // An instance of the door prefab, active under the parent with the prefab's local pose.
+        DoorView Take(DoorView prefab, Transform parent);
     }
 }

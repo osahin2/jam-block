@@ -73,8 +73,8 @@ Cells are counted from column 0 on the left and row 0 at the top.
 
 **Leaving**
 - The block snaps onto the cell in front of its door at once, and the door drops into the frame right away, leaving a flat strip of its color.
-- The block slides out, starting slowly and speeding up, and is cut away at the door line as it passes: what is past the line is gone, the rest stays whole. A longer block takes longer to pass.
-- Small cubes in the block's color burst from the door line while it passes, thrown outward and up with some spin and a short puff of dust, and shrink away within a second.
+- The block starts to slide at once while the door drops, slowly and speeding up, passes over the dropped door and is cut away at the frame's outer edge: what is past the edge is gone, the rest stays whole. A longer block takes longer to pass.
+- Small cubes in the block's color (a few shades of it, about a stud's size, dozens per block) burst from that edge while it passes, thrown outward and up with some spin and a short puff of dust, and shrink away within a second.
 - The door rises again just after the block is gone. The whole exit takes a little over half a second.
 
 **Win and next level**

@@ -1,25 +1,33 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
 namespace Game.Play
 {
     // Follows its target smoothly while dragged (per frame, hand-written). One-shot motions are tweens: the snap onto
-    // a cell on release, and the snap in front of the door, the hold and the slide out when the block leaves; the
-    // block counts as leaving until it is hidden at the end of the slide, so the level can wait for it. A tween
-    // dies when its block is deactivated, so a block given back to its pool mid-motion does not move while idle;
-    // taking it again sets its pose, which stops any motion left.
+    // a cell on release, and the hold and the slide out when the block leaves (its shader draws it only over the board,
+    // so it is cut away at the door line); the block counts as leaving until it is hidden at the end of the slide, so
+    // the level can wait for it. A tween dies when its block is deactivated, so a block given back to its pool mid-motion
+    // does not move while idle; taking it again sets its pose, which stops any motion left.
     public sealed class BlockView : MonoBehaviour
     {
         // An exponential approach never reaches its target; closer than this the block is put on it.
         private const float SnapDistanceSqr = 0.000001f;
 
+        [SerializeField] private Outline _outline;
+
+        private readonly List<Renderer> _pieces = new List<Renderer>();
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
 
-        public void Init(BlockMotionSettings settings) => _settings = settings;
+        public void Init(BlockMotionSettings settings)
+        {
+            _settings = settings;
+            _pieces.Clear();
+        }
 
         private void Awake() => enabled = false;
 
@@ -51,22 +59,29 @@ namespace Game.Play
             enabled = true;
         }
 
+        public void AddPiece(BoardPiece piece) => _pieces.Add(piece.Renderer);
+
+        // Once the block is built: the outline reads each piece's material now, so a grab only switches it on.
+        public void UseOutline(BlockOutlineMaterials materials) =>
+            _outline.SetRenderers(_pieces, materials.Mask, materials.Fill);
+
+        public void Hold() => _outline.Show();
+
         public void SnapTo(Vector3 position)
         {
+            _outline.Hide();
             StopMotion();
             _target = position;
             _motion = Snap(position).SetLink(gameObject, LinkBehaviour.KillOnDisable);
         }
 
-        // Snaps onto the cell in front of the door, holds, then slides out by the leave distance in cells.
-        public void Leave(Vector3 doorCell, Vector3 outwardCell)
+        // A quadratic ease in from rest is a constant acceleration.
+        public void Leave(Vector3 doorCell, Vector3 outside, float slideDuration)
         {
-            StopMotion();
-            var outside = doorCell + outwardCell * _settings.LeaveDistance;
-            _motion = DOTween.Sequence()
-                .Append(Snap(doorCell))
-                .AppendInterval(_settings.LeaveHoldDuration)
-                .Append(transform.DOLocalMove(outside, _settings.LeaveDuration).SetEase(_settings.LeaveEase))
+            _outline.Hide();
+            SetPose(doorCell);
+            _motion = transform.DOLocalMove(outside, slideDuration)
+                .SetEase(Ease.InQuad)
                 .OnComplete(Hide)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
             IsLeaving = true;

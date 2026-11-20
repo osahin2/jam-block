@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1055bd8aa90f4693bfc0430da7b3d23, type: 3}
   m_Name: BlockMotionSettings
   m_EditorClassIdentifier: 
-  _leaveDistance: 3
-  _leaveDuration: 0.25
+  _dragHalfLife: 0.03
+  _snapDuration: 0.08
+  _snapEase: 6
+  _leaveAcceleration: 21.5
+  _doorDropDuration: 0.05
+  _doorRiseDelay: 0.1
+  _doorRiseDuration: 0.06

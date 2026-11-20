@@ -13,8 +13,10 @@ namespace Game.Play
         public float Right => -Left;
         public float Top { get; }
         public float Bottom => -Top;
-        // The board with its frame, from the ground to its highest part (the blocks' tops or the frame's): what the
-        // camera frames and the input covers.
+        // How far the frame reaches out from the board's edge.
+        public float FrameWidth { get; }
+        // The board with its frame, from the ground to its highest part (the blocks' tops or the door arrows' on the
+        // frame): what the camera frames and the input covers.
         public Bounds Box { get; }
 
         public BoardLayout(int width, int height, BoardArtSettings art)
@@ -22,8 +24,9 @@ namespace Game.Play
             CellSize = art.CellSize;
             Left = -width * CellSize * 0.5f;
             Top = height * CellSize * 0.5f;
-            var highest = Mathf.Max(art.TouchHeight, art.FrameTop);
-            var size = new Vector3((Right + art.FrameWidth) * 2f, highest, (Top + art.FrameWidth) * 2f);
+            FrameWidth = art.FrameWidth;
+            var highest = Mathf.Max(art.TouchHeight, art.ArrowTop);
+            var size = new Vector3((Right + FrameWidth) * 2f, highest, (Top + FrameWidth) * 2f);
             Box = new Bounds(new Vector3(0f, highest * 0.5f, 0f), size);
         }
 

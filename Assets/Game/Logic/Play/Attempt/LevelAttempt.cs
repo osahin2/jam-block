@@ -17,6 +17,7 @@ namespace Game.Logic.Play
         public LevelOutcome Outcome { get; private set; }
         public float RemainingSeconds => _timer.RemainingSeconds;
         public bool IsPaused => _timer.IsPaused;
+        public int HeldBlock => _drag.Block;
         private bool TakesTouches => Outcome == LevelOutcome.Playing && !IsPaused;
 
         public LevelAttempt(LevelData level)

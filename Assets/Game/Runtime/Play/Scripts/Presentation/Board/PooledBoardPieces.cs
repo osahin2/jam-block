@@ -16,16 +16,20 @@ namespace Game.Play
 
         private readonly Pools<BoardPiece> _pieces;
         private readonly Pools<BlockView> _blocks;
+        private readonly Pools<DoorView> _doors;
 
         public PooledBoardPieces(BoardRoot root)
         {
             _pieces = new Pools<BoardPiece>(root.IdlePieces);
             _blocks = new Pools<BlockView>(root.IdlePieces);
+            _doors = new Pools<DoorView>(root.IdlePieces);
         }
 
         public BoardPiece Take(BoardPiece prefab, Transform parent) => _pieces.Get(prefab, parent);
 
         public BlockView Take(BlockView prefab, Transform parent) => _blocks.Get(prefab, parent);
+
+        public DoorView Take(DoorView prefab, Transform parent) => _doors.Get(prefab, parent);
 
         // Gives back every instance handed out since the last call. Pieces first: a block's pieces are its children and
         // go back to their own pools before the block does.
@@ -33,6 +37,7 @@ namespace Game.Play
         {
             _pieces.ReleaseAll();
             _blocks.ReleaseAll();
+            _doors.ReleaseAll();
         }
 
         // One pool per prefab, made on first use, and what was handed out since the last release.

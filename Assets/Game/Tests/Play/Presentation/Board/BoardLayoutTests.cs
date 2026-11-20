@@ -16,7 +16,7 @@ namespace Game.Tests.Play
         public void TearDown() => Object.DestroyImmediate(_art);
 
         [Test]
-        public void Box_CoversTheCellsAndTheFrame_FromTheGroundToTheBlocksTops()
+        public void Box_CoversTheCellsAndTheFrame_FromTheGroundToItsHighestPart()
         {
             var halfWidth = 5 * _art.CellSize * 0.5f + _art.FrameWidth;
             var halfDepth = 6 * _art.CellSize * 0.5f + _art.FrameWidth;
@@ -24,11 +24,11 @@ namespace Game.Tests.Play
             var box = new BoardLayout(5, 6, _art).Box;
 
             Assert.AreEqual(new Vector3(-halfWidth, 0f, -halfDepth), box.min);
-            Assert.AreEqual(new Vector3(halfWidth, _art.TouchHeight, halfDepth), box.max);
+            Assert.AreEqual(new Vector3(halfWidth, Mathf.Max(_art.TouchHeight, _art.ArrowTop), halfDepth), box.max);
         }
 
         [Test]
-        public void Box_ReachesTheFrameTopAndTheDoorsOuterFace_WhenTheFrameIsTallerAndTheDoorsThicker()
+        public void Box_ReachesTheArrowsTopAndTheDoorsOuterFace_WhenTheFrameIsTallerAndTheDoorsThicker()
         {
             Set("_blockLift", -1f);
             Set("_frameLift", 1f);
@@ -38,8 +38,8 @@ namespace Game.Tests.Play
 
             var box = new BoardLayout(5, 6, _art).Box;
 
-            Assert.Greater(_art.FrameTop, _art.TouchHeight);
-            Assert.AreEqual(_art.FrameTop, box.max.y, 1e-5f);
+            Assert.Greater(_art.ArrowTop, _art.TouchHeight);
+            Assert.AreEqual(_art.ArrowTop, box.max.y, 1e-5f);
             Assert.AreEqual(halfWidth, box.max.x, 1e-5f);
         }
 

@@ -210,7 +210,7 @@ namespace Game.Editor.LevelEditor
         {
             if (_palette == null || !_palette.Has(colorId))
                 return MissingColor;
-            return _palette.For(colorId).color;
+            return _palette.ForBlock(colorId).color;
         }
 
         private Cell CellAt(Vector2 localPosition) => new Cell(

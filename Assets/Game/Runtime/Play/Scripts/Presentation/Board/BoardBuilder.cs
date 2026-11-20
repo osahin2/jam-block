@@ -30,11 +30,11 @@ namespace Game.Play
         }
 
         // Every piece is placed in the parent's local space, so the board follows the parent it is built under.
-        public BlockView[] Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
+        public StagedLevel Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
             BuildGround(level, layout, parent, pieces);
-            BuildFrame(level, layout, parent, pieces);
-            return BuildBlocks(level, layout, parent, pieces);
+            var doors = BuildFrame(level, layout, parent, pieces);
+            return new StagedLevel(layout, BuildBlocks(level, layout, parent, pieces), doors);
         }
 
         private void BuildGround(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
@@ -46,13 +46,16 @@ namespace Game.Play
             }
         }
 
-        private void BuildFrame(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
+        // Returns the door views in level order.
+        private DoorView[] BuildFrame(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
         {
+            var doors = new DoorView[level.Doors.Count];
             foreach (var side in Sides)
-                BuildSide(level, layout, side, parent, pieces);
+                BuildSide(level, layout, side, parent, pieces, doors);
 
             foreach (var corner in Corners)
                 BuildCorner(layout, corner, parent, pieces);
+            return doors;
         }
 
         // A corner piece is a square of the wall's thickness outside the board's corner, turned so its rounded corner
@@ -67,36 +70,51 @@ namespace Game.Play
             Spawn(_art.FrameCorner, position, turn, scale, parent, pieces);
         }
 
-        // Each cell along a side gets a door piece when a door covers it, else two half-cell wall pieces. Frame pieces
-        // face out along their +Z, so each is turned toward the side's outward direction and its Z scale is its
-        // thickness; its inner face lies on the board's edge.
-        private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces)
+        // A side is one door piece per door and one wall piece per run of cells between doors and corners, each
+        // stretched along its cells, so the frame reads as smooth bars. Frame pieces face out along their +Z, so each
+        // is turned toward the side's outward direction and its Z scale is its thickness; its inner face lies on the
+        // board's edge. Each door carries an arrow on its top at its middle, pointing out of the board.
+        private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces,
+            DoorView[] doors)
         {
-            var outward = Direction.OutOf(side).Offset;
-            var outwardLocal = layout.ToLocal(Direction.OutOf(side));
-            var along = side.IsHorizontal() ? Vector3.right : Vector3.forward;
-            var turn = Quaternion.LookRotation(outwardLocal, Vector3.up);
-            var wallOut = outwardLocal * (layout.CellSize + _art.WallWidth) * 0.5f;
-            var doorOut = outwardLocal * (layout.CellSize + _art.DoorWidth) * 0.5f;
-            var wallAlong = along * (layout.CellSize * 0.25f);
-            var wallScale = new Vector3(_art.Scale, _art.Scale, _art.WallWidth);
-            var doorScale = new Vector3(_art.Scale, _art.Scale, _art.DoorWidth);
-            for (var i = 0; i < side.Length(level.Width, level.Height); i++)
+            var outward = layout.ToLocal(Direction.OutOf(side));
+            var turn = Quaternion.LookRotation(outward, Vector3.up);
+            var wallOut = outward * (layout.CellSize + _art.WallWidth) * 0.5f;
+            var doorOut = outward * (layout.CellSize + _art.DoorWidth) * 0.5f;
+            var length = side.Length(level.Width, level.Height);
+            var start = 0;
+            while (start < length)
             {
-                var edgeCell = side.IsHorizontal()
-                    ? new Cell(i, outward.Y < 0 ? 0 : level.Height - 1)
-                    : new Cell(outward.X < 0 ? 0 : level.Width - 1, i);
-                var edge = layout.CellCenter(edgeCell) + Lift(_art.FrameLift);
-                var door = DoorAt(level, side, i);
+                var door = DoorAt(level, side, start);
+                var end = door?.End ?? NextDoorStart(level, side, start, length);
+                var middle = RunMiddle(level, layout, side, start, end);
+                var cells = end - start;
                 if (door != null)
                 {
-                    var piece = Spawn(_art.Door, edge + doorOut, turn, doorScale, parent, pieces);
-                    piece.SetMaterial(_palette.For(door.ColorId));
-                    continue;
+                    var doorScale = new Vector3(cells * _art.DoorScalePerCell, _art.Scale, _art.DoorWidth);
+                    var view = pieces.Take(_art.Door, parent);
+                    Place(view.transform, middle + doorOut, turn, doorScale);
+                    var arrowPosition = middle + doorOut;
+                    arrowPosition.y = _art.FrameTop;
+                    var arrow = Spawn(_art.DoorArrow, arrowPosition, turn, Vector3.one * _art.Scale, parent, pieces);
+                    view.Init(_palette.ForDoor(door.ColorId), arrow.transform, _art.DoorDrop, _art.TouchHeight * 0.5f, _motion);
+                    doors[level.Doors.IndexOf(door)] = view;
                 }
-                Spawn(_art.Wall, edge + wallOut - wallAlong, turn, wallScale, parent, pieces);
-                Spawn(_art.Wall, edge + wallOut + wallAlong, turn, wallScale, parent, pieces);
+                else
+                {
+                    var wallScale = new Vector3(cells * _art.WallScalePerCell, _art.Scale, _art.WallWidth);
+                    Spawn(_art.Wall, middle + wallOut, turn, wallScale, parent, pieces);
+                }
+                start = end;
             }
+        }
+
+        // The middle of the board's edge along the cells from start to end (exclusive) of a side, at the frame's lift.
+        private Vector3 RunMiddle(LevelData level, BoardLayout layout, Side side, int start, int end)
+        {
+            var first = layout.CellCenter(EdgeCell(level, side, start));
+            var last = layout.CellCenter(EdgeCell(level, side, end - 1));
+            return (first + last) * 0.5f + Lift(_art.FrameLift);
         }
 
         private BlockView[] BuildBlocks(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
@@ -107,7 +125,7 @@ namespace Game.Play
                 var block = level.Blocks[i];
                 var view = pieces.Take(_art.Block, parent);
                 view.Init(_motion);
-                _blockPieces.Build(view.transform, block.Shape, _palette.For(block.ColorId), pieces);
+                _blockPieces.Build(view, block.Shape, _palette.ForBlock(block.ColorId), pieces);
                 view.SetPose(layout.CellCenter(block.Position));
                 views[i] = view;
             }
@@ -118,10 +136,14 @@ namespace Game.Play
             Transform parent, IBoardPieceSource pieces)
         {
             var piece = pieces.Take(prefab, parent);
-            var transform = piece.transform;
+            Place(piece.transform, position, rotation, scale);
+            return piece;
+        }
+
+        private static void Place(Transform transform, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
             transform.SetLocalPositionAndRotation(position, rotation);
             transform.localScale = scale;
-            return piece;
         }
 
         private static DoorData DoorAt(LevelData level, Side side, int index)
@@ -132,6 +154,27 @@ namespace Game.Play
                     return door;
             }
             return null;
+        }
+
+        // Where the next door of the side starts at or after the given cell, or the side's length if none does.
+        private static int NextDoorStart(LevelData level, Side side, int from, int length)
+        {
+            var next = length;
+            foreach (var door in level.Doors)
+            {
+                if (door.Side == side && door.Start >= from && door.Start < next)
+                    next = door.Start;
+            }
+            return next;
+        }
+
+        // The board cell along a side that touches the frame at the given index.
+        private static Cell EdgeCell(LevelData level, Side side, int along)
+        {
+            var outward = Direction.OutOf(side).Offset;
+            return side.IsHorizontal()
+                ? new Cell(along, outward.Y < 0 ? 0 : level.Height - 1)
+                : new Cell(outward.X < 0 ? 0 : level.Width - 1, along);
         }
 
         private static Vector3 Lift(float height) => new Vector3(0f, height, 0f);

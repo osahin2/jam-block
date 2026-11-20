@@ -356,7 +356,7 @@ namespace Game.Editor.LevelEditor
             for (var i = 0; i < _palette.Count; i++)
             {
                 var colorId = i;
-                var material = _palette.For(i);
+                var material = _palette.ForBlock(i);
                 var key = i < LevelEditorShortcuts.ColorKeyCount ? LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(i)) : "";
                 var swatch = new Button(() => PickColor(colorId)) { tooltip = key.Length > 0 ? $"{ColorName(i)} ({key})" : ColorName(i) };
                 swatch.AddToClassList("color-swatch");
@@ -385,7 +385,7 @@ namespace Game.Editor.LevelEditor
         // The palette's material names end in the color ("Block_Red").
         private string ColorName(int colorId)
         {
-            var material = _palette != null && _palette.Has(colorId) ? _palette.For(colorId) : null;
+            var material = _palette != null && _palette.Has(colorId) ? _palette.ForBlock(colorId) : null;
             return material != null ? material.name.Substring(material.name.LastIndexOf('_') + 1) : $"Missing color {colorId}";
         }
 

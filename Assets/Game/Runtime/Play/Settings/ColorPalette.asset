@@ -19,3 +19,10 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 804535b06fd244ba1b055c342c3ddd03, type: 2}
   - {fileID: 2100000, guid: 2492c8626c4194f1a8119e64e95a24de, type: 2}
   - {fileID: 2100000, guid: dce32f81b76954c51a6954861eeb2b8f, type: 2}
+  _doorColors:
+  - {fileID: 2100000, guid: 00b32d1fc14944993945b463514ed99a, type: 2}
+  - {fileID: 2100000, guid: 3d904a197d42142cf962528a398e41ab, type: 2}
+  - {fileID: 2100000, guid: ed58c891680cb4a88915e9239746037e, type: 2}
+  - {fileID: 2100000, guid: 1dc1e4c1d15364e3ebe7d2c5b8c2a423, type: 2}
+  - {fileID: 2100000, guid: 61f98b5161dd94b328ea437a5c992976, type: 2}
+  - {fileID: 2100000, guid: 2c2c7a692bbed4a66ad1c6a4043a83a3, type: 2}

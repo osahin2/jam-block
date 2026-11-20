@@ -51,7 +51,7 @@ namespace Game.Play
             _onWon = onWon;
             _onFailed = onFailed;
             var staged = _stage.Show(level, _board.transform, _pieces, _camera);
-            _interaction.Begin(level, _attempt, staged.Layout, staged.Blocks);
+            _interaction.Begin(level, _attempt, staged);
         }
 
         public void Tick()

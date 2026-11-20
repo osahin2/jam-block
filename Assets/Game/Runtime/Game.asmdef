@@ -15,7 +15,8 @@
         "Unity.TextMeshPro",
         "UnityEngine.UI",
         "VContainer",
-        "UniTask"
+        "UniTask",
+        "QuickOutline"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

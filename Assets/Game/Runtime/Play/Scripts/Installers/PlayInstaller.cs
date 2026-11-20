@@ -12,6 +12,7 @@ namespace Game.Play
         [SerializeField] private BoardArtSettings _art;
         [SerializeField] private ColorPalette _palette;
         [SerializeField] private BlockMotionSettings _motion;
+        [SerializeField] private BlockOutlineSettings _outline;
         [SerializeField] private CameraFramingSettings _framing;
         [SerializeField] private WinRewardSettings _reward;
         [SerializeField] private UIScreenCatalog _screens;
@@ -22,6 +23,8 @@ namespace Game.Play
             builder.RegisterInstance(_art);
             builder.RegisterInstance(_palette);
             builder.RegisterInstance(_motion);
+            builder.RegisterInstance(_outline);
+            builder.Register<BlockOutlineMaterials>(Lifetime.Scoped);
             builder.RegisterInstance(_framing);
             builder.RegisterInstance(_reward);
             builder.RegisterUIScreens(_screens);

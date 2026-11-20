@@ -36,6 +36,20 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void HeldBlock_IsTheGrabbedBlockUntilRelease_WhileThePoseNamesNone()
+        {
+            var attempt = TwoBlocks();
+            Assert.AreEqual(Board.NoBlock, attempt.HeldBlock);
+
+            attempt.Grab(2.5f, 1.5f, out var pose);
+
+            Assert.AreEqual(1, attempt.HeldBlock);
+            Assert.AreEqual(Board.NoBlock, pose.Block);
+            attempt.Release();
+            Assert.AreEqual(Board.NoBlock, attempt.HeldBlock);
+        }
+
+        [Test]
         public void Grab_OnAnEmptyCell_HoldsNothingButStartsTheTimer()
         {
             var attempt = TwoBlocks();

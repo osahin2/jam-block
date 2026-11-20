@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: BoardArtSettings
   m_EditorClassIdentifier: 
   _cellSize: 2
-  _blockLift: -1.1
+  _blockLift: 0
   _frameLift: 0.89
   _wallThickness: 0.68
   _doorThickness: 0.8
+  _doorOpenHeight: 0.05
   _blockCenter: {fileID: 6438021452278903108, guid: 220de3cefcde0484fb987e25079e70e1,
     type: 3}
   _blockEdge: {fileID: 4050102278290467304, guid: 6b1d0e9d9be4245a5abc219dce032ef8,
@@ -27,7 +28,9 @@ MonoBehaviour:
     type: 3}
   _ground: {fileID: 3041680259320840191, guid: 22f77c055271544b99f5771273f63b5e, type: 3}
   _wall: {fileID: 3876827613300173413, guid: b7304f73ebf4145ea8a3d4fb908c3a95, type: 3}
-  _door: {fileID: 8473155966400782202, guid: 54f083ec43e0e4a34aa17fabe7e817ef, type: 3}
+  _door: {fileID: 1465487179543627392, guid: 54f083ec43e0e4a34aa17fabe7e817ef, type: 3}
   _frameCorner: {fileID: 1622258170957769826, guid: 1ed2034a4c17845bba63a44d2113a24c,
+    type: 3}
+  _doorArrow: {fileID: 1960899780999483023, guid: 9aa2f574963624d9ebace9a7d00dfca7,
     type: 3}
   _block: {fileID: 4164324987511729903, guid: f43dbc5d8eb6348ecb88298e9e5ae696, type: 3}

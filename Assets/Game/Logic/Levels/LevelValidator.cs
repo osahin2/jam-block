@@ -114,23 +114,10 @@ namespace Game.Logic.Levels
         {
             foreach (var door in level.Doors)
             {
-                if (door.ColorId == block.ColorId && ExtentAlong(door.Side, block) <= door.Length)
+                if (door.ColorId == block.ColorId && block.ExtentAlong(door.Side) <= door.Length)
                     return true;
             }
             return false;
-        }
-
-        private static int ExtentAlong(Side side, BlockData block)
-        {
-            var min = int.MaxValue;
-            var max = int.MinValue;
-            foreach (var cell in block.Shape)
-            {
-                var along = side.Along(cell);
-                min = Math.Min(min, along);
-                max = Math.Max(max, along);
-            }
-            return max - min + 1;
         }
     }
 }
