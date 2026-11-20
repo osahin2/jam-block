@@ -30,6 +30,8 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 7. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
 
 ## A new UI screen
+Build it from the shared prefabs (`Buttons/Prefabs/`, `Popups/Prefabs/PopupPanel` and `PopupDimmer`, `Coins/Prefabs/CoinCounter`); a piece the screen repeats, or one another screen will need, becomes a prefab of its feature first, and the screen holds instances with overrides. Lay it out after the reference's screen ([Reference](../../../Docs/Game/Reference.md)), check it in prefab mode (the UI Environment shows the game's scale) and render it at 1080 x 1920 and 1080 x 2400.
+
 A prefab variant of Core's `UIScreenTemplate`: the script in the feature's `Scripts/UI/`, the prefab in its `Prefabs/` (in `Prefabs/UI/` once the feature has prefabs of another concept too), added to the feature's `UIScreenCatalog` (in `Settings/`). Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
 
 ## A new level

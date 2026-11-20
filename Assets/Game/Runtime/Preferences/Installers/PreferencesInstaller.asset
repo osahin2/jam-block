@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: PreferencesInstaller
   m_EditorClassIdentifier: 
   _screens: {fileID: 11400000, guid: 5539131c765d04f41a65cbd91db9044f, type: 2}
+  _switch: {fileID: 11400000, guid: 578519207768a4869991418af610931d, type: 2}

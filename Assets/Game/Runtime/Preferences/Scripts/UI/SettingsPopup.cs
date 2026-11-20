@@ -48,17 +48,27 @@ namespace Game.Preferences
             _onHome = onHome;
         }
 
-        private void ChooseClose() => End(_onClose);
+        private void ChooseClose()
+        {
+            var onClose = _onClose;
+            Forget();
+            Close();
+            onClose?.Invoke();
+        }
 
-        private void ChooseHome() => End(_onHome);
+        // Stays open: home covers the screen with the scene fade first, so the dimmer never drops over the board.
+        private void ChooseHome()
+        {
+            var onHome = _onHome;
+            Forget();
+            onHome?.Invoke();
+        }
 
-        // Clears both callbacks before calling the chosen one, so a second click does nothing.
-        private void End(Action chosen)
+        // Both callbacks go before the chosen one runs, so a second click does nothing.
+        private void Forget()
         {
             _onClose = null;
             _onHome = null;
-            Close();
-            chosen?.Invoke();
         }
     }
 }

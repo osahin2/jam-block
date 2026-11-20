@@ -5,7 +5,7 @@ A 7-day game developer case study: a vertical slice of a block-sliding color puz
 Everything written into the repository is English.
 
 ## Stack
-Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. Input System, uGUI 1.0 with TextMeshPro, VContainer 1.19.0 and UniTask 2.5.11 (OpenUPM, pinned), DOTween 1.3.045 (`Assets/Plugins/Demigiant/`), Unity Test Framework (EditMode first). Core: `Packages/com.base-setup.core/`, copied from the base template.
+Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. Input System, uGUI 1.0 with TextMeshPro, VContainer 1.19.0 and UniTask 2.5.11 (OpenUPM, pinned), DOTween 1.3.045 (`Assets/Plugins/Demigiant/`), UI Particle 4.14.2 (OpenUPM, pinned; ParticleSystems in the UI), Unity Test Framework (EditMode first). Core: `Packages/com.base-setup.core/`, copied from the base template.
 
 ## Architecture
 - Four game assemblies, dependencies one way: `Game.Editor -> Game -> Game.Logic -> Game.Data` (`Docs/Conventions/Assemblies.md`).
@@ -26,7 +26,7 @@ Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. 
 - Never edit `.unity`, `.prefab`, `.asset`, `.meta` or `ProjectSettings/` by hand; use editor scripts (skill `unity-editor`). Never create `.meta` files.
 - Never read or search `Library/`, `Temp/`, `obj/`, `Logs/`, `Build/`, `UserSettings/`.
 - Only APIs that exist in Unity 2022.3 and the pinned package versions.
-- Art comes from the supplied case assets only.
+- Art comes from the supplied case assets only; the one addition is the UI font, Lilita One (SIL OFL, `Assets/Plugins/LilitaOne/`), as none was supplied.
 - No allocations in per-frame code (new, LINQ, string concatenation, boxing, closures); cache component lookups; pool objects spawned often.
 
 ## Workflow

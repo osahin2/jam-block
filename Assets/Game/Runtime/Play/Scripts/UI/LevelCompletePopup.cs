@@ -14,20 +14,21 @@ namespace Game.Play
         private Action _onContinue;
 
         public override UILayer Layer => UILayer.Popup;
+        public Vector3 RewardOrigin => _continueButton.transform.position;
 
         private void Awake() => _continueButton.onClick.AddListener(Continue);
 
         public void Show(int coins, Action onContinue)
         {
-            _rewardLabel.SetText("+{0}", coins);
+            _rewardLabel.SetText("{0}", coins);
             _onContinue = onContinue;
         }
 
+        // Stays open while the reward flies from its button; the caller closes it once the screen is covered.
         private void Continue()
         {
             var onContinue = _onContinue;
             _onContinue = null;
-            Close();
             onContinue?.Invoke();
         }
     }

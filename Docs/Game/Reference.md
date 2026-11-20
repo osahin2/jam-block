@@ -88,6 +88,12 @@ Cells are counted from column 0 on the left and row 0 at the top.
 **Popups**
 - The settings popup opens with a short pop over a dim and closes without an animation.
 
+## UI layout
+- **HUD.** Top left: one bar, a circle with "Level" over the number and, beside it, a "Time" caption with a small clock over the time in a dark pill. Top right: an orange restart button above a blue pause button, both rounded squares, and under them the coin count in a pale pill with a coin on its left and a green "+" on its right. Bottom: four round booster slots with a lock each and a purple level tag under them; the board sits between the bar and the slots.
+- **Level complete.** No panel: over the dim, a large two-line title, a coin pile with light rays under it and a blue continue button near the bottom that shows "Continue" over the reward and a coin.
+- **Level failed.** A panel with a header ribbon, a close button on its top right corner (it leaves the level), a darker box in the middle (boosters and a progress bar in the reference) and a green retry button under it.
+- **Settings in a level.** A narrow, tall panel with a header ribbon and a close button on its corner; inside a darker box, one row per switch (vibration, sound, music: an icon and a small track switch, no caption), then placeholder buttons (legal terms, restore purchases, support, language) and a green home button with a block icon at the bottom.
+
 ## What the case takes from this
 - In scope: free drag with collisions, exit through a door of the block's color that covers the block's extent, win when the board is empty, countdown timer with fail at zero, fail popup with restart and home, pause, restart, a coin reward on win, home with top UI, level button and placeholder tabs, settings with three toggles.
 - Placeholder or left out: lives (shown, not spent), the out-of-time offer, the pre-level booster popup, boosters, profile, shop, level path map, the other tabs.

@@ -15,6 +15,7 @@ namespace Game.Play
         [SerializeField] private BlockOutlineSettings _outline;
         [SerializeField] private CameraFramingSettings _framing;
         [SerializeField] private WinRewardSettings _reward;
+        [SerializeField] private TimeWarningSettings _timeWarning;
         [SerializeField] private UIScreenCatalog _screens;
 
         // Needs the scene's BoardRoot, BoardInputView and Camera and Core's UI, registered by the scene's scope.
@@ -27,6 +28,7 @@ namespace Game.Play
             builder.Register<BlockOutlineMaterials>(Lifetime.Scoped);
             builder.RegisterInstance(_framing);
             builder.RegisterInstance(_reward);
+            builder.RegisterInstance(_timeWarning);
             builder.RegisterUIScreens(_screens);
             builder.Register<PooledBoardPieces>(Lifetime.Scoped);
             builder.Register<LevelStage>(Lifetime.Scoped);

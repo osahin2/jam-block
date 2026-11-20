@@ -4,6 +4,7 @@ namespace Game.Logic.Coins
     {
         int Load();
 
+        // Persists before returning; the wallet calls it on every change.
         void Save(int balance);
     }
 }

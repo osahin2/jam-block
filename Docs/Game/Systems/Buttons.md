@@ -13,13 +13,16 @@
 - **Settings.** The pressed scale, the press and release durations and eases are in `ButtonFeedbackSettings`, registered in the Boot scope by `ButtonsInstaller`, so every scene's buttons share one tuning. Screens are created through the container ([UI](../../Base/Systems/UI.md)), so the component gets the settings with an `[Inject]` method.
 - **Buttons.** The buttons with feedback use the `Button`'s Transition None, so the scale is their only press visual: the HUD's restart and pause, the popups' buttons, the settings popup's switches, close and home, and the Home screen's level button.
 
+- **Prefabs.** Every button is an instance of one of `Buttons/Prefabs/`: `TextButton` (the blue button with a navy label), its variant `TextButtonGreen` (green, green label), `IconButton` (a square with an icon; the HUD's restart and pause and the coins' "+" override its sprites) and `CloseButton` (the popups' corner close). Each carries a `Button` with Transition None and a `PressFeedback`, so a new button starts with both.
+
 ## Rules & invariants
 - A button gets its feedback only from this component; no screen animates its own buttons.
 - A non-interactable button does not react.
-- A press allocates no garbage beyond DOTween's pooled tweens.
+- A press allocates one DOTween tween (recycling is off in the DOTween settings) and nothing else.
 
 ## Tests
-- No EditMode test: the component is a tween on pointer events, which DOTween does not run in EditMode. Checked in the editor: press and hold a button, slide off and release, press a button that closes its popup and open the popup again.
+- No EditMode test of the motion: the component is a tween on pointer events, which DOTween does not run in EditMode. Checked in the editor: press and hold a button, slide off and release, press a button that closes its popup and open the popup again.
+- `Tests/Buttons/Presentation/ScreenButtonsTests`: every button in the game's prefabs has a graphic that is a raycast target and a `PressFeedback`, so a button that takes no touch or gives no feedback fails here.
 - `Tests/Bootstrap/InstallerAssetTests`: `ButtonsInstaller` has its settings assigned.
 
 ## Related

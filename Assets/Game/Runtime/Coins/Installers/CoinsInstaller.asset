@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd391ad5664bd4d88b3800ca169472cd, type: 3}
   m_Name: CoinsInstaller
   m_EditorClassIdentifier: 
+  _flightSettings: {fileID: 11400000, guid: e96cbb706afe64ba2ad94c61845c4f59, type: 2}
+  _flight: {fileID: 303814020639157185, guid: 7fe4f7483710c45bfb19aa5ccbda8775, type: 3}

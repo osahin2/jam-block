@@ -7,6 +7,7 @@ namespace Game.Levels
         // The level's number as the player sees it.
         int Number { get; }
 
+        // After a win: moves on to the next level; a run that keeps progress has saved it when this returns.
         void Advance();
     }
 }

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 785e9a468b2e3485783445d9cbd31812, type: 3}
   m_Name: ButtonFeedbackSettings
   m_EditorClassIdentifier: 
-  _pressedScale: 0.9
-  _pressDuration: 0.08
+  _pressedScale: 0.95
+  _pressDuration: 0.05
   _pressEase: 6
-  _releaseDuration: 0.2
-  _releaseEase: 27
+  _releaseDuration: 0.1
+  _releaseEase: 6

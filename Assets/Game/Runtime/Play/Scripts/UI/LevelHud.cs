@@ -1,5 +1,6 @@
 using System;
 using Core.UI;
+using Game.Coins;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +12,8 @@ namespace Game.Play
     {
         [SerializeField] private TMP_Text _levelLabel;
         [SerializeField] private TMP_Text _timeLabel;
-        [SerializeField] private TMP_Text _coinsLabel;
+        [SerializeField] private CoinCounter _coins;
+        [SerializeField] private TimeWarning _timeWarning;
         [SerializeField] private Button _restartButton;
         [SerializeField] private Button _pauseButton;
 
@@ -20,6 +22,8 @@ namespace Game.Play
         private Action _onRestart;
         private Action _onPause;
         private int _shownSeconds = -1;
+
+        public CoinCounter Coins => _coins;
 
         [Inject]
         public void Construct(PlaySession session) => _session = session;
@@ -38,12 +42,13 @@ namespace Game.Play
             _shownSeconds = seconds;
             CountdownText.Write(seconds, _time);
             _timeLabel.SetCharArray(_time);
+            _timeWarning.Show(seconds);
         }
 
         public void Show(int levelNumber, int coins, Action onRestart, Action onPause)
         {
-            _levelLabel.SetText("Level {0}", levelNumber);
-            _coinsLabel.SetText("{0}", coins);
+            _levelLabel.SetText("{0}", levelNumber);
+            _coins.Show(coins);
             _onRestart = onRestart;
             _onPause = onPause;
         }

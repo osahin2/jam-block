@@ -16,7 +16,8 @@
         "UnityEngine.UI",
         "VContainer",
         "UniTask",
-        "QuickOutline"
+        "QuickOutline",
+        "DOTween.Modules"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
