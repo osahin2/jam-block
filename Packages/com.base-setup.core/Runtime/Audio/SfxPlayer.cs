@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Plays cues on pooled sources and returns each source when its clip has played out. Pitch is per source,
-    // which is why every play takes its own source instead of sharing one through PlayOneShot.
     internal sealed class SfxPlayer
     {
         private struct Voice
@@ -30,6 +28,7 @@ namespace Core.Audio
             _parent = parent;
         }
 
+        // Pitch is per source, so every play takes its own source instead of sharing one through PlayOneShot.
         public void Play(SfxCue cue)
         {
             if (cue == null)

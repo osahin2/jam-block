@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Game.Data.Levels
 {
-    // Cells count columns (X) from the left and rows (Y) from the top.
     [Serializable]
     public sealed class LevelData
     {

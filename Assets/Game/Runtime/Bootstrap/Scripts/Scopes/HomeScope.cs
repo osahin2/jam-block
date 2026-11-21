@@ -1,0 +1,22 @@
+using Core.Installers;
+using Core.UI;
+using UnityEngine;
+using VContainer;
+using VContainer.Unity;
+
+namespace Game.Bootstrap
+{
+    public sealed class HomeScope : LifetimeScope
+    {
+        [SerializeField] private UIRoot _uiRoot;
+        [SerializeField] private ScriptableObjectInstaller[] _installers;
+
+        protected override void Configure(IContainerBuilder builder)
+        {
+            builder.RegisterCoreUI(_uiRoot);
+            foreach (var installer in _installers)
+                installer.Install(builder);
+            builder.RegisterEntryPoint<HomeEntry>();
+        }
+    }
+}

@@ -4,9 +4,9 @@ using VContainer;
 
 namespace Core.Haptics
 {
-    // In the root scope, after RegisterCoreSave.
     public static class HapticInstaller
     {
+        // In the root scope, after RegisterCoreSave.
         // Uses the platform's native backend (iOS; silent in the editor and on other platforms).
         public static void RegisterCoreHaptics(this IContainerBuilder builder) =>
             Register(builder, NativeHapticBackend.Create());

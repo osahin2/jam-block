@@ -21,9 +21,13 @@
 Game systems get a note each in `Game/Systems/` as they are built.
 - [Levels](Game/Systems/Levels.md) - level format: board size, blocks as shapes with a color id, doors on the sides, time limit; one `LevelAsset` per level; `LevelValidator` errors and warnings, overlapping doors and blocks in pieces included
 - [Board](Game/Systems/Board.md) - move rules in whole cells: `CanStep`, `Step`, exit through a covering door of the block's color, cleared board; `BlockDrag` turns a finger into steps and a sub-cell offset
-- [Level attempt](Game/Systems/LevelAttempt.md) - one try at a level: board, drag and timer behind `LevelAttempt`; timer starts on the first touch, pauses, fails at zero; won when the last block leaves
-- [Coins](Game/Systems/Coins.md) - `CoinWallet`: the coin balance, earned only, never negative
-- [Play](Game/Systems/Play.md) - the Game scene: board built from the supplied models, blocks from quarter pieces, pointer input, the play session that connects the level attempt and views
+- [Level attempt](Game/Systems/LevelAttempt.md) - one try at a level: board, drag and timer behind `LevelAttempt`; timer starts on the first touch, pauses (`IsPaused`), fails at zero; won when the last block leaves
+- [Coins](Game/Systems/Coins.md) - `CoinWallet`: the coin balance, earned only, never negative, saved after every change through an `ICoinStore` port; `CoinCounter` and `CoinFlight`: a counter prefab for any screen and one app-wide flight that shows paid coins flying into it
+- [App flow](Game/Systems/AppFlow.md) - Boot, Home and Game scenes, the Boot scope's app-wide services, `SceneFlow`, the run chosen once per Game scene (`ILevelRun`: the player's run completes progress, a test run from the level editor never does)
+- [Play](Game/Systems/Play.md) - the Game scene: board built from pooled prefabs of the supplied models, blocks from quarter pieces, one bar per door and wall run, a block leaving through its door cut away at the door line by its shader while the door drops and cubes burst out, the held block outlined by a fork of Quick Outline, the camera framed to each level, one `LevelStage` shared with the level editor's preview, board input through the EventSystem on one board-sized collider, the play session that connects the level attempt and views, pauses, and ends a level once on a settled board; the HUD (level, countdown without allocations, coins, restart, pause), the level complete popup with the coin reward and the level failed popup (retry, home), all driven by `GameEntry`, one method per step
+- [Preferences](Game/Systems/Preferences.md) - the settings popup: sound, music and vibration switches written to Core's audio and haptics, opened as pause in the Game scene
+- [Buttons](Game/Systems/Buttons.md) - `PressFeedback`: every button shrinks while pressed and springs back, tuned in one settings asset in the Boot scope
+- [Popups](Game/Systems/Popups.md) - `PopupEntrance`: every popup's dimmer fades in and its parts grow in one after the other, tuned in one settings asset in the Boot scope
 - [Level editor](Game/Systems/LevelEditor.md) - UI Toolkit window over a working copy of a level: a searchable level list (open, reorder by drag, duplicate, delete), New and Duplicate, a new level becoming an asset on its first save, Play saving and starting the game with that level; board drawn from above, select, block, door and erase tools as strategies, rebindable shortcuts, problems marked on the board and listed in plain words, the level previewed in the Game scene, undo per stroke, save only without errors
 
 ## Core
@@ -31,7 +35,7 @@ Systems of the Core package (`Packages/com.base-setup.core/`), one note each.
 - [Overview](Base/Architecture/Overview.md) - modules, what each does, dependencies, how a game registers them
 - [Save](Base/Systems/Save.md) - typed JSON documents under `persistentDataPath`, synchronous, atomic writes
 - [Levels](Base/Systems/Levels.md) - level progression: current number and index, completion, loop rule
-- [UI](Base/Systems/UI.md) - screens and popups opened by type from per-feature catalogs, UI root and screen template, safe area fitted once
+- [UI](Base/Systems/UI.md) - screens and popups opened by type from per-feature catalogs (registered through a scoped factory, so a scope holds several), UI root and screen template, safe area fitted once at run time
 - [Scenes](Base/Systems/Scenes.md) - additive scene switch on top of a boot scene that stays loaded, transition hook with progress, ready fade overlay, play mode starts from the boot scene
 - [Pooling](Base/Systems/Pooling.md) - `PrefabPool<T>` over `ObjectPool<T>`: prewarm inactive under a root, get under a parent with the prefab's pose, release, max idle size
 - [Audio](Base/Systems/Audio.md) - `SfxCue` one-shots on pooled sources, looping music with crossfade, volume and mute per channel saved through Save

@@ -5,7 +5,7 @@
 ## What goes where
 | Kind of data | Where |
 |---|---|
-| Which prefab to spawn, speeds, sizes, spacings, colors, feedback strengths | A settings asset per concern (`EnemySettings`, `BoardSettings`), in the feature's `Settings/` folder under `Assets/Game/Runtime/` |
+| Which prefab to spawn, speeds, sizes, spacings, colors, feedback strengths | A settings asset per concern (`EnemySettings`, `BoardSettings`), the class in the feature's `Scripts/Settings/`, the asset in its `Settings/` ([Assemblies](Assemblies.md)) |
 | A prefab's references to its own children (`_body`, `_label`) | The prefab |
 | A screen's layout, fonts, colors | The screen prefab |
 | Objects that exist only in the scene (camera, composite views, UI root) | The scene's `LifetimeScope` |

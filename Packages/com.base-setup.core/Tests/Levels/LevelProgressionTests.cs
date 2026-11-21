@@ -7,7 +7,6 @@ namespace Core.Levels.Tests
 {
     public sealed class LevelProgressionTests
     {
-        // Round-trips through JSON so tests see what a real save would keep.
         private sealed class MemorySave : ISaveService
         {
             public readonly Dictionary<string, string> Files = new Dictionary<string, string>();

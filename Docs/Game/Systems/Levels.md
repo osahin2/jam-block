@@ -5,7 +5,7 @@
 ## Code
 - Folder: `Assets/Game/Data/Levels/` (format), `Assets/Game/Logic/Levels/` (validation), `Assets/Game/Runtime/Levels/` (asset)
 - Assembly: `Game.Data` (`noEngineReferences: true`), `Game.Logic`, `Game`
-- Entry points: `LevelData` (`Data/Levels/LevelData.cs`), `LevelValidator` (`Logic/Levels/LevelValidator.cs`), `LevelAsset` (`Runtime/Levels/LevelAsset.cs`)
+- Entry points: `LevelData` (`Data/Levels/LevelData.cs`), `LevelValidator` (`Logic/Levels/LevelValidator.cs`), `LevelAsset` (`Runtime/Levels/Scripts/Content/LevelAsset.cs`)
 
 ## How it works
 | Type | Fields |
@@ -46,7 +46,7 @@
 - `Side` values are stored as ints in assets: never reorder them.
 
 ## Tests
-- `Tests/Levels/LevelAssetTests`: a level survives Unity serialization.
+- `Tests/Levels/Content/LevelAssetTests`: a level survives Unity serialization.
 - `Tests/Levels/LevelValidatorTests`: each problem kind (door without cells or before its side included), warnings versus errors, every problem reported by kind.
 - `Tests/Levels/DoorDataTests`: a door fits its side and overlaps only on shared cells of the same side.
 - `Tests/Levels/ProjectLevelsTests`: there are level assets, every one has no errors, and every color id in them has a material in the `ColorPalette` (`ColorPalette.Has`, the one check the editor uses too).

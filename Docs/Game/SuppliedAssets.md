@@ -7,6 +7,7 @@
 |---|---|---|
 | `Assets/Art/UI/` | 47 PNG: backgrounds, popup parts, buttons, icons (coin, heart, clock, boosters, tabs, settings) | Sprite, single, no mipmaps |
 | `Assets/Art/Models/` | `BlockParts.fbx`, `WallAndDoor.fbx`, `GroundGrid.fbx`, `Arrows.fbx` (Blender exports) | defaults; materials import as URP Lit |
+| `Assets/Art/Models/BlockPlates.fbx` | Made in the project from `BlockParts.fbx` by `Tools/Blender/make_block_plates.py`: the block pieces as flat plates | defaults; smooth normals in UV3 at import |
 | `Assets/Art/Textures/` | `icetexture.jpg` (2048 x 2048) | default |
 
 The folder and the zip next to it have the same content. `Arrows.fbx` and `icetexture.jpg` belong to optional mechanics (arrow block, ice blocker).
@@ -28,7 +29,7 @@ Units below are model units after import. The board is read as one cell = 2 unit
 - `ModularBlock_InnerCorner` is centered on the concave corner point of an L block and covers the three quarters around it, which then get no piece of their own.
 - A 1 x 1 block is four outer corners. Any rectangle or L shape can be built.
 
-**Frame** pieces are bars with a rounded closed end at `-Y` (the visible cap) and an open end at `+Y`; the cap sits 0.35 units lower than the block top.
+**Frame** pieces are bars with a rounded closed end at `-Y` (the visible cap) and an open end at `+Y`; the cap sits 0.35 units lower than the block top. They are deep: about 3.6 units long, so only the cap end shows above the ground and the rest sinks below it; how much a piece shows is a matter of how far it is raised, not of scaling it. The wall's cap is rounded across its X only, so wall pieces read as one continuous bar when their X runs across the wall. Block edge and corner pieces are deep the same way (1.62 units, the center piece is a 0.31-unit top plate), so a flatter block is a block set lower into the ground.
 | Piece | Footprint |
 |---|---|
 | `Wall` | 1 x 1 unit (half a cell) |
@@ -55,3 +56,4 @@ Units below are model units after import. The board is read as one cell = 2 unit
 9. **Other UI gaps.** One tab background (`ActiveTab`) and no inactive one; no font; no sound or music clips for the sound and music toggles; no texture for the block break effect.
 10. **The frame material does not render as its color.** `Base_Side` has a grey base color but emission switched on, and it shows turquoise under URP lighting; the project uses its own frame material.
 11. **UI sizes and names.** `bg_home_screen` is 2048 x 2048 for a portrait screen; `bg_block_texture` is 1547 x 3357 (not a power of two); the booster icons are 1024 x 1024 for small buttons. Names mix prefixes and case (`Btn_`, `btn_`, `bg_`, `Blockjam_`, `Lego_Brickv1`). No nine-slice borders are set, which is normal for a delivery and done in the project.
+12. **Block pieces are deep.** Each block piece is about 1.6 units tall, while a block reads as a flat plate a quarter of a cell thick; the plate's look needs the piece sunk about two thirds into the ground. Sunk geometry is drawn for nothing and breaks techniques that work on the whole mesh, such as an outline; the project makes flat plates from the pieces in Blender. Pieces modelled as plates, with their pivot on the bottom, would need neither.

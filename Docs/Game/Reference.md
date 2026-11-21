@@ -1,6 +1,6 @@
 # Reference game
 
-> Summary: How the reference game plays, observed on an Android 10 device (Play Store build 12.2.0, 2026-11-16) over `adb` through its first five levels. Mechanics and flow only: no art, names or level layouts are taken into the project. The open decisions in [Plan](Plan.md) are argued from these notes.
+> Summary: How the reference game plays, observed on an Android 10 device (Play Store build 12.2.0, 2026-11-16) over `adb` through its first five levels, and how it looks and feels. Mechanics and feel only: no art, names or level layouts are taken into the project; the look is built from the supplied assets. The open decisions in [Plan](Plan.md) are argued from these notes.
 
 Cells are counted from column 0 on the left and row 0 at the top.
 
@@ -24,7 +24,7 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - The extent counts along the door's side only: a 3 x 1 block leaves through a door one cell tall on a left or right side.
 - A door of another color is wall for the block.
 - Leaving: the block slides out through the door and breaks into small pieces; the drag ends.
-- On leaving, the block first snaps onto the door at once, lined up with it, wherever the finger had it; after a short pause the door breaks the block apart piece by piece as it passes. (Seen by the developer in play; too quick for the screenshots.)
+- On leaving, the block first snaps onto the door at once, lined up with it, wherever the finger had it; the door drops and the block slides out, cut away at the door line as it passes (see "Look and feel").
 - A block can start touching its door; it stays until the player touches it, and a tap, without a drag, makes it leave. A block held at its door by another block in its way leaves the same way once the way is free. (Seen by the developer in the reference.)
 - Not observed: a block wider than every door of its color (the levels never had one). It could never leave, so the editor should warn about it.
 
@@ -58,6 +58,42 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - A popup, from home and from inside a level: vibration, sound and music toggles, then placeholder buttons (legal terms, restore purchases, support, language). Inside a level it also has a home button.
 - A toggle shows its state by knob side and color: off is a grey knob on the left of a dark track; on is a green knob on the right labelled "On".
 - Closed with an "x" in the corner.
+
+## Look and feel
+**Board**
+- Seen steeply from above with a wide-angle look: the far rows are noticeably narrower than the near ones. The board with its frame fills nearly the screen's width.
+- The frame reads as a few smooth pieces, not one per cell: a wall between two doors, or between a door and a corner, is one rounded bar, and each corner is a rounded piece of its own.
+- A door is one bar as long as its cells, in its block's color, a little thicker than the wall so it stands out on the side walls, with one small light arrow on its top at the middle pointing out of the board.
+- Walls and doors are tall next to the blocks, about three times a block's height and well under half a cell thick; a block beside a wall sits clearly below its top.
+- Blocks are flat plates, roughly a quarter of a cell thick, with studs on top (two per cell along each side), saturated colors (cyan, royal blue, purple, green, orange, yellow, red) and a light rim along their top edges.
+- Colors overall: a dark navy frame, slate-blue ground cells on a lighter blue base that shows as thin lines between them, a light sky-blue background with a soft gradient. Light is bright and soft, with hardly any shadow on the board.
+
+**Held block**
+- A thin warm-white outline around the block's outer shape only (it follows an L's inner corner and draws nothing inside the block); gone on release. The block is not lifted or scaled.
+
+**Leaving**
+- The block snaps onto the cell in front of its door at once, and the door drops into the frame right away, leaving a flat strip of its color.
+- The block starts to slide at once while the door drops, slowly and speeding up, passes over the dropped door and is cut away at the frame's outer edge: what is past the edge is gone, the rest stays whole. A longer block takes longer to pass.
+- Small cubes in the block's color (a few shades of it, about a stud's size, dozens per block) burst from that edge while it passes, thrown outward and up with some spin and a short puff of dust, and shrink away within a second.
+- The door rises again just after the block is gone. The whole exit takes a little over half a second.
+
+**Win and next level**
+- Shortly after the last block is gone the screen dims (the board stays visible, no panel), the title pops in with an overshoot over a coin pile with turning light rays, confetti bursts from the lower corners, and the continue button pops in a moment later.
+- On continue, coins burst from the button and fly in an arc to the HUD's coin counter, which counts up as they land; the screen then fades to black and the next level fades in.
+
+**Timer and fail**
+- In the last 30 seconds the time box flashes red every second.
+- At zero the screen dims and the out-of-time offer pops in (left out, see Fail); the level failed popup that follows grows in with an overshoot.
+
+**Popups**
+- The settings popup opens with a short pop over a dim and closes without an animation.
+
+## UI layout
+- **HUD.** Top left: one bar, a circle with "Level" over the number and, beside it, a "Time" caption with a small clock over the time in a dark pill. Top right: an orange restart button above a blue pause button, both rounded squares, and under them the coin count in a pale pill with a coin on its left and a green "+" on its right. Bottom: four round booster slots with a lock each and a purple level tag under them; the board sits between the bar and the slots. Measured at 1080 x 1920: the bar runs from about x 155 to 762 with the level circle about 215 across, its top about 12 below the screen's top; restart and pause are about 90 wide, centered at x 863; the coin pill reaches the right edge at about y 245 to 298; the slots are about 175 across, 197 apart, their centers about 230 above the bottom. The board is centered on the screen and fills about 88 % of its width at every aspect.
+- **Level complete.** No panel: over the dim, a large two-line title, a coin pile with light rays under it and a blue continue button near the bottom that shows "Continue" over the reward and a coin.
+- **Level failed.** A panel with a header ribbon, a close button on its top right corner (it leaves the level), a darker box in the middle (boosters and a progress bar in the reference) and a green retry button under it.
+- **Tablets.** On a 10:16 and a 3:4 screen the HUD, the booster slots and the popups keep their size against the screen's height and the extra width stays empty at the sides, with the coin count at the right edge; the board fills the width and grows with it until the space between the HUD and the slots binds it. Held sideways, Android shows the portrait game in a portrait window with dark bars.
+- **Settings in a level.** A narrow, tall panel with a header ribbon and a close button on its corner; inside a darker box, one row per switch (vibration, sound, music: an icon and a small track switch, no caption), then placeholder buttons (legal terms, restore purchases, support, language) and a green home button with a block icon at the bottom.
 
 ## What the case takes from this
 - In scope: free drag with collisions, exit through a door of the block's color that covers the block's extent, win when the board is empty, countdown timer with fail at zero, fail popup with restart and home, pause, restart, a coin reward on win, home with top UI, level button and placeholder tabs, settings with three toggles.

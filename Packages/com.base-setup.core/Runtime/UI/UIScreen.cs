@@ -2,8 +2,6 @@ using UnityEngine;
 
 namespace Core.UI
 {
-    // A screen declares its own typed Show method; buttons the caller reacts to are named callbacks there.
-    // Screens are prefab variants of the Core screen template, so Content is the safe-area child of a full-screen root.
     public abstract class UIScreen : MonoBehaviour
     {
         [SerializeField] private RectTransform _content;
@@ -12,6 +10,7 @@ namespace Core.UI
 
         public virtual UILayer Layer => UILayer.Screen;
 
+        // Screens are variants of the Core screen template, where Content is the safe-area child of a full-screen root.
         internal RectTransform Content => _content;
 
         internal void Bind(IUIService service) => _service = service;

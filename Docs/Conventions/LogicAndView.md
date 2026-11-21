@@ -10,6 +10,7 @@
 - **One flow per feature** in `Game` connects input, logic and views and owns the order of steps (build, play, result, next). It reads top to bottom.
 - **Sound and haptics** are triggered from presentation, through the Core services, at the moment the player sees the event.
 - **Restart** builds new logic from the level data; nothing from the previous attempt is reused.
+- **Data before presentation.** What the player earns, spends or completes (coins, level progress) is written and saved on the action itself, before any animation starts; the animation only shows it, and a view never holds the value the game keeps. Never write data in a tween's completion: a game killed mid-animation must keep it.
 - **Behavior that differs by kind** (a block type, a result type) lives with the kind: polymorphism or a strategy looked up once, never a switch over types.
 - **No machinery ahead of need.** A type hierarchy for results, a registry or an animation pipeline comes when the second case exists, not before.
 

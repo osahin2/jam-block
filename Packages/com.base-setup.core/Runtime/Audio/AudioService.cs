@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Owns the player's volume and mute choices: restores them on creation, saves every change and applies the
-    // effective volume (zero while muted) to the sound effect and music players.
     internal sealed class AudioService : IAudioService
     {
         internal const string SaveKey = "audio-settings";

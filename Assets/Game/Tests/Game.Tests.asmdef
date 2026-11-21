@@ -7,8 +7,11 @@
         "Game",
         "Game.Editor",
         "Core.Installers",
+        "Core.Levels",
+        "UnityEngine.UI",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "QuickOutline"
     ],
     "includePlatforms": [
         "Editor"
@@ -17,7 +20,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "DOTween.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

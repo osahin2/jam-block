@@ -54,7 +54,7 @@ public sealed class EnemyView : MonoBehaviour
 - Classes not designed for inheritance are `sealed`.
 - One constructor; no `[Inject]` on constructors. `[Inject]` methods only on MonoBehaviours.
 - No static singletons or service locators: dependencies arrive through the constructor (or `Init` / `Construct`).
-- Comments only for what the code cannot say (a non-obvious reason or invariant).
+- Names and signatures document the code; a comment says only what the code cannot: a non-obvious reason, an invariant, a fact from outside the code (an engine or platform behavior, a measured value), or an interface's contract. Never what the code does, never a summary of a type or member. A comment is at most two lines; types carry none (their system note describes them); no XML doc comments. A hook checks the mechanical part after every C# edit in `Assets/Game` and the Core package and lists every comment the edit added for a second look.
 
 ## Interfaces and extension
 - **Keep the contract (Liskov).** Every implementation of an interface or base class keeps the promise its comment states, so callers never need to know which one they hold: no type checks on implementations (`is`, `as`, `GetType`), no member that throws `NotSupportedException` or does nothing where the caller expects an effect, and a return value or side effect means the same in every implementation. When one implementation cannot keep the promise, change the contract, not the caller.

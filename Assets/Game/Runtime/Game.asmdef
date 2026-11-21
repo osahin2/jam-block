@@ -12,9 +12,12 @@
         "Core.Save",
         "Core.Scenes",
         "Core.UI",
-        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
         "VContainer",
-        "UniTask"
+        "UniTask",
+        "QuickOutline",
+        "DOTween.Modules"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -12,9 +12,11 @@ Read the conventions first: `Docs/Conventions/Assemblies.md`, `LogicAndView.md`,
 |---|---|---|
 | Level format or saved data | `Game.Data` | `Assets/Game/Data/<Feature>/` |
 | A rule, a state change, a result type | `Game.Logic` | `Assets/Game/Logic/<Feature>/` |
-| A view, input, a flow, a screen, settings, an installer | `Game` | `Assets/Game/Runtime/<Feature>/<Role>/` |
-| Level editor or other editor tooling | `Game.Editor` | `Assets/Game/Editor/<Feature>/` |
-| A test | `Game.Tests` | `Assets/Game/Tests/<Feature>/` |
+| A view, input, a flow, a screen, settings, an installer | `Game` | `Assets/Game/Runtime/<Feature>/Scripts/<Role>/`; its assets in `Runtime/<Feature>/<AssetType>/` |
+| Level editor or other editor tooling | `Game.Editor` | `Assets/Game/Editor/<Feature>/Scripts/<Role>/`; UXML in `Layouts/`, USS in `Styles/` |
+| A test | `Game.Tests` | `Assets/Game/Tests/<Feature>/` plus the subject's folders without `Scripts/` |
+
+The role and asset folder names are fixed lists in `Docs/Conventions/Assemblies.md`; nothing sits at a Runtime or Editor feature's root but `Scripts/` and asset folders. A scene's scope and its entry flow go in `Runtime/Bootstrap/`, not in a feature.
 
 If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass the value in (time, a random seed) or move the code to `Game`.
 
@@ -22,13 +24,15 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 1. Name its entry class first and write its signature: what it takes (data types), what it returns or calls back with. Callers will know only this class.
 2. Name where it varies before writing it: several kinds of one thing (editor tools, block types) or several states (paused, won, failed). Choose the pattern there: a strategy per kind looked up once, one state value or type, never a switch over kinds. Where nothing varies, write plain code. Use what Unity and Core already provide (Unity's `Undo`, Core's pools and screens) instead of writing it again.
 3. Data types in `Game.Data`, rules in `Game.Logic` with EditMode tests before any view.
-4. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
-5. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) that registers the settings (`RegisterInstance`) and the feature's services; create the asset and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
+4. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Scripts/Settings/`, its asset in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
+5. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) in `Scripts/Installers/` that registers the settings (`RegisterInstance`) and the feature's services; create the asset in the feature's `Installers/`, named after the class, and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
 6. Views per `LogicAndView.md`: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
 7. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
 
 ## A new UI screen
-A prefab variant of Core's `UIScreenTemplate`, script and prefab together in the feature's `UI/`, added to the feature's `UIScreenCatalog`. Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
+Build it from the shared prefabs (`Buttons/Prefabs/`, `Popups/Prefabs/PopupPanel` and `PopupDimmer`, `Coins/Prefabs/CoinCounter`); a piece the screen repeats, or one another screen will need, becomes a prefab of its feature first, and the screen holds instances with overrides. Lay it out after the reference's screen ([Reference](../../../Docs/Game/Reference.md)), check it in prefab mode (the UI Environment shows the game's scale) and render it at 1080 x 1920 and 1080 x 2400.
+
+A prefab variant of Core's `UIScreenTemplate`: the script in the feature's `Scripts/UI/`, the prefab in its `Prefabs/` (in `Prefabs/UI/` once the feature has prefabs of another concept too), added to the feature's `UIScreenCatalog` (in `Settings/`). Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
 
 ## A new level
 Made in the level editor only, never by editing the saved file. Format: the level data note in `Docs/Game/Systems/`.

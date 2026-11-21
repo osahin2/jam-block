@@ -29,4 +29,4 @@
 `Packages/com.base-setup.core/Tests/Pooling/` (`PrefabPoolTests`), EditMode with plain GameObjects as the prefab: prewarm creates inactive instances under the root; `Get` activates and reparents and restores the prefab's local pose; `Release` deactivates and returns under the root; `Get` after `Release` reuses the same instance; a double release throws; `Clear` destroys idle instances and leaves handed-out ones; beyond `maxSize`, `Get` still creates and the extra released instance is destroyed; a prewarm above `maxSize` is rejected.
 
 ## Related
-- Used by [Audio](Audio.md) for its sound effect sources. A game's spawners use it for objects spawned often during play.
+- Used by [Audio](Audio.md) for its sound effect sources, and by the game's board pieces ([Play](../../Game/Systems/Play.md)). A game's spawners use it for objects spawned often during play.

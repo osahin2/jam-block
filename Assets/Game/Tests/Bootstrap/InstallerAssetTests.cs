@@ -26,7 +26,6 @@ namespace Game.Tests.Bootstrap
             Assert.IsEmpty(missing.ToString());
         }
 
-        // Reports unassigned object references of an asset and returns the objects it does reference.
         private static List<Object> CollectMissing(Object asset, StringBuilder missing)
         {
             var referenced = new List<Object>();

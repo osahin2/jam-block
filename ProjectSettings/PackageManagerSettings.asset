@@ -30,6 +30,7 @@ MonoBehaviour:
     m_Name: OpenUPM
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.coffee.ui-particle
     - com.cysharp.unitask
     - jp.hadashikick.vcontainer
     m_IsDefault: 0

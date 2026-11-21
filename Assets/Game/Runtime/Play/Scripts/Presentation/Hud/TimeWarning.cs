@@ -1,0 +1,45 @@
+using DG.Tweening;
+using UnityEngine;
+using UnityEngine.UI;
+using VContainer;
+
+namespace Game.Play
+{
+    public sealed class TimeWarning : MonoBehaviour
+    {
+        [SerializeField] private Graphic _overlay;
+
+        private TimeWarningSettings _settings;
+        private Sequence _flash;
+
+        [Inject]
+        public void Construct(TimeWarningSettings settings) => _settings = settings;
+
+        public static bool Flashes(int wholeSeconds, int lastSeconds) => wholeSeconds > 0 && wholeSeconds <= lastSeconds;
+
+        // Called when the shown second changes, so a paused or stopped countdown does not flash.
+        public void Show(int wholeSeconds)
+        {
+            if (!Flashes(wholeSeconds, _settings.LastSeconds))
+                return;
+            _flash ??= Build();
+            _flash.Restart();
+        }
+
+        private Sequence Build()
+        {
+            var color = _settings.FlashColor;
+            var peak = color.a;
+            color.a = 0f;
+            _overlay.color = color;
+            var half = _settings.FlashDuration * 0.5f;
+            return DOTween.Sequence()
+                .Append(_overlay.DOFade(peak, half))
+                .Append(_overlay.DOFade(0f, half))
+                .SetAutoKill(false)
+                .SetUpdate(true)
+                .SetLink(gameObject)
+                .Pause();
+        }
+    }
+}
