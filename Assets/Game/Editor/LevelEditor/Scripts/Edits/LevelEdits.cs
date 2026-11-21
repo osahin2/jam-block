@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
 
@@ -113,6 +114,25 @@ namespace Game.Editor.LevelEditor
             block.Shape.Remove(cell - block.Position);
             if (block.Shape.Count == 0)
                 level.Blocks.RemoveAt(index);
+            else
+                RemoveArrowOffShape(block);
+            return true;
+        }
+
+        public static bool SetArrow(BlockData block, ArrowAxis axis, Cell start, int length)
+        {
+            var arrow = block.Arrow;
+            if (arrow.Axis == axis && arrow.Start == start && arrow.Length == length)
+                return false;
+            block.Arrow = new ArrowData { Axis = axis, Start = start, Length = length };
+            return true;
+        }
+
+        public static bool RemoveArrow(BlockData block)
+        {
+            if (!block.Arrow.IsSet)
+                return false;
+            block.Arrow = new ArrowData();
             return true;
         }
 
@@ -134,6 +154,8 @@ namespace Game.Editor.LevelEditor
             return true;
         }
 
+        public static void SetIce(BlockData block, int ice) => block.Ice = Math.Max(0, ice);
+
         public static void Resize(LevelData level, int width, int height)
         {
             level.Width = width;
@@ -144,8 +166,16 @@ namespace Game.Editor.LevelEditor
                 block.Shape.RemoveAll(offset => !level.IsOnBoard(block.Position + offset));
                 if (block.Shape.Count == 0)
                     level.Blocks.RemoveAt(i);
+                else
+                    RemoveArrowOffShape(block);
             }
             level.Doors.RemoveAll(door => !door.FitsSide(width, height));
+        }
+
+        private static void RemoveArrowOffShape(BlockData block)
+        {
+            if (block.Arrow.IsSet && !block.Arrow.LiesOn(block.Shape))
+                RemoveArrow(block);
         }
 
         private static bool DoorFits(LevelData level, Side side, int start, int end, int ignoredDoor)

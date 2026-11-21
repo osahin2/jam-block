@@ -10,7 +10,9 @@ namespace Game.Logic.Levels
             new HasBlocksCheck(),
             new BlockCellsCheck(),
             new DoorPlacementCheck(),
-            new BlocksCanLeaveCheck()
+            new BlocksCanLeaveCheck(),
+            new IceMeltsCheck(),
+            new ArrowOnBlockCheck()
         };
 
         public static LevelReport Validate(LevelData level)

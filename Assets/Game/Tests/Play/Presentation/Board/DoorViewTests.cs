@@ -27,7 +27,7 @@ namespace Game.Tests.Play
         {
             _art = Load<BoardArtSettings>();
             _motion = Load<BlockMotionSettings>();
-            var builder = new BoardBuilder(_art, Load<ColorPalette>(), _motion, new BlockPieceBuilder(_art));
+            var builder = new BoardBuilder(_art, Load<ColorPalette>(), _motion, Load<IceSettings>(), new BlockPieceBuilder(_art));
             var level = new LevelBuilder(4, 5).Rect(Red, 1, 0, 2, 1).Door(Red, Side.Top, 1, 2).Build();
             _board = new GameObject("Board").transform;
             _door = builder.Build(level, new BoardLayout(4, 5, _art), _board, new PreviewBoardPieces()).Doors[0];

@@ -25,7 +25,7 @@ namespace Game.Tests.Play
         {
             _art = Load<BoardArtSettings>();
             _palette = Load<ColorPalette>();
-            _builder = new BoardBuilder(_art, _palette, Load<BlockMotionSettings>(), new BlockPieceBuilder(_art));
+            _builder = new BoardBuilder(_art, _palette, Load<BlockMotionSettings>(), Load<IceSettings>(), new BlockPieceBuilder(_art));
             _board = new GameObject("Board").transform;
         }
 

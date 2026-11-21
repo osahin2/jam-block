@@ -10,6 +10,8 @@ namespace Game.Play
         private const float SnapDistanceSqr = 0.000001f;
 
         [SerializeField] private Outline _outline;
+        [SerializeField] private IceCover _ice;
+        [SerializeField] private BlockArrow _arrow;
 
         private readonly List<Renderer> _pieces = new List<Renderer>();
         private BlockMotionSettings _settings;
@@ -17,11 +19,14 @@ namespace Game.Play
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
+        public IceCover Ice => _ice;
+        public BlockArrow Arrow => _arrow;
 
-        public void Init(BlockMotionSettings settings)
+        public void Init(BlockMotionSettings settings, IceSettings ice)
         {
             _settings = settings;
             _pieces.Clear();
+            _ice.Init(ice, _pieces);
         }
 
         private void Awake() => enabled = false;
@@ -60,6 +65,16 @@ namespace Game.Play
             _outline.SetRenderers(_pieces, materials.Mask, materials.Fill);
 
         public void Hold() => _outline.Show();
+
+        public void Refuse()
+        {
+            StopMotion();
+            transform.localPosition = _target;
+            _motion = transform
+                .DOPunchPosition(Vector3.right * _settings.LockedShakeStrength, _settings.LockedShakeDuration,
+                    _settings.LockedShakeVibrato)
+                .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+        }
 
         public void SnapTo(Vector3 position)
         {

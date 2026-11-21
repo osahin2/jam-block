@@ -12,6 +12,7 @@ namespace Game.Play
         private readonly BlockOutlineMaterials _outline;
         private LevelData _level;
         private LevelAttempt _attempt;
+        private IceMechanic _ice;
         private BoardLayout _layout;
         private BlockView[] _blocks;
         private DoorView[] _doors;
@@ -38,10 +39,11 @@ namespace Game.Play
             _outline = outline;
         }
 
-        public void Begin(LevelData level, LevelAttempt attempt, StagedLevel staged)
+        public void Begin(LevelData level, LevelAttempt attempt, IceMechanic ice, StagedLevel staged)
         {
             _level = level;
             _attempt = attempt;
+            _ice = ice;
             _layout = staged.Layout;
             _blocks = staged.Blocks;
             _doors = staged.Doors;
@@ -62,7 +64,10 @@ namespace Game.Play
         {
             var blocks = _attempt.Board.Blocks;
             for (var i = 0; i < blocks.Count; i++)
+            {
                 _blocks[i].CatchUp(blocks[i]);
+                _blocks[i].Ice.CatchUp(_ice.IceLeft(_attempt.Board, i));
+            }
         }
 
         private void Grab(Vector2 screen)
@@ -73,6 +78,8 @@ namespace Game.Play
                 return;
             if (pose.HasLeft)
                 Leave(pose);
+            else if (pose.IsLocked)
+                _blocks[pose.Block].Refuse();
             else
                 _blocks[_attempt.HeldBlock].Hold();
         }

@@ -9,11 +9,22 @@ namespace Game.Editor.LevelEditor
 {
     public sealed class LevelBoardView : VisualElement
     {
+        private const int LeftButton = 0;
+        private const int RightButton = 1;
         private const float OutlineWidth = 3f;
         private const float TileInset = 0.05f;
+        private const float IceBadgeSize = 0.45f;
+        private const float IceBadgeMinSize = 12f;
+        private const float IceBadgeInset = 0.06f;
+        private const float IceBadgeTextSize = 0.6f;
+        private const float ArrowInset = 0.2f;
+        private const float ArrowHead = 0.18f;
+        private const float ArrowWidth = 3f;
+        private static readonly Color ArrowOutlineColor = new Color(0.08f, 0.12f, 0.2f);
         private static readonly Color MissingColor = Color.magenta;
 
         public event Action<Cell> Pressed;
+        public event Action<Cell> RightClicked;
         public event Action<Cell> Dragged;
         public event Action Released;
         public event Action<Cell> Hovered;
@@ -72,6 +83,8 @@ namespace Game.Editor.LevelEditor
                     Add(_level.IsOnBoard(cell) ? BoardCell(cell) : FrameCell(cell));
                 }
             }
+            foreach (var block in _level.Blocks)
+                AddMechanicsOf(block);
             if (_marks != null)
             {
                 foreach (var mark in _marks)
@@ -97,6 +110,97 @@ namespace Game.Editor.LevelEditor
             element.style.borderLeftWidth = Outline(cell, new Cell(-1, 0), block);
             element.style.borderRightWidth = Outline(cell, new Cell(1, 0), block);
             return element;
+        }
+
+        private void AddMechanicsOf(BlockData block)
+        {
+            if (block.Shape.Count == 0)
+                return;
+            if (block.Ice > 0)
+                AddIceTint(block);
+            if (block.Arrow.IsSet)
+                Add(ArrowOf(block));
+            if (block.Ice > 0)
+                Add(IceBadgeOf(block));
+        }
+
+        private void AddIceTint(BlockData block)
+        {
+            foreach (var offset in block.Shape)
+            {
+                var cell = block.Position + offset;
+                if (_level.IsOnBoard(cell))
+                    Add(Box(CellRect(cell), "board-ice"));
+            }
+        }
+
+        private VisualElement ArrowOf(BlockData block)
+        {
+            var arrow = block.Arrow;
+            var horizontal = arrow.Axis == ArrowAxis.Horizontal;
+            var rect = CellRect(block.Position + arrow.Start);
+            if (horizontal)
+                rect.width *= arrow.Length;
+            else
+                rect.height *= arrow.Length;
+            var element = Box(rect, "board-arrow");
+            element.generateVisualContent += context => DrawArrow(context.painter2D, rect.size, horizontal);
+            return element;
+        }
+
+        private VisualElement IceBadgeOf(BlockData block)
+        {
+            var corner = CellRect(block.Position + TopLeftCellOf(block.Shape));
+            var size = Mathf.Max(IceBadgeMinSize, _cellSize * IceBadgeSize);
+            var inset = _cellSize * IceBadgeInset;
+            var badge = Box(new Rect(corner.x + inset, corner.y + inset, size, size), "board-ice-badge");
+            badge.style.borderTopLeftRadius = badge.style.borderTopRightRadius =
+                badge.style.borderBottomLeftRadius = badge.style.borderBottomRightRadius = size / 2f;
+            badge.style.fontSize = size * IceBadgeTextSize;
+            badge.Add(new Label(block.Ice.ToString()) { pickingMode = PickingMode.Ignore });
+            return badge;
+        }
+
+        private static Cell TopLeftCellOf(List<Cell> shape)
+        {
+            var topLeft = shape[0];
+            foreach (var cell in shape)
+            {
+                if (cell.Y < topLeft.Y || (cell.Y == topLeft.Y && cell.X < topLeft.X))
+                    topLeft = cell;
+            }
+            return topLeft;
+        }
+
+        private void DrawArrow(Painter2D painter, Vector2 size, bool horizontal)
+        {
+            var inset = _cellSize * ArrowInset;
+            var head = _cellSize * ArrowHead;
+            var from = horizontal ? new Vector2(inset, size.y / 2f) : new Vector2(size.x / 2f, inset);
+            var to = horizontal ? new Vector2(size.x - inset, size.y / 2f) : new Vector2(size.x / 2f, size.y - inset);
+            var along = (to - from).normalized;
+            var across = new Vector2(-along.y, along.x);
+            painter.lineCap = LineCap.Round;
+            painter.lineJoin = LineJoin.Round;
+            StrokeArrow(painter, from, to, along * head, across * head, ArrowOutlineColor, ArrowWidth + 2f);
+            StrokeArrow(painter, from, to, along * head, across * head, Color.white, ArrowWidth);
+        }
+
+        private static void StrokeArrow(Painter2D painter, Vector2 from, Vector2 to, Vector2 along, Vector2 across, Color color,
+            float width)
+        {
+            painter.strokeColor = color;
+            painter.lineWidth = width;
+            painter.BeginPath();
+            painter.MoveTo(from);
+            painter.LineTo(to);
+            painter.MoveTo(from + along + across);
+            painter.LineTo(from);
+            painter.LineTo(from + along - across);
+            painter.MoveTo(to - along + across);
+            painter.LineTo(to);
+            painter.LineTo(to - along - across);
+            painter.Stroke();
         }
 
         private VisualElement FrameCell(Cell cell)
@@ -206,7 +310,15 @@ namespace Game.Editor.LevelEditor
 
         private void OnPointerDown(PointerDownEvent evt)
         {
-            if (evt.button != 0 || _level == null || _cellSize < 1f)
+            if (_level == null || _cellSize < 1f)
+                return;
+            if (evt.button == RightButton)
+            {
+                RightClicked?.Invoke(CellAt(evt.localPosition));
+                evt.StopPropagation();
+                return;
+            }
+            if (evt.button != LeftButton)
                 return;
             this.CapturePointer(evt.pointerId);
             _lastCell = CellAt(evt.localPosition);

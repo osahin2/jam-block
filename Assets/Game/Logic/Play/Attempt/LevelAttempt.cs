@@ -37,6 +37,11 @@ namespace Game.Logic.Play
             var block = _board.BlockAt(cell);
             if (block == NoBlock)
                 return false;
+            if (_board.IsLocked(block))
+            {
+                pose = DragPose.Locked(block, _board.Blocks[block].Position);
+                return true;
+            }
             if (!_board.TryLeave(block, out var exitDoor))
             {
                 _drag.Begin(block, x, y);

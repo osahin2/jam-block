@@ -34,12 +34,13 @@ namespace Game.Play
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
             _pieces.ReleaseAll();
-            _attempt = new LevelAttempt(level, LevelMechanics.For(level));
+            var mechanics = LevelMechanics.For(level);
+            _attempt = new LevelAttempt(level, mechanics);
             _running = true;
             _onWon = onWon;
             _onFailed = onFailed;
             var staged = _stage.Show(level, _board.transform, _pieces, _camera);
-            _interaction.Begin(level, _attempt, staged);
+            _interaction.Begin(level, _attempt, mechanics.Ice, staged);
         }
 
         public void Tick()

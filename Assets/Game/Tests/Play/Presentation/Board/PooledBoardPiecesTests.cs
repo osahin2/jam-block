@@ -28,7 +28,7 @@ namespace Game.Tests.Play
             board.ApplyModifiedPropertiesWithoutUndo();
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _pieces = new PooledBoardPieces(_board);
-            _stage = new LevelStage(art, Load<ColorPalette>(), Load<BlockMotionSettings>(), Load<CameraFramingSettings>());
+            _stage = new LevelStage(art, Load<ColorPalette>(), Load<BlockMotionSettings>(), Load<IceSettings>(), Load<CameraFramingSettings>());
         }
 
         [TearDown]
@@ -87,8 +87,9 @@ namespace Game.Tests.Play
             Assert.AreEqual(staged.Layout.CellCenter(new Cell(1, 1)), blocks[0].transform.localPosition);
             Assert.AreEqual(4, blocks[0].GetComponentsInChildren<BoardPiece>().Length);
             Assert.AreEqual(1 + 9 + 1 + 4 + 4, _board.transform.childCount);
-            foreach (var piece in _board.GetComponentsInChildren<Transform>(true))
+            foreach (var piece in _board.GetComponentsInChildren<BoardPiece>(true))
                 Assert.IsTrue(piece.gameObject.activeSelf, piece.name);
+            Assert.IsTrue(blocks[0].gameObject.activeSelf);
             Assert.AreEqual(made, CountAll(), "a smaller level is built from the pieces of the larger one");
         }
 

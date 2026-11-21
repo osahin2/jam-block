@@ -51,7 +51,7 @@ namespace Game.Logic.Play
             }
             var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
             var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);
-            return new DragPose(block, current, offsetX, offsetY, StepResult.NoDoor);
+            return DragPose.At(block, current, offsetX, offsetY);
         }
 
         public void End() => Block = Board.NoBlock;

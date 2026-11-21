@@ -59,6 +59,7 @@ namespace Game.Editor.LevelEditor
         private VisualElement _colors;
         private VisualElement _toolButtons;
         private VisualElement _selectionPanel;
+        private SelectionFieldsView _selectionFields;
         private ToolbarToggle _levelsToggle;
         private VisualElement _levelsPane;
         private VisualElement _levelsHandle;
@@ -79,7 +80,7 @@ namespace Game.Editor.LevelEditor
             _palette = EditorAssets.FindFirst<ColorPalette>();
             _catalog = EditorAssets.FindFirst<LevelCatalog>();
             _library = _catalog != null ? new LevelLibrary(_catalog) : null;
-            _tools = new ILevelEditorTool[] { _selectTool, new BlockTool(), new DoorTool(), new EraseTool() };
+            _tools = new ILevelEditorTool[] { _selectTool, new BlockTool(), new DoorTool(), new ArrowTool(), new IceTool(), new EraseTool() };
             _toolIndex = Mathf.Clamp(_toolIndex, 0, _tools.Length - 1);
             saveChangesMessage = "This level has unsaved changes. Save them?";
             Undo.undoRedoPerformed += OnUndoRedo;
@@ -118,6 +119,8 @@ namespace Game.Editor.LevelEditor
             _colorName = root.Q<Label>("color-name");
             _selectionPanel = root.Q("selection");
             _selectionLabel = root.Q<Label>("selection-label");
+            _selectionFields = new SelectionFieldsView(Edit);
+            root.Q("selection-fields").Add(_selectionFields);
             var delete = root.Q<Button>("delete-selection");
             delete.clicked += DeleteSelection;
             delete.tooltip = $"Removes the selected block or door. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.DeleteId)}";
@@ -155,6 +158,7 @@ namespace Game.Editor.LevelEditor
 
             _board = new LevelBoardView();
             _board.Pressed += OnPressed;
+            _board.RightClicked += OnRightClicked;
             _board.Dragged += OnDragged;
             _board.Released += OnReleased;
             _board.Hovered += OnHovered;
@@ -199,9 +203,7 @@ namespace Game.Editor.LevelEditor
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            Draft.Record("Recolor");
-            selection.Recolor(Draft.Level, colorId);
-            Refresh();
+            Edit("Recolor", level => selection.Recolor(level, colorId));
         }
 
         internal void DeleteSelection()
@@ -209,10 +211,11 @@ namespace Game.Editor.LevelEditor
             var selection = ShownSelection;
             if (selection == null)
                 return;
-            Draft.Record("Delete");
-            selection.Delete(Draft.Level);
-            _selectTool.ClearSelection();
-            Refresh();
+            Edit("Delete", level =>
+            {
+                selection.Delete(level);
+                _selectTool.ClearSelection();
+            });
         }
 
         internal void ToggleLevelList() => ShowLevelList(!_levelsShown);
@@ -400,12 +403,8 @@ namespace Game.Editor.LevelEditor
             _bottom.style.height = _bottomHeight;
         }
 
-        private void Resize(int width, int height)
-        {
-            Draft.Record("Resize Board");
-            LevelEdits.Resize(Draft.Level, Mathf.Max(1, width), Mathf.Max(1, height));
-            Refresh();
-        }
+        private void Resize(int width, int height) =>
+            Edit("Resize Board", level => LevelEdits.Resize(level, Mathf.Max(1, width), Mathf.Max(1, height)));
 
         private void OnPressed(Cell cell)
         {
@@ -418,6 +417,14 @@ namespace Game.Editor.LevelEditor
         {
             if (Tool.Drag(Draft.Level, cell))
                 Refresh();
+        }
+
+        private void OnRightClicked(Cell cell)
+        {
+            Draft.BeginStroke();
+            if (Tool.RightClick(Draft.Level, cell))
+                Refresh();
+            Draft.EndStroke(Tool.Name);
         }
 
         private void OnReleased()
@@ -494,6 +501,7 @@ namespace Game.Editor.LevelEditor
             _selectionPanel.style.display = selection != null ? DisplayStyle.Flex : DisplayStyle.None;
             if (selection != null)
                 _selectionLabel.text = NameOf(selection);
+            _selectionFields.Show(selection, level);
 
             _report = LevelValidator.Validate(level);
             _problems.Show(_report, level);
@@ -501,6 +509,13 @@ namespace Game.Editor.LevelEditor
             UpdateToolbar(!_report.HasErrors);
             UpdateStatus();
             LevelPreviewSource.ShowEdited(level);
+        }
+
+        private void Edit(string name, Action<LevelData> change)
+        {
+            Draft.Record(name);
+            change(Draft.Level);
+            Refresh();
         }
 
         private void UpdateToolbar(bool canSave)

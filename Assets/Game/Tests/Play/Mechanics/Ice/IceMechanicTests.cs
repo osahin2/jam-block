@@ -31,6 +31,7 @@ namespace Game.Tests.Play
             Assert.IsFalse(_board.CanStep(0, Direction.Down));
             Assert.IsFalse(_board.Step(0, Direction.Down).Moved);
             Assert.IsFalse(_board.TryLeave(0, out _));
+            Assert.IsTrue(_board.IsLocked(0));
         }
 
         [Test]
@@ -80,6 +81,7 @@ namespace Game.Tests.Play
 
             _board.Hit(1);
 
+            Assert.IsFalse(_board.IsLocked(0));
             Assert.IsTrue(_board.CanStep(0, Direction.Left));
             Assert.IsTrue(_board.Step(0, Direction.Up).HasLeft);
         }

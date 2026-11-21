@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Logic.Levels;
 using NUnit.Framework;
@@ -201,6 +202,101 @@ namespace Game.Tests.Levels
             Assert.IsTrue(report.HasErrors);
         }
 
+        [Test]
+        public void Validate_ArrowBlockWhoseDoorsAreAllOffItsAxis_IsAWarning()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 1, 0, 1, 1).Arrow(ArrowAxis.Horizontal).Door(Red, Side.Top, 1).Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.BlockCannotLeave, Severity.Warning, 0);
+        }
+
+        [Test]
+        public void Validate_ArrowBlockWithADoorOnItsAxis_HasNoProblems()
+        {
+            var level = new LevelBuilder(3, 3)
+                .Rect(Red, 1, 0, 1, 1).Arrow(ArrowAxis.Vertical)
+                .Door(Red, Side.Left, 0)
+                .Door(Red, Side.Bottom, 1)
+                .Build();
+
+            Assert.IsEmpty(LevelValidator.Validate(level).Problems);
+        }
+
+        [Test]
+        public void Validate_ArrowAlongTheBlocksOwnCells_HasNoProblems()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 3, 1).Arrow(ArrowAxis.Horizontal, 1, 0, 2).Door(Red, Side.Left, 0).Build();
+
+            Assert.IsEmpty(LevelValidator.Validate(level).Problems);
+        }
+
+        [Test]
+        public void Validate_ArrowRunningPastTheBlock_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 2, 1).Arrow(ArrowAxis.Horizontal, 1, 0, 2).Door(Red, Side.Left, 0).Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.ArrowOffBlock, Severity.Error, 0);
+        }
+
+        [Test]
+        public void Validate_ArrowWithoutCells_IsAnError()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Arrow(ArrowAxis.Vertical, 0, 0, 0).Door(Red, Side.Top, 0).Build();
+
+            AssertSingle(LevelValidator.Validate(level), LevelProblemKind.ArrowOffBlock, Severity.Error, 0);
+        }
+
+        [Test]
+        public void Validate_IceThatMeltsAsBlocksLeave_HasNoProblems()
+        {
+            var level = new LevelBuilder(3, 1)
+                .Rect(Red, 0, 0, 1, 1)
+                .Rect(Red, 1, 0, 1, 1).Ice(1)
+                .Rect(Red, 2, 0, 1, 1).Ice(2)
+                .Door(Red, Side.Top, 0, 3)
+                .Build();
+
+            Assert.IsEmpty(LevelValidator.Validate(level).Problems);
+        }
+
+        [Test]
+        public void Validate_IceOnTheOnlyBlock_IsAnErrorOnIt()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 1, 1).Ice(1).Door(Red, Side.Top, 0).Build();
+
+            var problem = AssertSingle(LevelValidator.Validate(level), LevelProblemKind.IceNeverMelts, Severity.Error, 0);
+            Assert.AreEqual(LevelPart.Block, problem.Part);
+        }
+
+        [Test]
+        public void Validate_IceMoreThanTheBlocksThatCanLeaveFirst_IsAnErrorOnEveryBlockItLocks()
+        {
+            var level = new LevelBuilder(4, 1)
+                .Rect(Red, 0, 0, 1, 1).Ice(2)
+                .Rect(Red, 1, 0, 1, 1)
+                .Rect(Red, 2, 0, 1, 1).Ice(2)
+                .Rect(Red, 3, 0, 1, 1).Ice(3)
+                .Door(Red, Side.Top, 0, 4)
+                .Build();
+
+            var report = LevelValidator.Validate(level);
+
+            CollectionAssert.AreEqual(new[] { 0, 2, 3 }, IndicesOf(report, LevelProblemKind.IceNeverMelts));
+            Assert.IsTrue(report.HasErrors);
+        }
+
+        [Test]
+        public void Validate_TwoBlocksIcedOnlyByEachOther_AreBothErrors()
+        {
+            var level = new LevelBuilder(2, 1)
+                .Rect(Red, 0, 0, 1, 1).Ice(1)
+                .Rect(Red, 1, 0, 1, 1).Ice(1)
+                .Door(Red, Side.Top, 0, 2)
+                .Build();
+
+            CollectionAssert.AreEqual(new[] { 0, 1 }, IndicesOf(LevelValidator.Validate(level), LevelProblemKind.IceNeverMelts));
+        }
+
         [TestCase(0, 0)]
         [TestCase(-1, 1)]
         public void Validate_DoorWithoutCellsOrBeforeItsSide_IsAnError(int start, int length)
@@ -218,6 +314,17 @@ namespace Game.Tests.Levels
             Assert.AreEqual(severity, problem.Severity);
             Assert.AreEqual(index, problem.Index);
             return problem;
+        }
+
+        private static List<int> IndicesOf(LevelReport report, LevelProblemKind kind)
+        {
+            var indices = new List<int>();
+            foreach (var problem in report.Problems)
+            {
+                if (problem.Kind == kind)
+                    indices.Add(problem.Index);
+            }
+            return indices;
         }
     }
 }

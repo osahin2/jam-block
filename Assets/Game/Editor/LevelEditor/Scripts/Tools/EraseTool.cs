@@ -24,6 +24,8 @@ namespace Game.Editor.LevelEditor
         {
         }
 
+        public bool RightClick(LevelData level, Cell cell) => false;
+
         private static bool Erase(LevelData level, Cell cell)
         {
             if (LevelEdits.TryRemoveBlockCell(level, cell))

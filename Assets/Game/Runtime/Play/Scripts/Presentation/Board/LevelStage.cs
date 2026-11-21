@@ -9,10 +9,11 @@ namespace Game.Play
         private readonly BoardBuilder _builder;
         private readonly CameraFraming _framing;
 
-        public LevelStage(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, CameraFramingSettings framing)
+        public LevelStage(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, IceSettings ice,
+            CameraFramingSettings framing)
         {
             _art = art;
-            _builder = new BoardBuilder(art, palette, motion, new BlockPieceBuilder(art));
+            _builder = new BoardBuilder(art, palette, motion, ice, new BlockPieceBuilder(art));
             _framing = new CameraFraming(framing);
         }
 

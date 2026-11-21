@@ -19,6 +19,11 @@ namespace Game.Play
         [Tooltip("Seconds the door stays down after the block is gone.")]
         [SerializeField] private float _doorRiseDelay = 0.1f;
         [SerializeField] private float _doorRiseDuration = 0.06f;
+        [Header("Locked")]
+        [Tooltip("How far a locked block shakes sideways when pressed, in board units.")]
+        [SerializeField] private float _lockedShakeStrength = 0.15f;
+        [SerializeField] private float _lockedShakeDuration = 0.3f;
+        [SerializeField] private int _lockedShakeVibrato = 10;
 
         public float DragHalfLife => _dragHalfLife;
         public float SnapDuration => _snapDuration;
@@ -26,6 +31,9 @@ namespace Game.Play
         public float DoorDropDuration => _doorDropDuration;
         public float DoorRiseDelay => _doorRiseDelay;
         public float DoorRiseDuration => _doorRiseDuration;
+        public float LockedShakeStrength => _lockedShakeStrength;
+        public float LockedShakeDuration => _lockedShakeDuration;
+        public int LockedShakeVibrato => _lockedShakeVibrato;
 
         public float SlideDuration(float cells) => Mathf.Sqrt(2f * cells / _leaveAcceleration);
     }

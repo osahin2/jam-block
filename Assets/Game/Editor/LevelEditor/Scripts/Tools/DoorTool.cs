@@ -49,5 +49,7 @@ namespace Game.Editor.LevelEditor
         }
 
         public void Release() => _door = LevelEdits.NoDoor;
+
+        public bool RightClick(LevelData level, Cell cell) => false;
     }
 }

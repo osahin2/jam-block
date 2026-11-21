@@ -75,10 +75,11 @@ namespace Game.Editor.LevelEditor
             var art = EditorAssets.FindFirst<BoardArtSettings>();
             _palette = EditorAssets.FindFirst<ColorPalette>();
             var motion = EditorAssets.FindFirst<BlockMotionSettings>();
+            var ice = EditorAssets.FindFirst<IceSettings>();
             var framing = EditorAssets.FindFirst<CameraFramingSettings>();
-            if (art == null || _palette == null || motion == null || framing == null)
+            if (art == null || _palette == null || motion == null || ice == null || framing == null)
                 return false;
-            _stage = new LevelStage(art, _palette, motion, framing);
+            _stage = new LevelStage(art, _palette, motion, ice, framing);
             return true;
         }
 
