@@ -25,6 +25,6 @@ namespace Game.Bootstrap
         public void Start() =>
             _ui.Open<HomeScreen>().Show(_progression.CurrentLevelNumber, _wallet.Balance, _flow.ToGame, OpenSettings);
 
-        private void OpenSettings() => _ui.Open<SettingsPopup>().Show(null);
+        private void OpenSettings() => _ui.Open<SettingsPopup>().Show(onClose: null);
     }
 }

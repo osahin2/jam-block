@@ -13,7 +13,6 @@ namespace Game.Popups
         private PopupMotionSettings _settings;
         private float _dimAlpha;
         private Vector3[] _restScales;
-        private Sequence _entrance;
 
         [Inject]
         public void Construct(PopupMotionSettings settings) => _settings = settings;
@@ -28,13 +27,14 @@ namespace Game.Popups
 
         private void OnEnable()
         {
-            _entrance?.Kill();
-            _entrance = Build();
+            DOTween.Kill(this);
+            Play();
         }
 
-        private Sequence Build()
+        private void Play()
         {
             var sequence = DOTween.Sequence()
+                .SetTarget(this)
                 .SetUpdate(true)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
 
@@ -49,8 +49,6 @@ namespace Game.Popups
                 part.localScale = _restScales[i] * _settings.StartScale;
                 sequence.Insert(i * _settings.Stagger, part.DOScale(_restScales[i], _settings.PopDuration).SetEase(_settings.PopEase));
             }
-
-            return sequence;
         }
     }
 }

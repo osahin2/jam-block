@@ -14,7 +14,7 @@ The folder and the zip next to it have the same content. `Arrows.fbx` and `icete
 
 ## How the models fit the grid
 Units below are model units after import. The board is read as one cell = 2 units:
-- `Door_1x1` is 2 units long; the `GroundGrid` tile is 1.95 units square (a 2-unit cell with a gap); the arrows are 1.6, 3.5 and 5.4 units long, i.e. 1, 2 and 3 cells minus a margin.
+- `Door_1x1` is 2 units long; the `GroundGrid` tile is 1.95 units square (a 2-unit cell with a gap); a block plate of `BlockPlates.fbx` is 0.519 units from its bottom (its pivot) to its top, wall and door tops stand 0.611 units above their pivot, and the arrows are 0.126 units high. These are measured from the models and kept as constants in `BoardArtSettings`, not tuning: a regenerated `BlockPlates.fbx` is measured again; the arrows are 1.6, 3.5 and 5.4 units long, i.e. 1, 2 and 3 cells minus a margin.
 
 **Blocks** are built from 1-unit quarter pieces, four per cell, one stud each. The top faces `-Z`.
 | Piece | Extent | Shape |

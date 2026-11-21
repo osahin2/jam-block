@@ -11,7 +11,6 @@ namespace Game.Coins
         [SerializeField] private RectTransform _icon;
 
         private CoinFlightSettings _settings;
-        private Tween _punch;
         private int _shown;
 
         public Vector3 Landing => _icon.position;
@@ -28,8 +27,8 @@ namespace Game.Coins
         public void Land(int coins)
         {
             Show(_shown + coins);
-            _punch?.Kill(true);
-            _punch = _icon.DOPunchScale(Vector3.one * _settings.LandPunch, _settings.LandPunchDuration, 1, 0f)
+            _icon.DOKill(true);
+            _icon.DOPunchScale(Vector3.one * _settings.LandPunch, _settings.LandPunchDuration, 1, 0f)
                 .SetUpdate(true)
                 .SetLink(gameObject);
         }

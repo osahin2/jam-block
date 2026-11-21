@@ -48,12 +48,12 @@ namespace Game.Home
             _label.DOKill();
 
             var duration = _settings.SelectDuration;
-            Ease(_icon.DOAnchorPosY(on ? _iconRestY + _settings.IconRise : _iconRestY, duration));
-            Ease(_icon.DOScale(on ? _iconRestScale * _settings.IconScale : _iconRestScale, duration));
+            Styled(_icon.DOAnchorPosY(on ? _iconRestY + _settings.IconRise : _iconRestY, duration));
+            Styled(_icon.DOScale(on ? _iconRestScale * _settings.IconScale : _iconRestScale, duration));
             if (on)
-                Ease(_label.DOScale(_labelRestScale, duration).From(Vector3.zero));
+                Styled(_label.DOScale(_labelRestScale, duration).From(Vector3.zero));
         }
 
-        private void Ease(Tween tween) => tween.SetEase(_settings.SelectEase).SetUpdate(true).SetLink(gameObject);
+        private void Styled(Tween tween) => tween.SetEase(_settings.SelectEase).SetUpdate(true).SetLink(gameObject);
     }
 }

@@ -41,28 +41,17 @@ namespace Game.Preferences
             _vibration.Listen(on => _haptics.Enabled = on);
             _closeButton.onClick.AddListener(ChooseClose);
             _homeButton.onClick.AddListener(ChooseHome);
-            _height = _panel.sizeDelta.y;
+            _height = _panel.rect.height;
         }
 
-        public void Show(Action onClose)
-        {
-            Bind(onClose, null);
-            FitHome(false);
-        }
-
-        public void Show(Action onClose, Action onHome)
-        {
-            Bind(onClose, onHome);
-            FitHome(true);
-        }
-
-        private void Bind(Action onClose, Action onHome)
+        public void Show(Action onClose, Action onHome = null)
         {
             _sound.Show(!_audio.SfxMuted);
             _music.Show(!_audio.MusicMuted);
             _vibration.Show(_haptics.Enabled);
             _onClose = onClose;
             _onHome = onHome;
+            FitHome(onHome != null);
         }
 
         private void FitHome(bool shown)

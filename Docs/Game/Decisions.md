@@ -351,3 +351,7 @@ Format:
 ## Home's level nodes are plain rounded squares
 - Why: the reference's nodes are rounded squares with four studs; the supplied art has the green square (`Btn_level_green`) without studs and no slate one. The current node is `Btn_level_green`, the locked ones the supplied rounded square tinted slate blue on a gold one, with the supplied lock; the path's rails and band are plain tinted rectangles.
 - Instead of: studs faked from the small round buttons, which adds four images per node for a detail the case does not ask for; tinting `Btn_level_green`, which a tint can only darken, so it cannot turn slate.
+
+## Game code carries no comments; reasons and contracts live in the notes
+- Why: comments drift from the code and were written where the code already spoke; the system notes and Decisions are read anyway and are where a reader looks for why. An interface's contract, an engine quirk a reader could "fix" wrongly or a measured value goes into the note under the name of the type it is about. A hook refuses any edit that adds a comment to `Assets/Game`. Core is a package copied into other projects and read without this project's notes, so it keeps short comments on its public contracts.
+- Instead of: comments only for reasons, which kept growing into comments on what the code does; XML doc comments, which repeat the signatures.

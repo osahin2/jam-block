@@ -10,7 +10,6 @@ namespace Game.Play
         [SerializeField] private Graphic _overlay;
 
         private TimeWarningSettings _settings;
-        private Sequence _flash;
 
         [Inject]
         public void Construct(TimeWarningSettings settings) => _settings = settings;
@@ -21,20 +20,21 @@ namespace Game.Play
         {
             if (!Flashes(wholeSeconds, _settings.LastSeconds))
                 return;
-            _flash?.Kill();
-            _flash = Build();
+            _overlay.DOKill();
+            Flash();
         }
 
-        private Sequence Build()
+        private void Flash()
         {
             var color = _settings.FlashColor;
             var peak = color.a;
             color.a = 0f;
             _overlay.color = color;
             var half = _settings.FlashDuration * 0.5f;
-            return DOTween.Sequence()
+            DOTween.Sequence()
                 .Append(_overlay.DOFade(peak, half))
                 .Append(_overlay.DOFade(0f, half))
+                .SetTarget(_overlay)
                 .SetUpdate(true)
                 .SetLink(gameObject);
         }
