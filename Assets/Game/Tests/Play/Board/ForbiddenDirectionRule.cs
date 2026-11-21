@@ -11,6 +11,6 @@ namespace Game.Tests.Play
             _forbidden = forbidden;
         }
 
-        public bool Allows(IBoardFacts board, int block, Direction direction) => direction.Offset != _forbidden.Offset;
+        public bool Allows(IReadOnlyBoard board, int block, Direction direction) => direction.Offset != _forbidden.Offset;
     }
 }
