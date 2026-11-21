@@ -22,5 +22,6 @@ MonoBehaviour:
   _screens: {fileID: 11400000, guid: c44c2ca582f47450ca21676369dd7bf5, type: 2}
   _boosterMotion: {fileID: 11400000, guid: 0018f4c6da198430bb8e642684bb8de3, type: 2}
   _freeze: {fileID: 11400000, guid: 53ff93b6da79c41688572c724e232c7e, type: 2}
+  _rocket: {fileID: 11400000, guid: e08d3f1f81ff948edbb959715d47e1e6, type: 2}
   _hammer: {fileID: 11400000, guid: 78fd010cc6571422b8f5c2af28adc9c4, type: 2}
   _vacuum: {fileID: 11400000, guid: 12e9761d5ce364e00978cf12fefc7d32, type: 2}

@@ -22,7 +22,7 @@ namespace Game.Tests.Play
             view.FindProperty("_outline").objectReferenceValue = _outline;
             view.ApplyModifiedPropertiesWithoutUndo();
             _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
-            _view.Init(_motion);
+            _view.Init(_motion, new[] { new Cell(0, 0), new Cell(1, 0) });
         }
 
         [TearDown]
@@ -30,6 +30,18 @@ namespace Game.Tests.Play
         {
             Object.DestroyImmediate(_view.gameObject);
             Object.DestroyImmediate(_motion);
+        }
+
+        [Test]
+        public void Shows_ItsOwnCellsOnly_AndNoneWhileLeaving()
+        {
+            Assert.AreEqual(2, _view.CellCount);
+            Assert.IsTrue(_view.Shows(new Cell(1, 0)));
+            Assert.IsFalse(_view.Shows(new Cell(0, 1)));
+
+            _view.Leave(Vector3.zero, Vector3.forward, 0.3f);
+
+            Assert.IsFalse(_view.Shows(new Cell(1, 0)));
         }
 
         [Test]

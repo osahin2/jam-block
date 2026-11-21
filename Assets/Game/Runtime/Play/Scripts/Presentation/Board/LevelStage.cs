@@ -12,7 +12,7 @@ namespace Game.Play
         public LevelStage(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, CameraFramingSettings framing)
         {
             _art = art;
-            _builder = new BoardBuilder(art, palette, motion, new BlockPieceBuilder(art));
+            _builder = new BoardBuilder(art, palette, motion, new BlockViewBuilder(art, palette, motion, new BlockPieceBuilder(art)));
             _framing = new CameraFraming(framing);
         }
 

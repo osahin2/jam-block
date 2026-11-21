@@ -423,3 +423,19 @@ Format:
 ## A shot's tween is killed through its target before it plays again
 - Why: a shot's sequence ends by hiding the shot, and a second hammer or vacuum can start while the first one's shot is still fading out, so the old sequence's end hid the new shot and killed its tween before it landed: the board stayed busy and the level could not end (found in review). `BoosterShot.Play` kills the shot's own tween (`DOTween.Kill(this)`, the sequence targeted at the shot), shows it and finishes the sequence its subclass builds; a subclass only builds the sequence, so the Rocket's shot gets the same guard.
 - Instead of: each shot keeping and killing its own sequence, which every new shot has to remember; waiting for the earlier shot to finish before a booster can be used, which holds the player for a fade.
+
+## A split's parts keep the hit block's position
+- Why: a block's cells are its shape relative to its `Position`, and its view's pieces are laid out the same way from the view's origin. When the parts keep the hit block's `Position` and only their own cells, the hit block's view stays where it is and is rebuilt from its cells left, and each new part's view is built at that same position, so every part appears exactly where its cells were, with no move and no recomputed anchor. Nothing reads `Position` as one of the block's cells: the drag keeps the grab relative to it, the exit and the leave read the cells and the extent.
+- Instead of: moving each part's `Position` onto its own first cell, which needs a new origin for every part, a shifted shape and a view moved by the same offset in the same frame as its rebuild.
+
+## The rocket's burst is the rocket's animation, not the catch-up's
+- Why: the rocket knows the cell it hits, so the burst plays where it lands for every hit alike: a cell taken, a block's last cell (the block is gone, its shape never changes) and an iced block (one ice taken). `CatchUp` sees only what changed in a block's shape, so it would miss the last cell (the block is gone) and the ice (nothing changes shape). So `CatchUp` only rebuilds a view whose block lost cells and builds views for appended blocks; the burst comes with the rocket's shot, `RocketShot` (decided with the developer).
+- Instead of: a burst on the lost cell in `CatchUp`, as first planned.
+
+## The rocket's burst takes its color from the views, before they catch up
+- Why: when the shot lands, the logic has already taken the cell, so the board can no longer say whose cell it was (the cell is empty, or the block is gone). The views still show the board as it was until `CatchUp`, and each view keeps the cells it was built from, relative to its block's `Position`, which a split leaves unchanged; so `BoardInteraction.TryFindColorShownAt` finds the view still showing the cell and gives its color. It works the same for a cell taken, a block's last cell and an iced block, and nothing in the booster flow changes.
+- Instead of: reading the block's color before the hit in `TargetedBooster` and passing it to every shot, which changes the contract of every shot for one booster's burst; a burst in one fixed color, which reads as an explosion beside the block rather than the block's own pieces flying off.
+
+## Crosshairs are marked by the effect's own target check
+- Why: the reference marks every cell of every block, iced ones too, which is exactly where the rocket can aim, so the overlay marks every cell of a block for which the effect's `CanTarget` is true; a definition's `MarksTargets` turns it on (only the Rocket's). The marks can never disagree with what a tap does, and a booster that wanted marks later only sets the flag.
+- Instead of: a crosshair on every cell of every block drawn without the effect, which repeats the rocket's rule in the overlay; crosshairs as a separate view per booster, which adds a type for one image per cell.

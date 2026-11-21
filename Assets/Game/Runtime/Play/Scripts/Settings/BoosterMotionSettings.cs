@@ -17,6 +17,12 @@ namespace Game.Play
         [SerializeField, Min(0f)] private float _breakDuration = 0.18f;
         [SerializeField] private Ease _breakEase = Ease.InBack;
 
+        [Header("Rocket")]
+        [SerializeField, Min(0f)] private float _targetLift = 0.3f;
+        [SerializeField, Min(0f)] private float _rocketFlight = 0.45f;
+        [SerializeField] private Ease _rocketFlightEase = Ease.InQuad;
+        [SerializeField, Min(0f)] private float _rocketBurstHold = 0.6f;
+
         [Header("Vacuum")]
         [SerializeField, Min(0f)] private float _vacuumLift = 2.5f;
         [SerializeField, Min(0f)] private float _vacuumScale = 1.25f;
@@ -38,6 +44,10 @@ namespace Game.Play
         public float HammerFade => _hammerFade;
         public float BreakDuration => _breakDuration;
         public Ease BreakEase => _breakEase;
+        public float TargetLift => _targetLift;
+        public float RocketFlight => _rocketFlight;
+        public Ease RocketFlightEase => _rocketFlightEase;
+        public float RocketBurstHold => _rocketBurstHold;
         public float VacuumLift => _vacuumLift;
         public float VacuumScale => _vacuumScale;
         public float VacuumGrow => _vacuumGrow;

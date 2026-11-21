@@ -16,14 +16,14 @@ namespace Game.Play
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
         private readonly BlockMotionSettings _motion;
-        private readonly BlockPieceBuilder _blockPieces;
+        private readonly BlockViewBuilder _blockViews;
 
-        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, BlockPieceBuilder blockPieces)
+        public BoardBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, BlockViewBuilder blockViews)
         {
             _art = art;
             _palette = palette;
             _motion = motion;
-            _blockPieces = blockPieces;
+            _blockViews = blockViews;
         }
 
         public StagedLevel Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
@@ -114,11 +114,7 @@ namespace Game.Play
             for (var i = 0; i < views.Length; i++)
             {
                 var block = level.Blocks[i];
-                var view = pieces.Take(_art.Block, parent);
-                view.Init(_motion);
-                _blockPieces.Build(view, block.Shape, _palette.ForBlock(block.ColorId), pieces);
-                view.SetPose(layout.CellCenter(block.Position));
-                views[i] = view;
+                views[i] = _blockViews.Build(block.ColorId, block.Shape, layout.CellCenter(block.Position), parent, pieces);
             }
             return views;
         }

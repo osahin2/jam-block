@@ -35,6 +35,8 @@ namespace Game.Play
                 return;
             }
             context.Overlay.Show(_definition, context.Board.ScreenRect(), Cancel);
+            if (_definition.MarksTargets)
+                context.Overlay.MarkTargets(_effect, context.Attempt.Board, context.Board);
             context.Board.EnterPick(Pick);
         }
 

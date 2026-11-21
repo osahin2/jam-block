@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
 
@@ -11,17 +12,25 @@ namespace Game.Play
 
         [SerializeField] private Outline _outline;
 
-        private readonly List<Renderer> _pieces = new List<Renderer>();
+        private readonly List<BoardPiece> _pieces = new List<BoardPiece>();
+        private readonly List<Renderer> _renderers = new List<Renderer>();
+        private readonly List<Cell> _cells = new List<Cell>();
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
+        public int CellCount => _cells.Count;
+        public Color Color => _renderers[0].sharedMaterial.color;
 
-        public void Init(BlockMotionSettings settings)
+        public void Init(BlockMotionSettings settings, IReadOnlyList<Cell> shape)
         {
             _settings = settings;
+            _cells.Clear();
+            for (var i = 0; i < shape.Count; i++)
+                _cells.Add(shape[i]);
             _pieces.Clear();
+            _renderers.Clear();
             transform.localScale = Vector3.one;
         }
 
@@ -55,10 +64,25 @@ namespace Game.Play
             enabled = true;
         }
 
-        public void AddPiece(BoardPiece piece) => _pieces.Add(piece.Renderer);
+        public void AddPiece(BoardPiece piece)
+        {
+            _pieces.Add(piece);
+            _renderers.Add(piece.Renderer);
+        }
+
+        public void ReleasePieces(PooledBoardPieces pieces)
+        {
+            _outline.Clear();
+            for (var i = 0; i < _pieces.Count; i++)
+                pieces.Release(_pieces[i]);
+            _pieces.Clear();
+            _renderers.Clear();
+        }
 
         public void UseOutline(BlockOutlineMaterials materials) =>
-            _outline.SetRenderers(_pieces, materials.Mask, materials.Fill);
+            _outline.SetRenderers(_renderers, materials.Mask, materials.Fill);
+
+        public bool Shows(Cell cell) => gameObject.activeSelf && !IsLeaving && _cells.Contains(cell);
 
         public void Hold() => _outline.Show();
 

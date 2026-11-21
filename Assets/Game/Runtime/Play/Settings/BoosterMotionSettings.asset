@@ -21,6 +21,10 @@ MonoBehaviour:
   _hammerFade: 0.25
   _breakDuration: 0.18
   _breakEase: 26
+  _targetLift: 0.3
+  _rocketFlight: 0.45
+  _rocketFlightEase: 5
+  _rocketBurstHold: 0.6
   _vacuumLift: 2.5
   _vacuumScale: 1.25
   _vacuumGrow: 0.3

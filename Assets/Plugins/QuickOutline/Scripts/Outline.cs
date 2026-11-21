@@ -29,9 +29,12 @@ public class Outline : MonoBehaviour {
 
   public bool IsShown { get; private set; }
 
+  void OnDisable() {
+    Clear();
+  }
+
   public void SetRenderers(IReadOnlyList<Renderer> targets, Material mask, Material fill) {
-    Hide();
-    renderers.Clear();
+    Clear();
 
     for (var i = 0; i < targets.Count; i++) {
       if (i == plainMaterials.Count) {
@@ -48,6 +51,11 @@ public class Outline : MonoBehaviour {
     }
   }
 
+  public void Clear() {
+    Hide();
+    renderers.Clear();
+  }
+
   public void Show() {
     IsShown = true;
     Apply(outlinedMaterials);
@@ -60,11 +68,6 @@ public class Outline : MonoBehaviour {
 
     IsShown = false;
     Apply(plainMaterials);
-  }
-
-  void OnDisable() {
-    Hide();
-    renderers.Clear();
   }
 
   void Apply(List<Material[]> materials) {

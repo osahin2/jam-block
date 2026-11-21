@@ -31,6 +31,18 @@ namespace Game.Play
             return instance;
         }
 
+        public void Release(Component instance)
+        {
+            for (var i = _taken.Count - 1; i >= 0; i--)
+            {
+                if (_taken[i].Instance != instance)
+                    continue;
+                _taken[i].Pool.Release(instance);
+                _taken.RemoveAt(i);
+                return;
+            }
+        }
+
         public void ReleaseAll()
         {
             for (var i = _taken.Count - 1; i >= 0; i--)
