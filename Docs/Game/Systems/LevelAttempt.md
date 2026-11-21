@@ -16,7 +16,7 @@
 - `Pause()` / `Resume()`: stop and restart the timer and the board together, for the pause and settings popups; `IsPaused` tells which, so the play session does not end a level while it is paused.
 
 ## Effects
-A booster's effect on the board is an `IBoardEffect` (`Logic/Play/Effects/`): `CanTarget(board, cell)` says from the read-only board whether a cell is a target, `Apply(board, cell)` changes the board through `Board.Hit` (and the rocket's `HitCell`), which give a guarded block's hit to its guard ([Board](Board.md)). Contract: `CanTarget` changes nothing; `Apply` is called only on a cell `CanTarget` accepted, inside the board.
+A booster's effect on the board is an `IBoardEffect` (`Logic/Play/Effects/`): `CanTarget(board, cell)` says from the read-only board whether a cell is a target, `Apply(board, cell)` gets the board as `IBoard` and changes it only through `Hit` (and the rocket's `HitCell`), which give a guarded block's hit to its guard ([Board](Board.md)). Contract: `CanTarget` changes nothing; `Apply` is called only on a cell `CanTarget` accepted, inside the board.
 - `CanUseBoosters`: the level is playing, not paused, and the first touch has started the timer.
 - `Aim()`: when boosters can be used, ends the drag and turns taps into picks (`IsAiming`), returning true; the timer keeps running. A held block's view must be put back first (`BoardInteraction.Release`), since the attempt no longer returns that block once the drag has ended. `Grab` takes nothing while aiming.
 - `CancelAim()`: back to the drag.

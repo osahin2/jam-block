@@ -9,7 +9,7 @@ namespace Game.Tests.Play
 
         public bool CanTarget(IReadOnlyBoard board, Cell cell) => board.BlockAt(cell) != Board.NoBlock;
 
-        public void Apply(Board board, Cell cell)
+        public void Apply(IBoard board, Cell cell)
         {
             Applied++;
             board.Hit(board.BlockAt(cell));

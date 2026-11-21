@@ -4,7 +4,7 @@ using Game.Data.Levels;
 
 namespace Game.Logic.Play
 {
-    public sealed class Board : IReadOnlyBoard
+    public sealed class Board : IBoard
     {
         public const int NoBlock = -1;
 

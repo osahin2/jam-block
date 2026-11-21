@@ -6,6 +6,6 @@ namespace Game.Logic.Play
     {
         bool CanTarget(IReadOnlyBoard board, Cell cell);
 
-        void Apply(Board board, Cell cell);
+        void Apply(IBoard board, Cell cell);
     }
 }

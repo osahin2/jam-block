@@ -15,7 +15,7 @@ namespace Game.Logic.Play
             _hits = new int[_startingIce.Length];
         }
 
-        public int IceLeft(IBoardFacts board, int block)
+        public int IceLeft(IReadOnlyBoard board, int block)
         {
             if (block >= _startingIce.Length)
                 return 0;
@@ -23,9 +23,9 @@ namespace Game.Logic.Play
             return left > 0 ? left : 0;
         }
 
-        public bool Allows(IBoardFacts board, int block, Direction direction) => IceLeft(board, block) == 0;
+        public bool Allows(IReadOnlyBoard board, int block, Direction direction) => IceLeft(board, block) == 0;
 
-        public bool Guards(IBoardFacts board, int block) => IceLeft(board, block) > 0;
+        public bool Guards(IReadOnlyBoard board, int block) => IceLeft(board, block) > 0;
 
         void IBlockGuard.TakeHit(int block) => _hits[block]++;
     }
