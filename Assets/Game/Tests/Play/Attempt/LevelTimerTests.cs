@@ -95,6 +95,57 @@ namespace Game.Tests.Play
             Assert.IsTrue(timer.HasExpired);
         }
 
+        [Test]
+        public void Tick_WhileFrozen_DoesNotCount()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+
+            timer.Tick(4f);
+
+            Assert.AreEqual(60f, timer.RemainingSeconds, Tolerance);
+            Assert.IsTrue(timer.IsFrozen);
+        }
+
+        [Test]
+        public void Tick_PastTheFreeze_CountsOnlyTheTimeAfterIt()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+
+            timer.Tick(8f);
+            timer.Tick(5f);
+
+            Assert.AreEqual(57f, timer.RemainingSeconds, Tolerance);
+            Assert.IsFalse(timer.IsFrozen);
+        }
+
+        [Test]
+        public void Freeze_IsNotUsedUpWhilePaused()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+            timer.Pause();
+
+            timer.Tick(20f);
+            timer.Resume();
+            timer.Tick(9f);
+
+            Assert.IsTrue(timer.IsFrozen);
+            Assert.AreEqual(60f, timer.RemainingSeconds, Tolerance);
+        }
+
+        [Test]
+        public void Freeze_IsNotUsedUpBeforeStart()
+        {
+            var timer = new LevelTimer(60);
+            timer.Freeze(10f);
+
+            timer.Tick(20f);
+
+            Assert.IsTrue(timer.IsFrozen);
+        }
+
         private static LevelTimer Started(int limitSeconds)
         {
             var timer = new LevelTimer(limitSeconds);

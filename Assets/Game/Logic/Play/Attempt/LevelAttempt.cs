@@ -15,7 +15,9 @@ namespace Game.Logic.Play
         public float RemainingSeconds => _timer.RemainingSeconds;
         public bool IsPaused => _timer.IsPaused;
         public bool IsAiming { get; private set; }
+        public bool IsFrozen => _timer.IsFrozen;
         public bool CanUseBoosters => TakesTouches && _timer.HasStarted;
+        public bool CanFreeze => CanUseBoosters && !IsFrozen;
         public int HeldBlock => _drag.Block;
         public IReadOnlyBoard Board => _board;
         private bool TakesTouches => Outcome == LevelOutcome.Playing && !IsPaused;
@@ -86,6 +88,14 @@ namespace Game.Logic.Play
             return true;
         }
 
+        public bool Freeze(float seconds)
+        {
+            if (!CanFreeze)
+                return false;
+            _timer.Freeze(seconds);
+            return true;
+        }
+
         public LevelOutcome Tick(float deltaSeconds)
         {
             if (Outcome == LevelOutcome.Playing && _timer.Tick(deltaSeconds))
@@ -97,7 +107,8 @@ namespace Game.Logic.Play
 
         public void Resume() => _timer.Resume();
 
-        private static Cell CellAt(float x, float y) => new Cell((int)Math.Floor(x), (int)Math.Floor(y));
+        public static Cell CellAt(float x, float y) => new Cell((int)Math.Floor(x), (int)Math.Floor(y));
+
 
         private void UpdateWon()
         {

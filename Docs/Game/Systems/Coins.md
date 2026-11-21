@@ -1,6 +1,6 @@
 # Coins
 
-> Summary: The player's coin balance in `Game.Logic`, saved after every change through a store it is given, and how coins are shown: a counter prefab for any screen and one coin flight for the whole app that shows coins already paid flying into a counter. Coins are only earned so far (the win reward); the balance never goes below zero. One wallet and one flight, in the Boot scope.
+> Summary: The player's coin balance in `Game.Logic`, saved after every change through a store it is given, and how coins are shown: a counter prefab for any screen and one coin flight for the whole app that shows coins already paid flying into a counter. Coins are earned with the win reward and spent on booster packs; the balance never goes below zero. One wallet and one flight, in the Boot scope.
 
 ## Code
 - Folder: `Assets/Game/Logic/Coins/`, `Assets/Game/Data/Coins/`, `Assets/Game/Runtime/Coins/`
@@ -8,7 +8,7 @@
 - Entry points: `CoinWallet` (`Logic/Coins/CoinWallet.cs`); `CoinFlight.Play(from, to, balance, onLanded)` (`Runtime/Coins/Scripts/Presentation/CoinFlight.cs`); `CoinCounter` (`Runtime/Coins/Prefabs/CoinCounter.prefab`, a counter any screen nests); `CoinsInstaller` (`Runtime/Coins/Scripts/Installers/CoinsInstaller.cs`)
 
 ## How it works
-- `new CoinWallet(store)` reads the balance once from an `ICoinStore`; `Balance` reads it; `Add(amount)` raises it and writes the new balance to the store at once.
+- `new CoinWallet(store)` reads the balance once from an `ICoinStore`; `Balance` reads it; `Add(amount)` raises it and writes the new balance to the store at once; `TrySpend(amount)` lowers it and writes it when the balance covers the amount, and returns false without a change when it does not.
 - `ICoinStore` is the wallet's port for persistence, declared in `Game.Logic`; `SavedCoinStore` in `Game` implements it with Core.Save, one `CoinsDocument` (`Game.Data`) under the key `coins`. The logic stays engine-free and tests use an in-memory store. Contract: `Save` returns only once the balance is persisted, and the wallet calls it on every change.
 - `CoinsInstaller` registers the store and one wallet in the Boot scope, so Home and Game show and change the same balance and it is the same after leaving a level ([App flow](AppFlow.md)).
 - **Counter.** `CoinCounter` shows a number of its own: `Show(coins)` writes it, `Land(coins)` adds landed coins to it and punches the coin icon, so flights that overlap each bring their own share. It lags behind the wallet while coins fly to it, and every screen's `Show` gives it the real balance. The prefab holds the pill, the coin icon, the count and the "+" (an `IconButton` with no function yet).
@@ -17,15 +17,15 @@
 
 ## Rules & invariants
 - A negative stored balance or a negative amount throws `ArgumentOutOfRangeException`: both are programmer errors, not player actions. A rejected amount saves nothing.
-- No spending yet: boosters, the shop and the out-of-time offer are out of scope. A spend rule (`TrySpend`, false without a change when the balance is short) comes with the first thing that costs coins, planned as the optional out-of-time offer.
+- Coins are spent only on booster packs, through `BoosterPurchase`, which saves the stock before it spends ([Boosters](Boosters.md)); the HUD's counter is given the new balance after a purchase.
 - Only `SavedCoinStore` knows where the balance is kept.
 - The flight only shows coins: the caller adds them to the wallet, which saves at once, before it starts, so a game killed mid-flight keeps them ([Decisions](../Decisions.md)).
 
 ## Tests
-- `Tests/Coins/CoinWalletTests`: starting from the stored balance, add, add saves, a new wallet starts where the last one stopped, negative amount, negative stored balance.
+- `Tests/Coins/CoinWalletTests`: starting from the stored balance, add, add saves, a new wallet starts where the last one stopped, negative amount, negative stored balance; spend lowers and saves, nothing when short, negative amount.
 - `Tests/Coins/Presentation/CoinTallyTests`: the shares of all landings add up to the amount, also when it does not split evenly or is smaller than the coin count; no share is negative; two interleaved flights end on the sum of both amounts.
 - `Tests/Coins/Presentation/CoinFlightTests`: the flight's canvas scales like `GameUIRoot`.
 - The flight is checked in the editor: win a level and continue (the coins fly over the popup into the HUD's counter, which counts up), quit play mode mid-flight and start again (the coins are kept).
 
 ## Related
-- [Level attempt](LevelAttempt.md), [App flow](AppFlow.md), [Save](../../Base/Systems/Save.md)
+- [Level attempt](LevelAttempt.md), [App flow](AppFlow.md), [Boosters](Boosters.md), [Save](../../Base/Systems/Save.md)

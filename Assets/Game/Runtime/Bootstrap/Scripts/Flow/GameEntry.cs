@@ -5,6 +5,7 @@ using Core.UI;
 using Cysharp.Threading.Tasks;
 using Game.Coins;
 using Game.Levels;
+using Game.Logic.Boosters;
 using Game.Logic.Coins;
 using Game.Play;
 using Game.Preferences;
@@ -23,14 +24,18 @@ namespace Game.Bootstrap
         private readonly SceneFlow _flow;
         private readonly ISceneTransition _transition;
         private readonly CoinFlight _coinFlight;
+        private readonly BoosterPurchase _purchase;
         private readonly CancellationTokenSource _lifetime = new CancellationTokenSource();
         private ILevelRun _run;
         private LevelHud _hud;
         private LevelCompletePopup _complete;
         private LevelFailedPopup _failed;
+        private BoosterPurchasePopup _offer;
+        private BoosterDefinition _offered;
 
         public GameEntry(PlaySession session, LevelRuns runs, EditorPlayRequest request, IUIService ui,
-            CoinWallet wallet, WinRewardSettings reward, SceneFlow flow, ISceneTransition transition, CoinFlight coinFlight)
+            CoinWallet wallet, WinRewardSettings reward, SceneFlow flow, ISceneTransition transition, CoinFlight coinFlight,
+            BoosterPurchase purchase)
         {
             _session = session;
             _runs = runs;
@@ -41,6 +46,7 @@ namespace Game.Bootstrap
             _flow = flow;
             _transition = transition;
             _coinFlight = coinFlight;
+            _purchase = purchase;
         }
 
         public void Start()
@@ -59,7 +65,28 @@ namespace Game.Bootstrap
         private void Play()
         {
             _session.Start(_run.Level.Level, Won, Failed);
-            _hud.Show(_run.Number, _wallet.Balance, Restart, Pause);
+            _hud.Show(_run.Number, _wallet.Balance, Restart, Pause, OfferBooster);
+        }
+
+        private void OfferBooster(BoosterDefinition booster)
+        {
+            _session.Pause();
+            _offered = booster;
+            _offer = _ui.Open<BoosterPurchasePopup>();
+            _offer.Show(_offered, _purchase.CanAfford(_offered.Price), Buy, CloseOffer);
+        }
+
+        private void Buy()
+        {
+            _purchase.TryBuy(_offered.Id, _offered.PackSize, _offered.Price);
+            _hud.Coins.Show(_wallet.Balance);
+            CloseOffer();
+        }
+
+        private void CloseOffer()
+        {
+            _ui.Close(_offer);
+            _session.Resume();
         }
 
         private void Restart()

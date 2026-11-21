@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feeb1743ff6aa4a0da0f4a5929dc8928, type: 3}
+  m_Name: HammerBooster
+  m_EditorClassIdentifier: 
+  _id: hammer
+  _icon: {fileID: 21300000, guid: e9136e311e6214289be0014a4a7d727b, type: 3}
+  _title: Hammer
+  _description: Tap a block to smash it!
+  _startingStock: 2
+  _packSize: 3
+  _price: 100
+  _shot: {fileID: 8577613274150489171, guid: f0a7075922b6e4c8c87b66d1befd764c, type: 3}

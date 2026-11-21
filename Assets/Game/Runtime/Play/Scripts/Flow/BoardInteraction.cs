@@ -1,3 +1,5 @@
+using System;
+using DG.Tweening;
 using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
@@ -15,11 +17,15 @@ namespace Game.Play
         private BoardLayout _layout;
         private BlockView[] _blocks;
         private DoorView[] _doors;
+        private Action<Vector2> _onPicked;
+        private bool _busy;
 
         public bool IsSettled
         {
             get
             {
+                if (_busy)
+                    return false;
                 foreach (var block in _blocks)
                 {
                     if (block.IsLeaving)
@@ -48,7 +54,60 @@ namespace Game.Play
             foreach (var block in _blocks)
                 block.UseOutline(_outline);
             _input.Cover(_layout.Box);
+            EnterDrag();
+        }
+
+        public void EnterDrag()
+        {
+            _busy = false;
+            _onPicked = null;
             _input.Listen(Grab, Drag, Release);
+        }
+
+        public void EnterPick(Action<Vector2> onPicked)
+        {
+            _busy = false;
+            _onPicked = onPicked;
+            _input.Listen(Pick, Ignore, Ignore);
+        }
+
+        public void EnterBusy()
+        {
+            _busy = true;
+            _onPicked = null;
+            _input.Listen(Ignore, Ignore, Ignore);
+        }
+
+        public Rect ScreenRect()
+        {
+            var box = _layout.Box;
+            var min = new Vector2(float.MaxValue, float.MaxValue);
+            var max = new Vector2(float.MinValue, float.MinValue);
+            for (var corner = 0; corner < 8; corner++)
+            {
+                var local = new Vector3(
+                    (corner & 1) == 0 ? box.min.x : box.max.x,
+                    (corner & 2) == 0 ? box.min.y : box.max.y,
+                    (corner & 4) == 0 ? box.min.z : box.max.z);
+                var screen = _touchPlane.ToScreen(local);
+                min = Vector2.Min(min, screen);
+                max = Vector2.Max(max, screen);
+            }
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        public Vector2 ScreenPointOf(Cell cell, float lift) => _touchPlane.ToScreen(Lifted(cell, lift));
+
+        public void VanishGone(Cell toward, float lift, float duration, float stagger, Ease ease)
+        {
+            var target = Lifted(toward, lift);
+            var blocks = _attempt.Board.Blocks;
+            var delay = 0f;
+            for (var i = 0; i < _blocks.Length; i++)
+            {
+                if (blocks[i].IsGone && _blocks[i].TryVanish(target, duration, delay, ease))
+                    delay += stagger;
+            }
         }
 
         public void Release()
@@ -86,6 +145,22 @@ namespace Game.Play
             else
                 _blocks[pose.Block].Follow(_layout.PoseToLocal(pose));
         }
+
+        private void Pick(Vector2 screen)
+        {
+            if (TryFindOnBoard(screen, out var onBoard))
+                _onPicked(onBoard);
+        }
+
+        private static void Ignore(Vector2 screen)
+        {
+        }
+
+        private static void Ignore()
+        {
+        }
+
+        private Vector3 Lifted(Cell cell, float lift) => _layout.CellCenter(cell) + Vector3.up * (lift * _layout.CellSize);
 
         private bool TryFindOnBoard(Vector2 screen, out Vector2 onBoard)
         {
