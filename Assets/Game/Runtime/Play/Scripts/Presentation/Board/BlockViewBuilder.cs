@@ -37,7 +37,7 @@ namespace Game.Play
 
         private void BuildPieces(BlockView view, int colorId, IReadOnlyList<Cell> shape, IBoardPieceSource pieces)
         {
-            view.Init(_motion, shape.Count);
+            view.Init(_motion, shape);
             _pieces.Build(view, shape, _palette.ForBlock(colorId), pieces);
         }
     }

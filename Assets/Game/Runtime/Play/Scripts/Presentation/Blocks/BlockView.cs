@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
 
@@ -13,17 +14,21 @@ namespace Game.Play
 
         private readonly List<BoardPiece> _pieces = new List<BoardPiece>();
         private readonly List<Renderer> _renderers = new List<Renderer>();
+        private readonly List<Cell> _cells = new List<Cell>();
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
-        public int CellCount { get; private set; }
+        public int CellCount => _cells.Count;
+        public Color Color => _renderers[0].sharedMaterial.color;
 
-        public void Init(BlockMotionSettings settings, int cellCount)
+        public void Init(BlockMotionSettings settings, IReadOnlyList<Cell> shape)
         {
             _settings = settings;
-            CellCount = cellCount;
+            _cells.Clear();
+            for (var i = 0; i < shape.Count; i++)
+                _cells.Add(shape[i]);
             _pieces.Clear();
             _renderers.Clear();
             transform.localScale = Vector3.one;
@@ -76,6 +81,8 @@ namespace Game.Play
 
         public void UseOutline(BlockOutlineMaterials materials) =>
             _outline.SetRenderers(_renderers, materials.Mask, materials.Fill);
+
+        public bool Shows(Cell cell) => gameObject.activeSelf && !IsLeaving && _cells.Contains(cell);
 
         public void Hold() => _outline.Show();
 

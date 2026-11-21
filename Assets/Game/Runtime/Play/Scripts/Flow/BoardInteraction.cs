@@ -106,6 +106,20 @@ namespace Game.Play
 
         public Vector2 ScreenPointOf(Cell cell, float lift) => _touchPlane.ToScreen(Lifted(cell, lift));
 
+        public bool TryFindColorShownAt(Cell cell, out Color color)
+        {
+            var blocks = _attempt.Board.Blocks;
+            for (var i = 0; i < _blocks.Count; i++)
+            {
+                if (!_blocks[i].Shows(cell - blocks[i].Position))
+                    continue;
+                color = _blocks[i].Color;
+                return true;
+            }
+            color = default;
+            return false;
+        }
+
         public void VanishGone(Cell toward, float lift, float duration, float stagger, Ease ease)
         {
             var target = Lifted(toward, lift);

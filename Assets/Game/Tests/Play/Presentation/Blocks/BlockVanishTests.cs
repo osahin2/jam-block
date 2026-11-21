@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Game.Data.Levels;
 using Game.Play;
 using NUnit.Framework;
 using UnityEditor;
@@ -21,7 +22,7 @@ namespace Game.Tests.Play
             view.FindProperty("_outline").objectReferenceValue = _outline;
             view.ApplyModifiedPropertiesWithoutUndo();
             _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
-            _view.Init(_motion, 1);
+            _view.Init(_motion, new[] { new Cell(0, 0) });
         }
 
         [TearDown]
@@ -57,7 +58,7 @@ namespace Game.Tests.Play
         {
             _view.transform.localScale = Vector3.zero;
 
-            _view.Init(_motion, 1);
+            _view.Init(_motion, new[] { new Cell(0, 0) });
 
             Assert.AreEqual(Vector3.one, _view.transform.localScale);
         }

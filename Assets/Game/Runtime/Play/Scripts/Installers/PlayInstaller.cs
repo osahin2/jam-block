@@ -23,6 +23,7 @@ namespace Game.Play
         [SerializeField] private UIScreenCatalog _screens;
         [SerializeField] private BoosterMotionSettings _boosterMotion;
         [SerializeField] private FreezeDefinition _freeze;
+        [SerializeField] private TargetedDefinition _rocket;
         [SerializeField] private TargetedDefinition _hammer;
         [SerializeField] private TargetedDefinition _vacuum;
 
@@ -56,6 +57,8 @@ namespace Game.Play
                 Lifetime.Scoped);
             builder.Register<BoosterPurchase>(Lifetime.Scoped);
             RegisterBooster(builder, startingStock, _freeze, inventory => new FreezeBooster(_freeze, inventory));
+            RegisterBooster(builder, startingStock, _rocket,
+                inventory => new TargetedBooster(_rocket, new RocketEffect(), inventory));
             RegisterBooster(builder, startingStock, _hammer,
                 inventory => new TargetedBooster(_hammer, new HammerEffect(), inventory));
             RegisterBooster(builder, startingStock, _vacuum,
