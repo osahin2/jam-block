@@ -25,7 +25,6 @@ namespace Game.Play
             Box = new Bounds(new Vector3(0f, highest * 0.5f, 0f), size);
         }
 
-        // Row 0 is the far edge (+Z), so rows run toward the camera.
         public Vector3 CellCenter(Cell cell) =>
             new Vector3(Left + (cell.X + 0.5f) * CellSize, 0f, Top - (cell.Y + 0.5f) * CellSize);
 
@@ -34,7 +33,6 @@ namespace Game.Play
 
         public Vector3 ToLocal(Direction direction) => new Vector3(direction.Offset.X, 0f, -direction.Offset.Y);
 
-        // In cells from the board's top-left corner, x to the right and y down, as BlockDrag expects.
         public Vector2 LocalToBoard(Vector3 local) => new Vector2((local.x - Left) / CellSize, (Top - local.z) / CellSize);
     }
 }

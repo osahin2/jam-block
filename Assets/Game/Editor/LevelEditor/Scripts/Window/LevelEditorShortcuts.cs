@@ -7,14 +7,11 @@ namespace Game.Editor.LevelEditor
     {
         public const string DeleteId = Prefix + "Delete Selection";
         public const string LevelListId = Prefix + "Show or Hide Level List";
-        // Colors 1 to 9 have keys; a larger palette's other colors are picked with the mouse.
         public const int ColorKeyCount = 9;
         private const string Prefix = "Level Editor/";
 
-        // A tool's shortcut is found by its name, so renaming a tool means renaming its shortcut below.
         public static string ToolId(string toolName) => $"{Prefix}{toolName} Tool";
 
-        // Colors are numbered from 1 for the keys, from 0 in the palette.
         public static string ColorId(int colorId) => $"{Prefix}Color {colorId + 1}";
 
         public static string Key(string shortcutId) => ShortcutManager.instance.GetShortcutBinding(shortcutId).ToString();

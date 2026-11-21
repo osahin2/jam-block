@@ -19,7 +19,6 @@ namespace Game.Logic.Play
 
         public void Resume() => IsPaused = false;
 
-        // Returns true on the tick that reaches zero, and only on that one.
         public bool Tick(float deltaSeconds)
         {
             if (!IsRunning)

@@ -179,7 +179,6 @@ namespace Game.Tests.LevelEditor
             Assert.IsFalse(_document.HasUnsavedChanges);
         }
 
-        // Stands in for drawing a block and its door on the board.
         private void DrawPlayableLevel() => _document.Draft.Load(PlayableLevel());
 
         private LevelAsset SavedPlayableLevel()

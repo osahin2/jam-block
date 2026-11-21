@@ -5,19 +5,12 @@ namespace Game.Play
     [CreateAssetMenu(menuName = "Game/Play/Board Art Settings")]
     public sealed class BoardArtSettings : ScriptableObject
     {
-        // The supplied models are made for a cell of 2 model units; block pieces are 1-unit quarters of a cell.
         public const float ModelCellSize = 2f;
-        // Bottom, where the pivot is, to top; measured from BlockPlates.fbx.
         private const float BlockHeight = 0.519f;
-        // Measured from WallAndDoor.fbx.
         private const float FrameTopAbovePivot = 0.611f;
-        // Measured from WallAndDoor.fbx. Wall and door are straight extrusions along X, so a stretched piece keeps
-        // its cross-section.
         private const float WallModelLength = 1f;
         private const float DoorModelLength = 2f;
-        // Bottom, where the pivot is, to top; measured from WallAndDoor.fbx.
         private const float ArrowHeight = 0.126f;
-        // Measured from GroundGrid.fbx: a 2-unit cell less the gap between tiles.
         private const float GroundTileModelSize = 1.95f;
 
         [SerializeField] private float _cellSize = 2f;

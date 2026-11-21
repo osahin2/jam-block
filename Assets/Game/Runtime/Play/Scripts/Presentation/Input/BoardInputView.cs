@@ -16,7 +16,6 @@ namespace Game.Play
         private Action _released;
         private int _pointer = NoPointer;
 
-        // A new listener starts with no pointer down: a finger held from the level before moves and releases nothing.
         public void Listen(Action<Vector2> pressed, Action<Vector2> moved, Action released)
         {
             _pressed = pressed;
@@ -39,13 +38,11 @@ namespace Game.Play
             _pressed(eventData.position);
         }
 
-        // The block follows the finger from its first movement, without the EventSystem's drag threshold.
         public void OnInitializePotentialDrag(PointerEventData eventData)
         {
             eventData.useDragThreshold = false;
         }
 
-        // The EventSystem sends drag and release to the pressed object, so both arrive outside the collider too.
         public void OnDrag(PointerEventData eventData)
         {
             if (IsHeld(eventData))

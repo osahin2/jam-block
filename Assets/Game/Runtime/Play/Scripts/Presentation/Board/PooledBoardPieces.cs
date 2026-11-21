@@ -6,7 +6,6 @@ namespace Game.Play
 {
     public sealed class PooledBoardPieces : IBoardPieceSource
     {
-        // A board needing more of one piece (over 16 x 16 ground cells) destroys the excess when given back.
         private const int MaxIdlePerPrefab = 256;
 
         private readonly Transform _idle;
@@ -32,7 +31,6 @@ namespace Game.Play
             return instance;
         }
 
-        // Newest first: a block's pieces, taken after the block, leave it before it goes back to its pool.
         public void ReleaseAll()
         {
             for (var i = _taken.Count - 1; i >= 0; i--)

@@ -8,7 +8,6 @@ namespace Game.Tests.Levels
         [Test]
         public void Extents_OfAnL_CountCellsAlongAndAcrossEachSide()
         {
-            // Two columns wide and three rows high.
             var block = new BlockData();
             block.Shape.AddRange(new[] { new Cell(0, 0), new Cell(0, 1), new Cell(0, 2), new Cell(1, 2) });
 

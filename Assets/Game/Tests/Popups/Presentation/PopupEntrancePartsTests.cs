@@ -9,8 +9,6 @@ namespace Game.Tests.Popups
 {
     public sealed class PopupEntrancePartsTests
     {
-        // The entrance and a button's press feedback both set a scale; on one transform the feedback would keep the
-        // entrance's start scale as its rest scale.
         [Test]
         public void NoEntrancePart_IsAButtonWithPressFeedback()
         {

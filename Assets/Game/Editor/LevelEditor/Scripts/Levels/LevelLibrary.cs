@@ -14,7 +14,6 @@ namespace Game.Editor.LevelEditor
 
         private readonly LevelCatalog _catalog;
 
-        // May hold empty entries, left by a level asset deleted in the Project window.
         public IReadOnlyList<LevelAsset> Levels => _catalog.Levels;
 
         public LevelLibrary(LevelCatalog catalog) => _catalog = catalog;
@@ -40,7 +39,6 @@ namespace Game.Editor.LevelEditor
             var level = _catalog.Levels[index];
             ChangeCatalog(levels =>
             {
-                // Moved to the end and cut off, the same for object references in every Unity version.
                 levels.MoveArrayElement(index, levels.arraySize - 1);
                 levels.arraySize--;
             });
@@ -76,7 +74,6 @@ namespace Game.Editor.LevelEditor
             return PathOf(folder, number);
         }
 
-        // Next to the catalog's last level, so moving the levels' folder needs no change here.
         private string Folder()
         {
             var levels = _catalog.Levels;

@@ -11,7 +11,6 @@ namespace Game.Tests.Levels
         [SetUp]
         public void CreateRequest() => _request = new EditorPlayRequest();
 
-        // Leaves no request behind for the next play mode.
         [TearDown]
         public void TakeAnyRequest() => _request.TryTake(out _);
 

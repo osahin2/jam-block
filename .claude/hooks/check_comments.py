@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """Checks the comments of C# files in Assets/Game and the Core package (Docs/Conventions/CodeStyle.md).
 
-Claude Code hook: reads the hook payload from stdin and checks the edited .cs file. It reports the comments that
-break a rule and every comment the edit added, so each new comment gets a second look; then it exits 2, so Claude
-sees the report. Run by hand: check_comments.py <file.cs> [...]  (rules only; exit 1 when any file breaks one).
+Claude Code hooks, reading the hook payload from stdin:
+  --block-new  (PreToolUse) refuses an edit of a game .cs file (Assets/Game) that adds a comment line; the edit is
+               not written. Core is a package whose public contracts may carry short comments, so it is not blocked.
+  no argument  (PostToolUse) reports the comments of the edited file that break a rule.
+Both exit 2 so Claude sees the report. Run by hand: check_comments.py <file.cs> [...]  (rules only; exit 1 when any
+file breaks one).
 
 Line based: full-line `//` comments only.
 """
 import json
 import os
 import re
-import subprocess
 import sys
 
 CHECKED_ROOTS = ("Assets/Game/", "Packages/com.base-setup.core/")
+BLOCKED_ROOTS = ("Assets/Game/",)
 MAX_BLOCK_LINES = 2
 COMMENT = re.compile(r"^\s*//")
 XML_DOC = re.compile(r"^\s*///")
@@ -59,15 +62,16 @@ def comments(text):
     return [line.strip() for line in text.splitlines() if COMMENT.match(line)]
 
 
-def committed_text(path):
-    result = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True,
-                            cwd=os.environ.get("CLAUDE_PROJECT_DIR", "."))
-    return result.stdout if result.returncode == 0 else ""
+def disk_text(path):
+    if not os.path.exists(path):
+        return ""
+    with open(path, encoding="utf-8-sig") as file:
+        return file.read()
 
 
-def added_comments(tool_name, tool_input, relative_path):
+def added_comments(tool_name, tool_input, path):
     if tool_name == "Write":
-        before = set(comments(committed_text(relative_path)))
+        before = set(comments(disk_text(path)))
         after = comments(tool_input.get("content", ""))
     else:
         edits = tool_input.get("edits") or [tool_input]
@@ -93,24 +97,34 @@ def read_lines(path):
         return file.read().splitlines()
 
 
-def run_hook():
+def block_new_comments():
     payload = json.load(sys.stdin)
     tool_input = payload.get("tool_input", {})
     path = tool_input.get("file_path", "")
     relative_path = relative_to_project(path)
+    if not relative_path.endswith(".cs") or not relative_path.startswith(BLOCKED_ROOTS):
+        return 0
+    added = added_comments(payload.get("tool_name", ""), tool_input, path)
+    if not added:
+        return 0
+    report = [f"Refused: this edit adds comments to {relative_path}, and Claude does not add comments. "
+              "Write the edit again without them; names, small methods, the system note and Decisions.md carry "
+              "the meaning. If a comment is truly needed, ask the developer to add it.",
+              *[f"  {line}" for line in added]]
+    print("\n".join(report), file=sys.stderr)
+    return 2
+
+
+def check_rules():
+    payload = json.load(sys.stdin)
+    path = payload.get("tool_input", {}).get("file_path", "")
+    relative_path = relative_to_project(path)
     if not is_checked(relative_path) or not os.path.exists(path):
         return 0
     problems = rule_problems(read_lines(path))
-    added = added_comments(payload.get("tool_name", ""), tool_input, relative_path)
-    if not problems and not added:
+    if not problems:
         return 0
-    report = [f"Comments in {relative_path}:"]
-    report += [f"  {problem}" for problem in problems]
-    if added:
-        report.append("  Added by this edit; keep each only if it states a reason, an invariant or an outside "
-                      "fact the code cannot say, delete it otherwise:")
-        report += [f"    {line}" for line in added]
-    print("\n".join(report), file=sys.stderr)
+    print("\n".join([f"Comments in {relative_path}:", *[f"  {problem}" for problem in problems]]), file=sys.stderr)
     return 2
 
 
@@ -125,4 +139,6 @@ def run_by_hand(paths):
 
 
 if __name__ == "__main__":
-    sys.exit(run_by_hand(sys.argv[1:]) if len(sys.argv) > 1 else run_hook())
+    if sys.argv[1:] == ["--block-new"]:
+        sys.exit(block_new_comments())
+    sys.exit(run_by_hand(sys.argv[1:]) if len(sys.argv) > 1 else check_rules())

@@ -6,7 +6,6 @@ namespace Game.Play
 {
     public sealed class BlockView : MonoBehaviour
     {
-        // An exponential approach never reaches its target; closer than this the block is put on it.
         private const float SnapDistanceSqr = 0.000001f;
 
         [SerializeField] private Outline _outline;
@@ -69,8 +68,6 @@ namespace Game.Play
             _motion = Snap(position).SetLink(gameObject, LinkBehaviour.KillOnDisable);
         }
 
-        // The snap starts where the block is drawn, which may trail its door cell during a drag. A quadratic ease in
-        // from rest is a constant acceleration.
         public void Leave(Vector3 doorCell, Vector3 outside, float slideDuration)
         {
             _outline.Hide();

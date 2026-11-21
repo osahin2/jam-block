@@ -17,7 +17,6 @@ namespace Game.Editor.LevelEditor
         private GameObject _root;
         private string _shown;
 
-        // A level equal to the one on show is not built again, so a refresh that changed nothing costs no rebuild.
         public void Show(LevelData level)
         {
             var snapshot = level != null ? JsonUtility.ToJson(level) : null;
@@ -53,7 +52,6 @@ namespace Game.Editor.LevelEditor
                     continue;
                 foreach (var root in scene.GetRootGameObjects())
                 {
-                    // By type object: this assembly does not reference VContainer, which GameScope derives from.
                     var scope = root.GetComponent(typeof(GameScope));
                     if (scope == null)
                         continue;
@@ -70,7 +68,6 @@ namespace Game.Editor.LevelEditor
             return false;
         }
 
-        // Loaded on first use: while scripts reload, the asset database may not be ready yet.
         private bool TryLoadSettings()
         {
             if (_stage != null)
@@ -85,7 +82,6 @@ namespace Game.Editor.LevelEditor
             return true;
         }
 
-        // A level being drawn may have errors the builder copes with, but not a missing board or color.
         private bool CanBuild(LevelData level)
         {
             if (level.Width < 1 || level.Height < 1)

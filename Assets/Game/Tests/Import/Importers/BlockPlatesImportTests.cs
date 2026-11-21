@@ -47,8 +47,6 @@ namespace Game.Tests.Import
             }
         }
 
-        // The fill material is made at run time, so a build that strips vertex channels no asset's shader reads would
-        // drop UV3.
         [Test]
         public void Build_KeepsEveryMeshChannel()
         {

@@ -32,7 +32,6 @@ namespace Game.Tests.Buttons
             Assert.IsEmpty(problems.ToString());
         }
 
-        // The EventSystem hands a touch on any raycast target inside the button up to the button.
         private static bool TakesTouches(Button button)
         {
             foreach (var graphic in button.GetComponentsInChildren<Graphic>(true))

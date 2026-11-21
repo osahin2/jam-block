@@ -20,7 +20,7 @@ Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. 
 - Tuning values and content references live in ScriptableObject settings assets, one per concern, registered by the feature's `ScriptableObjectInstaller` (Core.Installers).
 - A class has one reason to change; no classes that only forward. No dead or commented-out code.
 - Async (UniTask) only where something is really awaited.
-- Member order, one type per file, naming, interface contracts (Liskov) and extension points (open-closed): `Docs/Conventions/CodeStyle.md`. Comments only for why (CodeStyle). Hooks check the member order and the comments after every C# edit; fix what they report.
+- Member order, one type per file, naming, interface contracts (Liskov) and extension points (open-closed): `Docs/Conventions/CodeStyle.md`. Comments only for why (CodeStyle), and Claude adds none to game code: a hook refuses any edit under `Assets/Game/` that adds a comment; a needed one is for the developer to add. Core, a package, keeps short comments on its public contracts. C# files change only through Edit and Write, never shell commands, so the hooks see every change; they check the member order and the remaining comments after each edit; fix what they report.
 
 ## Hard rules
 - Never edit `.unity`, `.prefab`, `.asset`, `.meta` or `ProjectSettings/` by hand; use editor scripts (skill `unity-editor`). Never create `.meta` files.

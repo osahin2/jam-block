@@ -40,8 +40,6 @@ namespace Game.Tests.Play
             Object.DestroyImmediate(_art);
         }
 
-        // 1080 x 1920, 20:9 (1080 x 2400), a 10:16 and a 3:4 tablet, the smallest and largest authored boards, a wide
-        // one and a deep one.
         [TestCase(1080, 1920, 5, 6, false)]
         [TestCase(1080, 1920, 4, 5, false)]
         [TestCase(1080, 2400, 5, 6, false)]

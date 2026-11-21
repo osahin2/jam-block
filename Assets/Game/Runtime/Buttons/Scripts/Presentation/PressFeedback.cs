@@ -40,7 +40,6 @@ namespace Game.Buttons
             ScaleTo(_restScale * _settings.PressedScale, _settings.PressDuration, _settings.PressEase);
         }
 
-        // The EventSystem sends the release to the pressed object, also when the finger left it first.
         public void OnPointerUp(PointerEventData eventData)
         {
             if (!_pressed || eventData.button != PointerEventData.InputButton.Left)

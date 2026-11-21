@@ -24,7 +24,6 @@ namespace Game.Play
             _onContinue = onContinue;
         }
 
-        // Stays open while the reward flies from its button; the caller closes it once the screen is covered.
         private void Continue()
         {
             var onContinue = _onContinue;

@@ -17,7 +17,6 @@ namespace Game.Play
 
         public static bool Flashes(int wholeSeconds, int lastSeconds) => wholeSeconds > 0 && wholeSeconds <= lastSeconds;
 
-        // Called when the shown second changes, so a paused or stopped countdown does not flash.
         public void Show(int wholeSeconds)
         {
             if (!Flashes(wholeSeconds, _settings.LastSeconds))

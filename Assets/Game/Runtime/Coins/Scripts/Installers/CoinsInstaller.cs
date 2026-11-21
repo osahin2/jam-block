@@ -12,7 +12,6 @@ namespace Game.Coins
         [SerializeField] private CoinFlightSettings _flightSettings;
         [SerializeField] private CoinFlight _flight;
 
-        // In the Boot scope, so every scene's flows show coins the same way, over every scene's screens.
         public override void Install(IContainerBuilder builder)
         {
             builder.Register<ICoinStore, SavedCoinStore>(Lifetime.Singleton);

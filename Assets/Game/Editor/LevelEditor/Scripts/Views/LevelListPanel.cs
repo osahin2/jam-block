@@ -13,19 +13,16 @@ namespace Game.Editor.LevelEditor
         private const float RowHeight = 20f;
         private const string MissingName = "Missing level";
         private const string MissingClass = "level-row--missing";
-        // Squared pixels the pointer may move between press and release for a click; further is a drag.
         private const float ClickToleranceSqr = 16f;
         private static readonly int[] NoRows = Array.Empty<int>();
 
         public event Action<LevelAsset> Picked;
         public event Action<LevelAsset> DuplicateRequested;
-        // The catalog index; the entry may have lost its asset.
         public event Action<int> DeleteRequested;
 
         private readonly LevelLibrary _library;
         private readonly ToolbarSearchField _search;
         private readonly ListView _list;
-        // The catalog index of each row shown.
         private readonly List<int> _shown = new List<int>();
         private readonly int[] _selectedRow = new int[1];
         private LevelAsset _open;
@@ -70,7 +67,6 @@ namespace Game.Editor.LevelEditor
                 if (LevelSearch.Matches(i + 1, NameOf(levels[i]), query))
                     _shown.Add(i);
             }
-            // A drag says where in the play order a level goes only while every entry is shown, in catalog order.
             _list.reorderable = _shown.Count == levels.Count;
             _list.Rebuild();
             SelectOpen(false);
@@ -109,8 +105,6 @@ namespace Game.Editor.LevelEditor
             var row = new Label();
             row.AddToClassList("level-row");
             row.AddManipulator(new ContextualMenuManipulator(evt => FillMenu(evt, (int)row.userData)));
-            // Opening follows a click, not the selection: the list selects a row as soon as it is pressed, which is
-            // also how a drag to reorder starts.
             row.RegisterCallback<PointerDownEvent>(evt => _pressPosition = evt.position, TrickleDown.TrickleDown);
             row.RegisterCallback<ClickEvent>(evt => OnRowClicked(evt, (int)row.userData));
             return row;
@@ -136,7 +130,6 @@ namespace Game.Editor.LevelEditor
             evt.menu.AppendAction(level != null ? "Delete..." : "Remove from the list", _ => DeleteRequested?.Invoke(index));
         }
 
-        // The dragged row also ends under the pointer, so a click event alone would open a level after every drag.
         private void OnRowClicked(ClickEvent evt, int index)
         {
             var level = _library.Levels[index];
@@ -146,7 +139,6 @@ namespace Game.Editor.LevelEditor
             SelectOpen(false);
         }
 
-        // Only while the list is not filtered, so the rows are the catalog in order and the indices match it.
         private void OnReordered(int from, int to)
         {
             _library.Move(from, to);

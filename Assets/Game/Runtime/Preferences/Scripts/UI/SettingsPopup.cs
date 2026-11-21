@@ -56,7 +56,6 @@ namespace Game.Preferences
             onClose?.Invoke();
         }
 
-        // Stays open: home covers the screen with the scene fade first, so the dimmer never drops over the board.
         private void ChooseHome()
         {
             var onHome = _onHome;
@@ -64,7 +63,6 @@ namespace Game.Preferences
             onHome?.Invoke();
         }
 
-        // Both callbacks go before the chosen one runs, so a second click does nothing.
         private void Forget()
         {
             _onClose = null;

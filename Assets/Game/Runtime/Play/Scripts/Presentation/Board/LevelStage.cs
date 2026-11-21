@@ -25,7 +25,6 @@ namespace Game.Play
             return staged;
         }
 
-        // The HUD is fitted to the safe area by Core's UI, so the board is framed inside the same area.
         private static Rect ViewportSafeArea()
         {
             var screen = new Vector2(Screen.width, Screen.height);

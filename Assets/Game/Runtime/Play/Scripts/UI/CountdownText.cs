@@ -6,7 +6,6 @@ namespace Game.Play
     {
         public const int Length = 5;
 
-        // Rounded up, so 00:00 shows only once the time is over.
         public static int WholeSeconds(float remainingSeconds) => Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
 
         public static void Write(int wholeSeconds, char[] text)

@@ -62,13 +62,10 @@ namespace Game.Bootstrap
             _hud.Show(_run.Number, _wallet.Balance, Restart, Pause);
         }
 
-        // Restart and pause do nothing once the level is decided: its end is on the way, and a restart or a home in
-        // between would throw away a win the player has seen leave the board.
         private void Restart()
         {
             if (_session.IsDecided)
                 return;
-            // Paused, so the time cannot run out while the screen is being covered.
             _session.Pause();
             PlayCoveredAsync(null, _lifetime.Token).Forget();
         }
@@ -87,7 +84,6 @@ namespace Game.Bootstrap
             _complete.Show(_reward.Coins, Continue);
         }
 
-        // The reward and the next level are saved on the press; the coins flying to the counter only show it.
         private void Continue()
         {
             _wallet.Add(_reward.Coins);

@@ -13,7 +13,6 @@ namespace Game.Editor.LevelEditor
         private static LevelAsset _selected;
         private static bool _rebuildRequested;
 
-        // Static: it follows the Project selection while no level editor window is open.
         static LevelPreviewSource()
         {
             Selection.selectionChanged += OnSelectionChanged;

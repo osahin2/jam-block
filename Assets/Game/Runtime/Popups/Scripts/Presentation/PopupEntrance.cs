@@ -16,14 +16,12 @@ namespace Game.Popups
         [Inject]
         public void Construct(PopupMotionSettings settings) => _settings = settings;
 
-        // Built on the first opening, so every later one replays the same tweens without allocating.
         private void OnEnable()
         {
             _entrance ??= Build();
             _entrance.Restart();
         }
 
-        // A sequence rewinds its tweens to the values they started from, so the hidden state is set before building.
         private Sequence Build()
         {
             var sequence = DOTween.Sequence()

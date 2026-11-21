@@ -7,7 +7,6 @@ namespace Game.Tests.LevelEditor
 {
     public sealed class LevelEditorShortcutsTests
     {
-        // The window finds a tool's key by the tool's name; a renamed tool without a renamed shortcut breaks it.
         [Test]
         public void EveryTool_HasAShortcut()
         {
