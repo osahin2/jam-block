@@ -11,41 +11,44 @@ namespace Game.Popups
         [SerializeField] private RectTransform[] _parts;
 
         private PopupMotionSettings _settings;
-        private Sequence _entrance;
+        private float _dimAlpha;
+        private Vector3[] _restScales;
 
         [Inject]
         public void Construct(PopupMotionSettings settings) => _settings = settings;
 
-        // Built on the first opening, so every later one replays the same tweens without allocating.
-        private void OnEnable()
+        private void Awake()
         {
-            _entrance ??= Build();
-            _entrance.Restart();
+            _dimAlpha = _dimmer.color.a;
+            _restScales = new Vector3[_parts.Length];
+            for (var i = 0; i < _parts.Length; i++)
+                _restScales[i] = _parts[i].localScale;
         }
 
-        // A sequence rewinds its tweens to the values they started from, so the hidden state is set before building.
-        private Sequence Build()
+        private void OnEnable()
+        {
+            DOTween.Kill(this);
+            Play();
+        }
+
+        private void Play()
         {
             var sequence = DOTween.Sequence()
-                .SetAutoKill(false)
+                .SetTarget(this)
                 .SetUpdate(true)
-                .SetLink(gameObject, LinkBehaviour.PauseOnDisable);
+                .SetLink(gameObject, LinkBehaviour.KillOnDisable);
 
-            var dimAlpha = _dimmer.color.a;
             var hidden = _dimmer.color;
             hidden.a = 0f;
             _dimmer.color = hidden;
-            sequence.Insert(0f, _dimmer.DOFade(dimAlpha, _settings.DimDuration));
+            sequence.Insert(0f, _dimmer.DOFade(_dimAlpha, _settings.DimDuration));
 
             for (var i = 0; i < _parts.Length; i++)
             {
                 var part = _parts[i];
-                var restScale = part.localScale;
-                part.localScale = restScale * _settings.StartScale;
-                sequence.Insert(i * _settings.Stagger, part.DOScale(restScale, _settings.PopDuration).SetEase(_settings.PopEase));
+                part.localScale = _restScales[i] * _settings.StartScale;
+                sequence.Insert(i * _settings.Stagger, part.DOScale(_restScales[i], _settings.PopDuration).SetEase(_settings.PopEase));
             }
-
-            return sequence;
         }
     }
 }

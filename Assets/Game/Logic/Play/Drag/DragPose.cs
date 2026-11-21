@@ -4,12 +4,10 @@ namespace Game.Logic.Play
 {
     public readonly struct DragPose
     {
-        // No block moved; use it instead of default, where ExitDoor 0 would read as having left through door 0.
         public static readonly DragPose None = new DragPose(Board.NoBlock, default, 0f, 0f, StepResult.NoDoor);
 
         public int Block { get; }
         public Cell Position { get; }
-        // In cells, toward a free neighbour only, at most half a cell.
         public float OffsetX { get; }
         public float OffsetY { get; }
         public int ExitDoor { get; }

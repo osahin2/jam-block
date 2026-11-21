@@ -19,11 +19,9 @@ namespace Game.Editor.LevelEditor
         public LevelAsset Asset => _asset;
         public LevelDraft Draft => _draft;
         public bool IsOpen => _asset != null || _isNew;
-        // A new level counts as changed once something is on its board, so leaving an untouched one asks nothing.
         public bool HasUnsavedChanges => IsOpen && !_draft.Matches(_isNew ? EmptyLevel : _asset.Level);
         public bool CanRevert => !_isNew && HasUnsavedChanges;
 
-        // The working copy is never saved, so after an editor restart the level is loaded again from its asset.
         public void EnsureDraft()
         {
             if (_draft != null)
@@ -33,7 +31,6 @@ namespace Game.Editor.LevelEditor
                 _draft.Load(_asset.Level);
         }
 
-        // Opening the open level again reloads it from its asset, which is how Revert works.
         public void Open(LevelAsset asset)
         {
             _asset = asset;

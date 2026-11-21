@@ -7,7 +7,6 @@ namespace Game.Tests.Coins
 {
     public sealed class CoinFlightTests
     {
-        // The coins land on the HUD's icon, so their canvas must scale exactly as the screens' canvas does.
         [Test]
         public void FlightCanvas_ScalesLikeTheGameUIRoot()
         {

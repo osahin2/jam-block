@@ -17,7 +17,6 @@ namespace Game.Bootstrap
 
         public void ToGame() => SwitchTo(GameScene);
 
-        // Core.Scenes needs a token that outlives the scene being left.
         private void SwitchTo(string scene) => _scenes.SwitchToAsync(scene, Application.exitCancellationToken).Forget();
     }
 }

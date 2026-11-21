@@ -13,7 +13,6 @@ namespace Game.Tests.Play
     {
         private const int Red = 1;
         private const int Other = 2;
-        // The supplied pieces' ends lie a few thousandths of a model unit off their pivot.
         private const float Tolerance = 0.02f;
 
         private BoardArtSettings _art;
@@ -47,7 +46,6 @@ namespace Game.Tests.Play
             AssertSpan(layout.Left, layout.Left + cell, walls[0]);
             AssertSpan(layout.Left + cell, layout.Left + 3f * cell, doors[0]);
             AssertSpan(layout.Left + 3f * cell, layout.Right, walls[1]);
-            // The three other sides have no door: one wall each.
             Assert.AreEqual(2 + 3, Pieces(_art.Wall).Count);
         }
 

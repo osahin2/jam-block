@@ -10,7 +10,6 @@ namespace Game.Editor.LevelEditor
     public sealed class LevelBoardView : VisualElement
     {
         private const float OutlineWidth = 3f;
-        // A share of the cell size.
         private const float TileInset = 0.05f;
         private static readonly Color MissingColor = Color.magenta;
 
@@ -100,7 +99,6 @@ namespace Game.Editor.LevelEditor
             return element;
         }
 
-        // The pointer still maps the whole ring cell, which keeps the doors easy to hit.
         private VisualElement FrameCell(Cell cell)
         {
             var element = Box(FrameRect(cell), "frame");

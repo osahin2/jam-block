@@ -6,8 +6,6 @@ namespace Game.Editor.LevelEditor
 {
     internal static class LevelPlayStarter
     {
-        // Everything that would stop play mode is checked before anything is written, so a refused play leaves no
-        // request behind.
         public static bool TryPlay(LevelAsset level, out string problem)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

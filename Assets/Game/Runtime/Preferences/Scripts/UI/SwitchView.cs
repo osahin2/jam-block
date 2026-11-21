@@ -33,12 +33,10 @@ namespace Game.Preferences
             _setProgress = Apply;
         }
 
-        // A popup closed mid-slide opens again with the switch at rest.
         private void OnDisable() => Show(_isOn);
 
         public void Listen(Action<bool> onChanged) => _onChanged = onChanged;
 
-        // Shows a state at once, for opening; only a press slides the knob.
         public void Show(bool isOn)
         {
             _isOn = isOn;
@@ -58,7 +56,6 @@ namespace Game.Preferences
             _onChanged?.Invoke(_isOn);
         }
 
-        // At either end the knob's center is over the center of the track's rounded end, so the knob covers it.
         private void Apply(float progress)
         {
             _progress = progress;

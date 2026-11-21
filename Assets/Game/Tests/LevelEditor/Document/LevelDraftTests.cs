@@ -36,10 +36,8 @@ namespace Game.Tests.LevelEditor
         public void Undo_AfterEraseStrokes_BringsBackEachLevelInTurn()
         {
             var original = Snapshot();
-            // The first stroke takes the whole red block, whose removal moves the later blocks up the list.
             Stroke(new Cell(0, 0), new Cell(1, 0));
             var afterFirst = Snapshot();
-            // The second cuts the yellow block, with two cells passed in one pointer move.
             Stroke(new Cell(3, 3), new Cell(4, 3), new Cell(4, 4));
             var afterSecond = Snapshot();
 
@@ -76,7 +74,6 @@ namespace Game.Tests.LevelEditor
             Assert.IsTrue(_draft.Matches(loaded));
         }
 
-        // A press, then drags that come in the same frame, the way one fast pointer move reports them.
         private void Stroke(Cell press, params Cell[] drags)
         {
             _draft.BeginStroke();

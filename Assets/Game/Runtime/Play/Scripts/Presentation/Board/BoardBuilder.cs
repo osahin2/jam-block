@@ -8,7 +8,6 @@ namespace Game.Play
     public sealed class BoardBuilder
     {
         private static readonly Side[] Sides = (Side[])Enum.GetValues(typeof(Side));
-        // The board's corners as signs on X and Z; +Z is the far edge.
         private static readonly Vector2Int[] Corners =
         {
             new Vector2Int(1, 1), new Vector2Int(-1, 1), new Vector2Int(-1, -1), new Vector2Int(1, -1)
@@ -67,8 +66,6 @@ namespace Game.Play
             Spawn(_art.FrameCorner, position, turn, scale, parent, pieces);
         }
 
-        // Frame pieces face out along their +Z, so each is turned toward its side's outward direction and its Z
-        // scale is its thickness; the inner face lies on the board's edge.
         private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces,
             DoorView[] doors)
         {

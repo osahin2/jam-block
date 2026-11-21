@@ -5,7 +5,6 @@ namespace Game.Editor.LevelEditor
 {
     public sealed class DoorSelection : ILevelSelection
     {
-        // The door itself, not its index, so removing an earlier door never makes it mean another one.
         private readonly DoorData _door;
         private int _start;
 

@@ -2,6 +2,7 @@ using Core.Levels;
 using Core.UI;
 using Game.Home;
 using Game.Logic.Coins;
+using Game.Preferences;
 using VContainer.Unity;
 
 namespace Game.Bootstrap
@@ -21,6 +22,9 @@ namespace Game.Bootstrap
             _flow = flow;
         }
 
-        public void Start() => _ui.Open<HomeScreen>().Show(_progression.CurrentLevelNumber, _wallet.Balance, _flow.ToGame);
+        public void Start() =>
+            _ui.Open<HomeScreen>().Show(_progression.CurrentLevelNumber, _wallet.Balance, _flow.ToGame, OpenSettings);
+
+        private void OpenSettings() => _ui.Open<SettingsPopup>().Show(onClose: null);
     }
 }

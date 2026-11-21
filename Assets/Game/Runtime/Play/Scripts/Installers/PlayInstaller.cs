@@ -18,7 +18,6 @@ namespace Game.Play
         [SerializeField] private TimeWarningSettings _timeWarning;
         [SerializeField] private UIScreenCatalog _screens;
 
-        // Needs the scene's BoardRoot, BoardInputView and Camera and Core's UI, registered by the scene's scope.
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(_art);

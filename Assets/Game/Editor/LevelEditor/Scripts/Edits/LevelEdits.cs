@@ -104,7 +104,6 @@ namespace Game.Editor.LevelEditor
             return true;
         }
 
-        // A block left in two pieces is the validator's to report.
         public static bool TryRemoveBlockCell(LevelData level, Cell cell)
         {
             var index = BlockAt(level, cell);

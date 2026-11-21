@@ -21,8 +21,6 @@ namespace Game.Coins
         private void Awake() =>
             _coins = new PrefabPool<RectTransform>(_coinTemplate, transform, _settings.Coins, _settings.Coins * PooledFlights);
 
-        // Shows coins already paid: the caller adds them to the wallet first, so a flight that never ends loses nothing.
-        // Every call is a flight of its own; it lives as long as the counter, and dies unannounced with it.
         public void Play(Vector3 from, CoinCounter to, int amount, Action onLanded)
         {
             var flight = new Flight(_coins, to, amount, _settings.Coins, onLanded);
@@ -85,7 +83,6 @@ namespace Game.Coins
                 onLanded?.Invoke();
             }
 
-            // Also runs after Finish, when every coin has landed; a flight killed with its counter gives back the rest.
             public void ReleaseRest()
             {
                 for (var i = _landed; i < Coins.Length; i++)

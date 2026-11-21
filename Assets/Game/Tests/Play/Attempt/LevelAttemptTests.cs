@@ -176,7 +176,6 @@ namespace Game.Tests.Play
             Assert.AreEqual(LevelOutcome.Won, attempt.Outcome);
         }
 
-        // A block between the door and the L's other part keeps the L on the board.
         [Test]
         public void Grab_OnABlockAtItsDoorWithABlockInTheWay_HoldsIt()
         {
@@ -301,7 +300,6 @@ namespace Game.Tests.Play
             Assert.AreEqual(Board.NoBlock, TwoBlocks().Release());
         }
 
-        // A red block on the middle row one step below a red door, a blue one one step above a blue door.
         private static LevelAttempt TwoBlocks()
         {
             var level = new LevelBuilder(3, 3)

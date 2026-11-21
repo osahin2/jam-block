@@ -10,36 +10,33 @@ namespace Game.Play
         [SerializeField] private Graphic _overlay;
 
         private TimeWarningSettings _settings;
-        private Sequence _flash;
 
         [Inject]
         public void Construct(TimeWarningSettings settings) => _settings = settings;
 
         public static bool Flashes(int wholeSeconds, int lastSeconds) => wholeSeconds > 0 && wholeSeconds <= lastSeconds;
 
-        // Called when the shown second changes, so a paused or stopped countdown does not flash.
         public void Show(int wholeSeconds)
         {
             if (!Flashes(wholeSeconds, _settings.LastSeconds))
                 return;
-            _flash ??= Build();
-            _flash.Restart();
+            _overlay.DOKill();
+            Flash();
         }
 
-        private Sequence Build()
+        private void Flash()
         {
             var color = _settings.FlashColor;
             var peak = color.a;
             color.a = 0f;
             _overlay.color = color;
             var half = _settings.FlashDuration * 0.5f;
-            return DOTween.Sequence()
+            DOTween.Sequence()
                 .Append(_overlay.DOFade(peak, half))
                 .Append(_overlay.DOFade(0f, half))
-                .SetAutoKill(false)
+                .SetTarget(_overlay)
                 .SetUpdate(true)
-                .SetLink(gameObject)
-                .Pause();
+                .SetLink(gameObject);
         }
     }
 }

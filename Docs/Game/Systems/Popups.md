@@ -10,7 +10,7 @@
 ## How it works
 - **Entrance.** `PopupEntrance` holds the popup's dimmer and an ordered list of parts. Each time the popup opens (`OnEnable`, as Core.UI activates a screen to open it), the dimmer fades from transparent to its alpha in the prefab and each part grows from `StartScale` of its size to its size, the next part `Stagger` seconds after the one before.
 - **Parts per popup.** The settings popup and the level failed popup have one part, their panel. The level complete popup has no panel, as in the reference: its title, its large coin and its continue button (with the reward) pop one after the other.
-- **Motion.** One DOTween sequence per popup, built on the first opening and replayed with `Restart` on every later one, so reopening allocates nothing; unscaled time; paused when the popup is disabled and killed with it.
+- **Motion.** One DOTween sequence per opening, built from `PopupMotionSettings` as they are then, so a value changed in play mode shows on the next opening; the dimmer's alpha and the parts' scales at rest are taken once in `Awake`, so a popup closed mid-entrance opens again from its real rest; unscaled time; killed when the popup is disabled.
 - **Settings.** The dim duration, the start scale, the pop duration and ease and the stagger are in `PopupMotionSettings`, registered in the Boot scope by `PopupsInstaller`, so every scene's popups share one tuning. Screens are created through the container ([UI](../../Base/Systems/UI.md)), so the component gets the settings with an `[Inject]` method.
 - **Closing.** No close animation: the reference closes the settings popup at once, and the level popups close under the fade between levels ([Play](Play.md)).
 

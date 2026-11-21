@@ -83,7 +83,6 @@ namespace Game.Tests.LevelEditor
             Assert.IsFalse(EditorUtility.IsDirty(_catalog));
         }
 
-        // The deleted file goes to the system trash, as the level editor promises; one small test asset per run.
         [Test]
         public void Delete_TakesTheEntryOut_AndMovesTheFileToTheTrash()
         {

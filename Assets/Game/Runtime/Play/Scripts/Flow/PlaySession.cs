@@ -20,7 +20,6 @@ namespace Game.Play
 
         public float RemainingSeconds => _attempt == null ? 0f : _attempt.RemainingSeconds;
 
-        // Also true while the last block slides out before the callback; the level may then only end.
         public bool IsDecided => _attempt != null && _attempt.Outcome != LevelOutcome.Playing;
 
         public PlaySession(LevelStage stage, PooledBoardPieces pieces, BoardRoot board, Camera camera, BoardInteraction interaction)
@@ -32,7 +31,6 @@ namespace Game.Play
             _interaction = interaction;
         }
 
-        // The callback may start the next level; a start while a level plays abandons it without a callback.
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
             _pieces.ReleaseAll();
@@ -61,7 +59,6 @@ namespace Game.Play
 
         public void Resume() => _attempt.Resume();
 
-        // Stops running before calling back, so this runs once per attempt and the callback can start another.
         private void End(LevelOutcome outcome)
         {
             _running = false;

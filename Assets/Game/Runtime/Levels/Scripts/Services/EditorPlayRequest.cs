@@ -7,7 +7,6 @@ namespace Game.Levels
     public sealed class EditorPlayRequest
     {
 #if UNITY_EDITOR
-        // SessionState outlives the domain reload when play mode starts; a build never has a request.
         private const string Key = "Game.EditorPlayRequest";
 #endif
 

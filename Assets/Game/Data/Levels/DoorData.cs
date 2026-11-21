@@ -7,7 +7,6 @@ namespace Game.Data.Levels
     {
         public int ColorId;
         public Side Side;
-        // A column on Top and Bottom, a row on Left and Right.
         public int Start;
         public int Length = 1;
 

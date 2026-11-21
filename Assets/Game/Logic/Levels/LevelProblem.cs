@@ -9,7 +9,6 @@ namespace Game.Logic.Levels
         public LevelProblemKind Kind { get; }
         public Severity Severity { get; }
         public LevelPart Part { get; }
-        // The block or door the problem is about, by its index in the level.
         public int Index { get; }
         public Cell? Cell { get; }
 

@@ -18,7 +18,6 @@ namespace Game.Logic.Levels
             }
             if (level.TimeLimitSeconds < 1)
                 report.Add(LevelProblem.LevelError(LevelProblemKind.InvalidTimeLimit));
-            // A level is won when its last block leaves; without blocks it can only run out of time.
             if (level.Blocks.Count == 0)
                 report.Add(LevelProblem.LevelError(LevelProblemKind.NoBlocks));
             CheckBlockCells(level, report);
@@ -67,7 +66,6 @@ namespace Game.Logic.Levels
             }
         }
 
-        // A block is moved and built as one piece, so its cells must form one group of touching cells.
         private static bool IsConnected(List<Cell> shape)
         {
             var reached = new HashSet<Cell> { shape[0] };
@@ -97,7 +95,6 @@ namespace Game.Logic.Levels
             return false;
         }
 
-        // Only whether some door of the block's color is wide enough; whether the block can reach it is a solver's job.
         private static void CheckBlocksCanLeave(LevelData level, LevelReport report)
         {
             for (var i = 0; i < level.Blocks.Count; i++)

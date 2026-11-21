@@ -8,7 +8,6 @@ namespace Game.Data.Levels
     {
         public int ColorId;
         public Cell Position;
-        // Relative to Position.
         public List<Cell> Shape = new List<Cell>();
 
         public int ExtentAlong(Side side) => Extent(side, (s, cell) => s.Along(cell));

@@ -28,7 +28,6 @@ namespace Game.Editor.LevelEditor
             _door = LevelEdits.DoorAt(level, cell);
             if (_door != LevelEdits.NoDoor)
             {
-                // The far end stays put, so dragging moves the end nearer to the press.
                 var door = level.Doors[_door];
                 var lastCell = door.End - 1;
                 _anchor = along - door.Start <= lastCell - along ? lastCell : door.Start;

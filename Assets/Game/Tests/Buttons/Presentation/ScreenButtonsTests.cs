@@ -21,7 +21,7 @@ namespace Game.Tests.Buttons
                 foreach (var button in prefab.GetComponentsInChildren<Button>(true))
                 {
                     buttons++;
-                    if (!TakesTouches(button))
+                    if (!TouchTargets.TakesTouches(button))
                         problems.AppendLine($"{path}: {button.name} has no graphic that is a raycast target");
                     if (button.GetComponent<PressFeedback>() == null)
                         problems.AppendLine($"{path}: {button.name} has no PressFeedback");
@@ -30,18 +30,6 @@ namespace Game.Tests.Buttons
 
             Assert.Greater(buttons, 0);
             Assert.IsEmpty(problems.ToString());
-        }
-
-        // The EventSystem hands a touch on any raycast target inside the button up to the button.
-        private static bool TakesTouches(Button button)
-        {
-            foreach (var graphic in button.GetComponentsInChildren<Graphic>(true))
-            {
-                if (graphic.raycastTarget)
-                    return true;
-            }
-
-            return false;
         }
     }
 }

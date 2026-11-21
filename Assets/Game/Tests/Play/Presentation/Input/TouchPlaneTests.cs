@@ -7,7 +7,6 @@ namespace Game.Tests.Play
 {
     public sealed class TouchPlaneTests
     {
-        // In cells.
         private const float Tolerance = 0.001f;
 
         private BoardArtSettings _art;

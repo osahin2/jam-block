@@ -24,8 +24,6 @@ namespace Game.Logic.Play
             _timer = new LevelTimer(level.TimeLimitSeconds);
         }
 
-        // A block at its door with its way out free leaves at once and the pose says so; any other block is held
-        // and the pose is DragPose.None.
         public bool Grab(float x, float y, out DragPose pose)
         {
             pose = DragPose.None;
@@ -56,7 +54,6 @@ namespace Game.Logic.Play
             return true;
         }
 
-        // Always allowed, so a held block can be put back after the level fails or pauses.
         public int Release()
         {
             var block = _drag.Block;

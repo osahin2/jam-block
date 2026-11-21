@@ -6,7 +6,6 @@ namespace Game.Editor.LevelEditor
 {
     internal sealed class PaneResizer : PointerManipulator
     {
-        // The drag direction that makes the pane bigger, in panel coordinates (y down).
         private readonly Vector2 _grow;
         private readonly Func<float> _size;
         private readonly Action<float> _resize;

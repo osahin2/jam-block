@@ -22,7 +22,6 @@ namespace Game.Tests.Play
             Assert.IsTrue(board.Blocks[0].HasLeft);
         }
 
-        // Also checks the Side-indexed table in Direction: a wrong entry steps the block the wrong way.
         [TestCase(Side.Top)]
         [TestCase(Side.Bottom)]
         [TestCase(Side.Left)]
@@ -94,8 +93,6 @@ namespace Game.Tests.Play
             Assert.IsTrue(new Board(wide).Step(0, Direction.Up).HasLeft);
         }
 
-        // The block slides out straight through the door, so a block between any of its parts and the door holds it:
-        // here the L's arm touches the bottom while its other column still has a block below it.
         [Test]
         public void Step_ToTouchItsDoor_WithABlockBetweenAnotherPartAndTheDoor_Stays()
         {
@@ -125,7 +122,6 @@ namespace Game.Tests.Play
             Assert.IsTrue(result.HasLeft);
         }
 
-        // Its own cells between a part and the door count as free.
         [Test]
         public void TryLeave_TallBlockAtItsDoor_LeavesThroughIt()
         {
@@ -148,8 +144,6 @@ namespace Game.Tests.Play
             Assert.IsFalse(board.Blocks[0].HasLeft);
         }
 
-        // A block that left still touches its door where it stood; a second call must not take its old cells, now
-        // another block's, off the board or count it out again.
         [Test]
         public void TryLeave_BlockThatHasLeft_ChangesNothing()
         {

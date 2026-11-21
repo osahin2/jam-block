@@ -371,6 +371,7 @@ MonoBehaviour:
   _uiRoot: {fileID: 879341654}
   _installers:
   - {fileID: 11400000, guid: 69e6f3d2b027e4fe49a05f263cd98c65, type: 2}
+  - {fileID: 11400000, guid: 16090841179db4ac0897e9dd7046f6ce, type: 2}
 --- !u!4 &2081613697
 Transform:
   m_ObjectHideFlags: 0

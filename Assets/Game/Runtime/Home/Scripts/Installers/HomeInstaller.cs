@@ -9,10 +9,12 @@ namespace Game.Home
     public sealed class HomeInstaller : ScriptableObjectInstaller
     {
         [SerializeField] private UIScreenCatalog _screens;
+        [SerializeField] private TabBarSettings _tabBar;
 
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterUIScreens(_screens);
+            builder.RegisterInstance(_tabBar);
         }
     }
 }

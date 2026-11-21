@@ -126,7 +126,6 @@ namespace Game.Tests.Levels
             public int CurrentLevelNumber => Index + 1;
             public int CurrentLevelIndex => Index;
 
-            // No loop after the last level: that is Core's and tested there.
             public void CompleteCurrentLevel()
             {
                 Completed++;

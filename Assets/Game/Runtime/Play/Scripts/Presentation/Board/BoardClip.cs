@@ -7,7 +7,6 @@ namespace Game.Play
         private static readonly int WorldToLocalId = Shader.PropertyToID("_BoardWorldToLocal");
         private static readonly int HalfSizeId = Shader.PropertyToID("_BoardHalfSize");
 
-        // Shader globals: one board at a time.
         public static void Set(BoardLayout layout, Transform root)
         {
             var half = layout.Box.extents;

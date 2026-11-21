@@ -9,7 +9,6 @@ namespace Game.Logic.Play
         public static readonly Direction Left = new Direction(-1, 0);
         public static readonly Direction Right = new Direction(1, 0);
 
-        // Indexed by the values of Side.
         private static readonly Direction[] OutOfSide = { Up, Down, Left, Right };
 
         public Cell Offset { get; }

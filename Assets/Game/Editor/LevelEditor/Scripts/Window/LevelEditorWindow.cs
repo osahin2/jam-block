@@ -22,7 +22,6 @@ namespace Game.Editor.LevelEditor
         private const string SelectedClass = "selected";
         private const string FaultClass = "problem-fault";
         private const string FocusClass = "problem-focus";
-        // Minimum and maximum, in pixels.
         private static readonly Vector2 LevelsWidthRange = new Vector2(140f, 400f);
         private static readonly Vector2 SideWidthRange = new Vector2(180f, 420f);
         private static readonly Vector2 BottomHeightRange = new Vector2(110f, 520f);
@@ -162,7 +161,6 @@ namespace Game.Editor.LevelEditor
             _board.HoverEnded += OnHoverEnded;
             root.Q("board-area").Add(_board);
 
-            // Undo, redo and the bound time field change the draft outside the tools; this brings the view along.
             var draft = new SerializedObject(Draft);
             root.Bind(draft);
             root.TrackSerializedObjectValue(draft, _ => Refresh());
@@ -222,7 +220,6 @@ namespace Game.Editor.LevelEditor
         internal bool IsEditingText()
         {
             var focused = rootVisualElement.focusController?.focusedElement as VisualElement;
-            // The focused element is the field or its inner text input; GetFirstOfType checks it and its ancestors.
             return focused != null && (focused.GetFirstOfType<IntegerField>() != null || focused.GetFirstOfType<TextField>() != null);
         }
 
@@ -230,7 +227,6 @@ namespace Game.Editor.LevelEditor
 
         private void NewLevel() => Load(_document.StartNew);
 
-        // Asks nothing: the copy keeps the unsaved changes and the original keeps what was last saved, so nothing is lost.
         private void DuplicateLevel()
         {
             _document.Duplicate();
@@ -270,7 +266,6 @@ namespace Game.Editor.LevelEditor
             Refresh();
         }
 
-        // Every way of opening another level comes here, so unsaved changes are never dropped without asking.
         private void Load(Action load)
         {
             if (!ConfirmDiscard())
@@ -291,7 +286,6 @@ namespace Game.Editor.LevelEditor
             return true;
         }
 
-        // Saves first, so the game plays the level as it is in the window; a level with errors is neither saved nor played.
         private void Play()
         {
             if (TrySave() && !LevelPlayStarter.TryPlay(_document.Asset, out var problem))
@@ -309,7 +303,6 @@ namespace Game.Editor.LevelEditor
             _levels.Picked += Open;
             _levels.DuplicateRequested += DuplicateLevel;
             _levels.DeleteRequested += DeleteLevel;
-            // The catalog also changes outside the panel: a save adds a level, its inspector reorders it.
             _levels.TrackSerializedObjectValue(new SerializedObject(_catalog), _ => _levels.Rebuild());
             _levelsPane.Add(_levels);
         }
@@ -374,7 +367,6 @@ namespace Game.Editor.LevelEditor
             _colorName.text = $"Selected: {ColorName(colorId)}";
         }
 
-        // The palette's material names end in the color ("Block_Red").
         private string ColorName(int colorId)
         {
             var material = _palette != null && _palette.Has(colorId) ? _palette.ForBlock(colorId) : null;
@@ -419,7 +411,6 @@ namespace Game.Editor.LevelEditor
         {
             Draft.BeginStroke();
             Tool.Press(Draft.Level, cell, _colorId);
-            // Refreshed even when the level did not change: a press can change the selection.
             Refresh();
         }
 
@@ -448,7 +439,6 @@ namespace Game.Editor.LevelEditor
             UpdateStatus();
         }
 
-        // Undo may restore the level as new block and door objects, which a selection no longer holds; it is dropped.
         private void OnUndoRedo()
         {
             _selectTool.ClearSelection();

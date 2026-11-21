@@ -7,7 +7,6 @@ namespace Game.Levels
     [CreateAssetMenu(menuName = "Game/Levels/Level Catalog")]
     public sealed class LevelCatalog : ScriptableObject
     {
-        // Created from code, a ScriptableObject keeps a field without an initializer null.
         [SerializeField] private LevelAsset[] _levels = Array.Empty<LevelAsset>();
 
         public IReadOnlyList<LevelAsset> Levels => _levels;

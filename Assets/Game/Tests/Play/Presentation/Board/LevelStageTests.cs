@@ -21,7 +21,6 @@ namespace Game.Tests.Play
         {
             _framing = Load<CameraFramingSettings>();
             _stage = new LevelStage(Load<BoardArtSettings>(), Load<ColorPalette>(), Load<BlockMotionSettings>(), _framing);
-            // The Game scene's camera: a 63 degree field of view, tilted steeply down toward the board.
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _camera.fieldOfView = 63f;
             _camera.transform.rotation = Quaternion.Euler(76f, 0f, 0f);
@@ -35,7 +34,6 @@ namespace Game.Tests.Play
         public void Show_EveryCatalogLevel_KeepsEveryPieceInsideTheWindow(int screenWidth, int screenHeight)
         {
             _camera.aspect = (float)screenWidth / screenHeight;
-            // Batch runs have no notch, so the screen's safe area is all of it.
             var window = new CameraFraming(_framing).ViewportWindow(new Rect(0f, 0f, 1f, 1f), _camera.aspect);
             var outside = new StringBuilder();
             foreach (var level in Load<LevelCatalog>().Levels)

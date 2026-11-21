@@ -31,8 +31,6 @@ namespace Game.Play
 
         private void ChooseHome() => End(_onHome);
 
-        // Clears both callbacks before calling the chosen one, so a second click does nothing. Stays open: both choices
-        // cover the screen before it goes, so its dimmer never drops over the board.
         private void End(Action chosen)
         {
             _onRetry = null;

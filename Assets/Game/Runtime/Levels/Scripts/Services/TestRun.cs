@@ -8,7 +8,6 @@ namespace Game.Levels
         private readonly ILevelProgression _progression;
 
         public LevelAsset Level { get; private set; }
-        // A level outside the catalog has no place of its own, so it takes the player's: their number, then their level.
         public int Number
         {
             get

@@ -21,8 +21,6 @@ namespace Game.Play
         private float _drop;
         private Sequence _passing;
 
-        // The rest pose is taken on first use, while the instance is as the prefab made it: Awake does not run in
-        // the level editor's preview.
         public void Init(Material material, Transform arrow, float drop, float burstHeight, BlockMotionSettings motion)
         {
             if (!_hasRest)
@@ -45,8 +43,6 @@ namespace Game.Play
             _motion = motion;
         }
 
-        // Seconds from the block's start: its front reaches the cut line, and it is gone.
-        // Only the model drops; the root stays, so the burst under it stays on the door line.
         public void LetThrough(float reach, float gone)
         {
             StopPassing();

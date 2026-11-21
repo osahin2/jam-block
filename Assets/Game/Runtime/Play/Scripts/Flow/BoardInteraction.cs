@@ -91,7 +91,6 @@ namespace Game.Play
             return false;
         }
 
-        // The block shader stops drawing at the frame's outer face, so the block is gone once its back crosses it.
         private void Leave(DragPose pose)
         {
             var side = _level.Doors[pose.ExitDoor].Side;

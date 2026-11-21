@@ -6,7 +6,6 @@ namespace Game.Play
 {
     public sealed class BlockPieceBuilder
     {
-        // Piece math is in model units, where a cell is 2 wide.
         private static readonly Vector2Int[] Quarters =
         {
             new Vector2Int(1, 1), new Vector2Int(-1, 1), new Vector2Int(-1, -1), new Vector2Int(1, -1)
@@ -93,7 +92,6 @@ namespace Game.Play
             transform.localScale = Vector3.one * scale;
         }
 
-        // Quarter and piece axes: x to the right, y up the board (toward row 0).
         private bool HasSide(Cell cell, Vector2Int quarter) => _cells.Contains(new Cell(cell.X + quarter.x, cell.Y));
 
         private bool HasAbove(Cell cell, Vector2Int quarter) => _cells.Contains(new Cell(cell.X, cell.Y - quarter.y));
