@@ -11,36 +11,43 @@ namespace Game.Popups
         [SerializeField] private RectTransform[] _parts;
 
         private PopupMotionSettings _settings;
+        private float _dimAlpha;
+        private Vector3[] _restScales;
         private Sequence _entrance;
 
         [Inject]
         public void Construct(PopupMotionSettings settings) => _settings = settings;
 
+        private void Awake()
+        {
+            _dimAlpha = _dimmer.color.a;
+            _restScales = new Vector3[_parts.Length];
+            for (var i = 0; i < _parts.Length; i++)
+                _restScales[i] = _parts[i].localScale;
+        }
+
         private void OnEnable()
         {
-            _entrance ??= Build();
-            _entrance.Restart();
+            _entrance?.Kill();
+            _entrance = Build();
         }
 
         private Sequence Build()
         {
             var sequence = DOTween.Sequence()
-                .SetAutoKill(false)
                 .SetUpdate(true)
-                .SetLink(gameObject, LinkBehaviour.PauseOnDisable);
+                .SetLink(gameObject, LinkBehaviour.KillOnDisable);
 
-            var dimAlpha = _dimmer.color.a;
             var hidden = _dimmer.color;
             hidden.a = 0f;
             _dimmer.color = hidden;
-            sequence.Insert(0f, _dimmer.DOFade(dimAlpha, _settings.DimDuration));
+            sequence.Insert(0f, _dimmer.DOFade(_dimAlpha, _settings.DimDuration));
 
             for (var i = 0; i < _parts.Length; i++)
             {
                 var part = _parts[i];
-                var restScale = part.localScale;
-                part.localScale = restScale * _settings.StartScale;
-                sequence.Insert(i * _settings.Stagger, part.DOScale(restScale, _settings.PopDuration).SetEase(_settings.PopEase));
+                part.localScale = _restScales[i] * _settings.StartScale;
+                sequence.Insert(i * _settings.Stagger, part.DOScale(_restScales[i], _settings.PopDuration).SetEase(_settings.PopEase));
             }
 
             return sequence;

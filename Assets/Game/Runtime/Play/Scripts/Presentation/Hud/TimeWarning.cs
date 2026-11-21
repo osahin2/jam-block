@@ -21,8 +21,8 @@ namespace Game.Play
         {
             if (!Flashes(wholeSeconds, _settings.LastSeconds))
                 return;
-            _flash ??= Build();
-            _flash.Restart();
+            _flash?.Kill();
+            _flash = Build();
         }
 
         private Sequence Build()
@@ -35,10 +35,8 @@ namespace Game.Play
             return DOTween.Sequence()
                 .Append(_overlay.DOFade(peak, half))
                 .Append(_overlay.DOFade(0f, half))
-                .SetAutoKill(false)
                 .SetUpdate(true)
-                .SetLink(gameObject)
-                .Pause();
+                .SetLink(gameObject);
         }
     }
 }

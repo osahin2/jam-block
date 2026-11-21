@@ -28,12 +28,10 @@ namespace Game.Coins
         public void Land(int coins)
         {
             Show(_shown + coins);
-            _punch ??= _icon.DOPunchScale(Vector3.one * _settings.LandPunch, _settings.LandPunchDuration, 1, 0f)
-                .SetAutoKill(false)
+            _punch?.Kill(true);
+            _punch = _icon.DOPunchScale(Vector3.one * _settings.LandPunch, _settings.LandPunchDuration, 1, 0f)
                 .SetUpdate(true)
-                .SetLink(gameObject)
-                .Pause();
-            _punch.Restart();
+                .SetLink(gameObject);
         }
     }
 }

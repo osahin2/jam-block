@@ -19,6 +19,8 @@ A concern is what a designer tunes as a unit. No single `GameSettings` asset wit
 - **UI screens** are the exception: Core.UI creates them through the container once, so they may take game services through an `[Inject]` method.
 - **Core modules** that have tuning take a settings asset in their installer (`RegisterCoreAudio(settings)`).
 
+- **Read when used.** Code reads a setting each time it acts on it, so a value changed in the inspector during play mode shows on the next action. Tweens are built when they play from the settings as they are then; no tween is built once and replayed, which would keep the values of its first play.
+
 - **Level content** is not a setting: levels are `Game.Data` written by the level editor ([Assemblies](Assemblies.md)).
 
 ## Checks
