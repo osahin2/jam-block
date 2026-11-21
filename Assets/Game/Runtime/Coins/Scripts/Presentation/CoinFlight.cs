@@ -30,6 +30,8 @@ namespace Game.Coins
             var burst = _settings.BurstDuration;
             var duration = _settings.FlightDuration;
             var landing = to.Landing;
+            // A screen may show its counter scaled, so each coin ends at the icon's size rather than its own.
+            var landingScale = to.LandingWidth / (_coinTemplate.rect.width * transform.lossyScale.x);
             var sequence = DOTween.Sequence().SetUpdate(true).SetLink(to.gameObject);
             for (var i = 0; i < flight.Coins.Length; i++)
             {
@@ -43,6 +45,7 @@ namespace Game.Coins
                 var leave = burst + i * _settings.FlightStagger;
                 sequence.Insert(leave, coin.DOMoveX(landing.x, duration).SetEase(_settings.AcrossEase));
                 sequence.Insert(leave, coin.DOMoveY(landing.y, duration).SetEase(_settings.UpEase));
+                sequence.Insert(leave, coin.DOScale(landingScale, duration).SetEase(Ease.Linear));
                 sequence.InsertCallback(leave + duration, flight.LandNext);
             }
 

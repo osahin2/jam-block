@@ -16,6 +16,7 @@ namespace Game.Coins
         private int _shown;
 
         public Vector3 Landing => _icon.position;
+        public float LandingWidth => _icon.rect.width * _icon.lossyScale.x;
 
         [Inject]
         public void Construct(CoinFlightSettings settings) => _settings = settings;
