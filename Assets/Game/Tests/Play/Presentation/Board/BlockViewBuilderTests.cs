@@ -1,4 +1,5 @@
 using Game.Data.Levels;
+using Game.Logic.Play;
 using Game.Play;
 using Game.Tests.Levels;
 using NUnit.Framework;
@@ -48,7 +49,7 @@ namespace Game.Tests.Play
             var board = Boards.Of(level);
             board.HitCell(new Cell(2, 0));
 
-            _builder.Rebuild(view, board.Blocks[0], _pieces);
+            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
 
             Assert.AreEqual(2, view.CellCount);
             Assert.AreEqual(2 * QuartersPerCell, view.GetComponentsInChildren<BoardPiece>().Length);
@@ -64,7 +65,7 @@ namespace Game.Tests.Play
             var view = Build(level.Blocks[0]);
             var board = Boards.Of(level);
             board.HitCell(new Cell(1, 0));
-            _builder.Rebuild(view, board.Blocks[0], _pieces);
+            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
 
             _pieces.ReleaseAll();
 
@@ -94,7 +95,7 @@ namespace Game.Tests.Play
             board.HitCell(new Cell(1, 0));
             var part = board.Blocks[1];
 
-            var view = _builder.Build(part, Vector3.zero, _board.transform, _pieces);
+            var view = _builder.Build(part, new ArrowData(), Vector3.zero, _board.transform, _pieces);
 
             Assert.AreEqual(1, view.CellCount);
             var pieces = view.GetComponentsInChildren<BoardPiece>();
@@ -107,7 +108,7 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void Build_ForASplitPart_AfterABlockWithIceAndAnArrow_ShowsNeither()
+        public void Build_ForASplitPart_WithNoArrow_HidesTheIceAndArrowThePooledViewShowed()
         {
             var level = Line();
             level.Blocks[0].Ice = 2;
@@ -117,9 +118,43 @@ namespace Game.Tests.Play
             var board = Boards.Of(Line());
             board.HitCell(new Cell(1, 0));
 
-            var view = _builder.Build(board.Blocks[1], Vector3.zero, _board.transform, _pieces);
+            var view = _builder.Build(board.Blocks[1], new ArrowData(), Vector3.zero, _board.transform, _pieces);
 
             Assert.AreEqual(0, view.Ice.Shown);
+            AssertNoArrowShown(view);
+        }
+
+        [Test]
+        public void Build_ForTheSplitPartHoldingTheArrow_ShowsItWhereItWasDrawn()
+        {
+            var level = new LevelBuilder(5, 3).Rect(Red, 0, 0, 4, 1).Arrow(ArrowAxis.Horizontal, 2, 0, 2).Build();
+            var mechanics = LevelMechanics.For(level);
+            var board = new Board(level, mechanics.Rules, mechanics.Guards);
+            board.HitCell(new Cell(1, 0));
+
+            var view = _builder.Build(board.Blocks[1], mechanics.Arrow.ArrowOf(board, 1), Vector3.zero,
+                _board.transform, _pieces);
+
+            Assert.AreEqual(1, view.Arrow.GetComponentsInChildren<Renderer>().Length);
+            Assert.AreEqual(2.5f * _art.CellSize, view.Arrow.transform.localPosition.x, Tolerance);
+        }
+
+        [Test]
+        public void Rebuild_WithTheArrowGoneFromTheBlock_HidesIt()
+        {
+            var level = Line();
+            level.Blocks[0].Arrow = new ArrowData { Axis = ArrowAxis.Horizontal, Start = new Cell(1, 0), Length = 2 };
+            var view = Build(level.Blocks[0]);
+            var board = Boards.Of(level);
+            board.HitCell(new Cell(2, 0));
+
+            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
+
+            AssertNoArrowShown(view);
+        }
+
+        private static void AssertNoArrowShown(BlockView view)
+        {
             foreach (var model in view.Arrow.GetComponentsInChildren<Renderer>(true))
                 Assert.IsFalse(model.gameObject.activeSelf, model.name);
         }

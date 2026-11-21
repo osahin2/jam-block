@@ -22,7 +22,7 @@ namespace Game.Logic.Play
         public bool IsCleared => RemainingBlocks == 0;
         public IReadOnlyList<BoardBlock> Blocks => _blocks;
 
-        public Board(LevelData level, IReadOnlyList<IMoveRule> rules, IReadOnlyList<IBlockGuard> guards)
+        internal Board(LevelData level, IReadOnlyList<IMoveRule> rules, IReadOnlyList<IBlockGuard> guards)
         {
             Width = level.Width;
             Height = level.Height;
@@ -35,7 +35,7 @@ namespace Game.Logic.Play
             for (var i = 0; i < level.Blocks.Count; i++)
             {
                 var data = level.Blocks[i];
-                _blocks.Add(new BoardBlock(data.ColorId, data.Position, data.Shape));
+                _blocks.Add(new BoardBlock(i, data.ColorId, data.Position, data.Shape));
                 SetOccupant(_blocks[i], i);
             }
             RemainingBlocks = _blocks.Count;
@@ -139,7 +139,7 @@ namespace Game.Logic.Play
             _parts.Find(block.Shape);
             for (var part = 1; part < _parts.Count; part++)
             {
-                var appended = new BoardBlock(block.ColorId, block.Position, _parts[part]);
+                var appended = new BoardBlock(block.LevelBlock, block.ColorId, block.Position, _parts[part]);
                 _blocks.Add(appended);
                 SetOccupant(appended, _blocks.Count - 1);
             }

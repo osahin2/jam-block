@@ -59,6 +59,40 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void ARocketSplit_GivesTheArrowToThePartHoldingItsCells()
+        {
+            var level = new LevelBuilder(5, 3).Rect(Red, 0, 1, 4, 1).Arrow(ArrowAxis.Horizontal, 2, 0, 2).Build();
+            var mechanics = LevelMechanics.For(level);
+            var board = new Board(level, mechanics.Rules, mechanics.Guards);
+
+            board.HitCell(new Cell(1, 1));
+
+            var holder = board.BlockAt(new Cell(2, 1));
+            var other = board.BlockAt(new Cell(0, 1));
+            Assert.AreEqual(ArrowAxis.Horizontal, mechanics.Arrow.ArrowOf(board, holder).Axis);
+            Assert.IsFalse(mechanics.Arrow.ArrowOf(board, other).IsSet);
+            Assert.IsFalse(board.CanStep(holder, Direction.Up));
+            Assert.IsTrue(board.CanStep(other, Direction.Up));
+        }
+
+        [Test]
+        public void ARocketHitOnAnArrowCell_TakesTheArrowOff()
+        {
+            var level = new LevelBuilder(5, 3).Rect(Red, 0, 1, 4, 1).Arrow(ArrowAxis.Horizontal, 1, 0, 2).Build();
+            var mechanics = LevelMechanics.For(level);
+            var board = new Board(level, mechanics.Rules, mechanics.Guards);
+
+            board.HitCell(new Cell(2, 1));
+
+            var first = board.BlockAt(new Cell(0, 1));
+            var last = board.BlockAt(new Cell(3, 1));
+            Assert.IsFalse(mechanics.Arrow.ArrowOf(board, first).IsSet);
+            Assert.IsFalse(mechanics.Arrow.ArrowOf(board, last).IsSet);
+            Assert.IsTrue(board.CanStep(first, Direction.Up));
+            Assert.IsTrue(board.CanStep(last, Direction.Up));
+        }
+
+        [Test]
         public void AnIcedArrowBlock_IsLockedUntilItsIceMelts()
         {
             var board = Boards.Of(new LevelBuilder(3, 3)

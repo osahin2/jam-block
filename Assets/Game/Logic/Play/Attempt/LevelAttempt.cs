@@ -20,11 +20,13 @@ namespace Game.Logic.Play
         public bool CanFreeze => CanUseBoosters && !IsFrozen;
         public int HeldBlock => _drag.Block;
         public IReadOnlyBoard Board => _board;
+        public LevelMechanics Mechanics { get; }
         private bool TakesTouches => Outcome == LevelOutcome.Playing && !IsPaused;
 
-        public LevelAttempt(LevelData level, LevelMechanics mechanics)
+        public LevelAttempt(LevelData level)
         {
-            _board = new Board(level, mechanics.Rules, mechanics.Guards);
+            Mechanics = LevelMechanics.For(level);
+            _board = new Board(level, Mechanics.Rules, Mechanics.Guards);
             _drag = new BlockDrag(_board);
             _timer = new LevelTimer(level.TimeLimitSeconds);
         }

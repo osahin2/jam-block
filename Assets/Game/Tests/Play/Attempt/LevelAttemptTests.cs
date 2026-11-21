@@ -149,7 +149,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnABlockAtItsDoor_LeavesAtOnceWithoutHoldingIt()
         {
-            var attempt = Attempts.Of(new LevelBuilder(3, 3)
+            var attempt = new LevelAttempt(new LevelBuilder(3, 3)
                 .Rect(Red, 0, 0, 1, 1)
                 .Rect(Blue, 2, 1, 1, 1)
                 .Door(Red, Side.Top, 0)
@@ -169,7 +169,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnTheLastBlockAtItsDoor_Wins()
         {
-            var attempt = Attempts.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Build());
+            var attempt = new LevelAttempt(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Build());
 
             attempt.Grab(0.5f, 0.5f, out _);
 
@@ -179,7 +179,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnABlockAtItsDoorWithABlockInTheWay_HoldsIt()
         {
-            var attempt = Attempts.Of(new LevelBuilder(2, 3)
+            var attempt = new LevelAttempt(new LevelBuilder(2, 3)
                 .Block(Red, 0, 1, new Cell(0, 0), new Cell(1, 0), new Cell(1, 1))
                 .Rect(Blue, 0, 2, 1, 1)
                 .Door(Red, Side.Bottom, 0, 2)
@@ -299,7 +299,7 @@ namespace Game.Tests.Play
         {
             var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 1, 1).Ice(1).Rect(Blue, 2, 1, 1, 1).Door(Blue, Side.Bottom, 2).Build();
             level.TimeLimitSeconds = TimeLimit;
-            var attempt = Attempts.Of(level);
+            var attempt = new LevelAttempt(level);
 
             var grabbed = attempt.Grab(0.5f, 1.5f, out var pose);
             attempt.Tick(5f);
@@ -339,7 +339,7 @@ namespace Game.Tests.Play
                 .Door(Blue, Side.Bottom, 2)
                 .Build();
             level.TimeLimitSeconds = TimeLimit;
-            return Attempts.Of(level);
+            return new LevelAttempt(level);
         }
 
         private static void LeaveFirstBlock(LevelAttempt attempt)

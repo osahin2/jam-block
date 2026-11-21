@@ -6,12 +6,15 @@ namespace Game.Logic.Play
     public sealed class LevelMechanics
     {
         public IceMechanic Ice { get; }
-        public IReadOnlyList<IMoveRule> Rules { get; }
-        public IReadOnlyList<IBlockGuard> Guards { get; }
+        public ArrowMechanic Arrow { get; }
+        internal IReadOnlyList<IMoveRule> Rules { get; }
+        internal IReadOnlyList<IBlockGuard> Guards { get; }
 
-        private LevelMechanics(IceMechanic ice, IReadOnlyList<IMoveRule> rules, IReadOnlyList<IBlockGuard> guards)
+        private LevelMechanics(IceMechanic ice, ArrowMechanic arrow, IReadOnlyList<IMoveRule> rules,
+            IReadOnlyList<IBlockGuard> guards)
         {
             Ice = ice;
+            Arrow = arrow;
             Rules = rules;
             Guards = guards;
         }
@@ -20,7 +23,7 @@ namespace Game.Logic.Play
         {
             var ice = new IceMechanic(level);
             var arrow = new ArrowMechanic(level);
-            return new LevelMechanics(ice, new IMoveRule[] { ice, arrow }, new IBlockGuard[] { ice });
+            return new LevelMechanics(ice, arrow, new IMoveRule[] { ice, arrow }, new IBlockGuard[] { ice });
         }
     }
 }

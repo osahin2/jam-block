@@ -7,14 +7,16 @@ namespace Game.Logic.Play
     {
         private readonly List<Cell> _shape;
 
+        public int LevelBlock { get; }
         public int ColorId { get; }
         public Cell Position { get; internal set; }
         public bool IsGone { get; internal set; }
         public IReadOnlyList<Cell> Shape => _shape;
         internal int CellCount => _shape.Count;
 
-        internal BoardBlock(int colorId, Cell position, IReadOnlyList<Cell> shape)
+        internal BoardBlock(int levelBlock, int colorId, Cell position, IReadOnlyList<Cell> shape)
         {
+            LevelBlock = levelBlock;
             ColorId = colorId;
             Position = position;
             _shape = new List<Cell>(shape.Count);

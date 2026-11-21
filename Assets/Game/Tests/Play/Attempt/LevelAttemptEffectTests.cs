@@ -206,7 +206,7 @@ namespace Game.Tests.Play
         private static LevelAttempt AttemptAt(LevelData level)
         {
             level.TimeLimitSeconds = TimeLimit;
-            return Attempts.Of(level);
+            return new LevelAttempt(level);
         }
     }
 }

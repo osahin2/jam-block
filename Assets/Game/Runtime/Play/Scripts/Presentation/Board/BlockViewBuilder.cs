@@ -7,8 +7,6 @@ namespace Game.Play
 {
     public sealed class BlockViewBuilder
     {
-        private static readonly ArrowData NoArrow = new ArrowData();
-
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
         private readonly BlockMotionSettings _motion;
@@ -28,14 +26,16 @@ namespace Game.Play
         public BlockView Build(BlockData block, Vector3 pose, Transform parent, IBoardPieceSource pieces) =>
             Build(block.ColorId, block.Shape, block.Ice, block.Arrow, pose, parent, pieces);
 
-        public BlockView Build(BoardBlock block, Vector3 pose, Transform parent, IBoardPieceSource pieces) =>
-            Build(block.ColorId, block.Shape, 0, NoArrow, pose, parent, pieces);
+        public BlockView Build(BoardBlock block, ArrowData arrow, Vector3 pose, Transform parent,
+            IBoardPieceSource pieces) =>
+            Build(block.ColorId, block.Shape, 0, arrow, pose, parent, pieces);
 
-        public void Rebuild(BlockView view, BoardBlock block, PooledBoardPieces pieces)
+        public void Rebuild(BlockView view, BoardBlock block, ArrowData arrow, PooledBoardPieces pieces)
         {
             view.ReleasePieces(pieces);
             var material = BuildPieces(view, block.ColorId, block.Shape, pieces);
             view.Ice.Show(0, block.Shape, material, _art);
+            view.Arrow.Show(arrow, _art);
         }
 
         private BlockView Build(int colorId, IReadOnlyList<Cell> shape, int ice, ArrowData arrow, Vector3 pose,

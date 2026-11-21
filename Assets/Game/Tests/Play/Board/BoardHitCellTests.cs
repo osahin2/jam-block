@@ -41,6 +41,21 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void HitCell_PartsOfPartsKeepTheLevelBlockTheyCameFrom()
+        {
+            var board = Boards.Of(new LevelBuilder(8, 3).Rect(Blue, 0, 0, 1, 1).Rect(Red, 0, 1, 7, 1).Build());
+
+            board.HitCell(new Cell(1, 1));
+            board.HitCell(new Cell(3, 1));
+
+            Assert.AreEqual(4, board.Blocks.Count);
+            Assert.AreEqual(0, board.Blocks[0].LevelBlock);
+            Assert.AreEqual(1, board.Blocks[board.BlockAt(new Cell(0, 1))].LevelBlock);
+            Assert.AreEqual(1, board.Blocks[board.BlockAt(new Cell(2, 1))].LevelBlock);
+            Assert.AreEqual(1, board.Blocks[board.BlockAt(new Cell(5, 1))].LevelBlock);
+        }
+
+        [Test]
         public void HitCell_OnTheMiddleOfALine_SplitsItIntoTwoBlocks()
         {
             var board = Boards.Of(new LevelBuilder(4, 3).Rect(Red, 0, 1, 3, 1).Build());

@@ -36,13 +36,12 @@ namespace Game.Play
         {
             _booster?.Cancel();
             _pieces.ReleaseAll();
-            var mechanics = LevelMechanics.For(level);
-            _attempt = new LevelAttempt(level, mechanics);
+            _attempt = new LevelAttempt(level);
             _running = true;
             _onWon = onWon;
             _onFailed = onFailed;
             var staged = _stage.Show(level, _board.transform, _pieces, _camera);
-            _interaction.Begin(level, _attempt, mechanics.Ice, staged);
+            _interaction.Begin(level, _attempt, staged);
         }
 
         public void Tick()
