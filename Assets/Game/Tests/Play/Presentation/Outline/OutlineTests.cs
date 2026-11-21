@@ -50,6 +50,18 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void Clear_HidesItAndForgetsTheRenderers()
+        {
+            _outline.Show();
+
+            _outline.Clear();
+            _outline.Show();
+
+            foreach (var piece in _pieces)
+                Assert.AreEqual(new[] { _own }, piece.sharedMaterials);
+        }
+
+        [Test]
         public void Show_AddsTheMaskAndFillToEveryRenderer_HideTakesThemOff()
         {
             _outline.Show();

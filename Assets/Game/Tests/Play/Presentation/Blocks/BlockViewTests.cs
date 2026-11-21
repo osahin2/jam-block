@@ -22,7 +22,7 @@ namespace Game.Tests.Play
             view.FindProperty("_outline").objectReferenceValue = _outline;
             view.ApplyModifiedPropertiesWithoutUndo();
             _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
-            _view.Init(_motion);
+            _view.Init(_motion, 1);
         }
 
         [TearDown]

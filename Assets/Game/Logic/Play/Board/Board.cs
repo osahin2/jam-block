@@ -13,6 +13,7 @@ namespace Game.Logic.Play
         private readonly DoorData[] _doors;
         private readonly IReadOnlyList<IMoveRule> _rules;
         private readonly IReadOnlyList<IBlockGuard> _guards;
+        private readonly CellGroups _parts;
 
         public int Width { get; }
         public int Height { get; }
@@ -33,10 +34,12 @@ namespace Game.Logic.Play
             _blocks = new List<BoardBlock>(CellsOf(level));
             for (var i = 0; i < level.Blocks.Count; i++)
             {
-                _blocks.Add(new BoardBlock(level.Blocks[i]));
+                var data = level.Blocks[i];
+                _blocks.Add(new BoardBlock(data.ColorId, data.Position, data.Shape));
                 SetOccupant(_blocks[i], i);
             }
             RemainingBlocks = _blocks.Count;
+            _parts = new CellGroups(LargestBlockOf(level));
         }
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
@@ -59,6 +62,22 @@ namespace Game.Logic.Play
         {
             if (!_blocks[block].IsGone && !TryAbsorbHit(block))
                 Remove(block);
+        }
+
+        public void HitCell(Cell cell)
+        {
+            var index = BlockAt(cell);
+            if (index == NoBlock || TryAbsorbHit(index))
+                return;
+            var block = _blocks[index];
+            if (block.CellCount == 1)
+            {
+                Remove(index);
+                return;
+            }
+            _occupant[IndexOf(cell)] = NoBlock;
+            block.RemoveCell(cell);
+            Split(index);
         }
 
         public bool IsGuarded(int block)
@@ -108,6 +127,20 @@ namespace Game.Logic.Play
             block.IsGone = true;
             RemainingBlocks--;
             GoneCount++;
+        }
+
+        private void Split(int index)
+        {
+            var block = _blocks[index];
+            _parts.Find(block.Shape);
+            for (var part = 1; part < _parts.Count; part++)
+            {
+                var appended = new BoardBlock(block.ColorId, block.Position, _parts[part]);
+                _blocks.Add(appended);
+                SetOccupant(appended, _blocks.Count - 1);
+            }
+            RemainingBlocks += _parts.Count - 1;
+            block.Reshape(_parts[0]);
         }
 
         private bool TryAbsorbHit(int block)
@@ -205,6 +238,14 @@ namespace Game.Logic.Play
             foreach (var block in level.Blocks)
                 cells += block.Shape.Count;
             return cells;
+        }
+
+        private static int LargestBlockOf(LevelData level)
+        {
+            var largest = 0;
+            foreach (var block in level.Blocks)
+                largest = Math.Max(largest, block.Shape.Count);
+            return largest;
         }
 
         private int IndexOf(Cell cell) => cell.IndexIn(Width);

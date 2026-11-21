@@ -11,17 +11,21 @@ namespace Game.Play
 
         [SerializeField] private Outline _outline;
 
-        private readonly List<Renderer> _pieces = new List<Renderer>();
+        private readonly List<BoardPiece> _pieces = new List<BoardPiece>();
+        private readonly List<Renderer> _renderers = new List<Renderer>();
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
+        public int CellCount { get; private set; }
 
-        public void Init(BlockMotionSettings settings)
+        public void Init(BlockMotionSettings settings, int cellCount)
         {
             _settings = settings;
+            CellCount = cellCount;
             _pieces.Clear();
+            _renderers.Clear();
         }
 
         private void Awake() => enabled = false;
@@ -54,10 +58,23 @@ namespace Game.Play
             enabled = true;
         }
 
-        public void AddPiece(BoardPiece piece) => _pieces.Add(piece.Renderer);
+        public void AddPiece(BoardPiece piece)
+        {
+            _pieces.Add(piece);
+            _renderers.Add(piece.Renderer);
+        }
+
+        public void ReleasePieces(PooledBoardPieces pieces)
+        {
+            _outline.Clear();
+            for (var i = 0; i < _pieces.Count; i++)
+                pieces.Release(_pieces[i]);
+            _pieces.Clear();
+            _renderers.Clear();
+        }
 
         public void UseOutline(BlockOutlineMaterials materials) =>
-            _outline.SetRenderers(_pieces, materials.Mask, materials.Fill);
+            _outline.SetRenderers(_renderers, materials.Mask, materials.Fill);
 
         public void Hold() => _outline.Show();
 

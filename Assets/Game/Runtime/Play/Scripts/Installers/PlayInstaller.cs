@@ -30,6 +30,8 @@ namespace Game.Play
             builder.RegisterInstance(_timeWarning);
             builder.RegisterUIScreens(_screens);
             builder.Register<PooledBoardPieces>(Lifetime.Scoped);
+            builder.Register<BlockPieceBuilder>(Lifetime.Scoped);
+            builder.Register<BlockViewBuilder>(Lifetime.Scoped);
             builder.Register<LevelStage>(Lifetime.Scoped);
             builder.Register<TouchPlane>(Lifetime.Scoped);
             builder.Register<BoardInteraction>(Lifetime.Scoped);
