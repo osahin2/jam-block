@@ -11,6 +11,8 @@ namespace Game.Logic.Levels
         DisconnectedBlock,
         DoorOutsideSide,
         DoorsOverlap,
-        BlockCannotLeave
+        BlockCannotLeave,
+        IceNeverMelts,
+        ArrowOffBlock
     }
 }

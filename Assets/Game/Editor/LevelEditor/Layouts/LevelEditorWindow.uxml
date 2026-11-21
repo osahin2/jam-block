@@ -28,6 +28,7 @@
                     <ui:VisualElement name="selection" class="selection">
                         <ui:Label text="Selection" class="side-header" />
                         <ui:Label name="selection-label" />
+                        <ui:VisualElement name="selection-fields" />
                         <ui:Label text="Drag it on the board to move it. Click a color to recolor it." class="hint" />
                         <ui:Button name="delete-selection" text="Delete" />
                     </ui:VisualElement>

@@ -175,6 +175,26 @@
     border-color: rgba(0, 0, 0, 0.8);
 }
 
+.board-ice {
+    background-color: rgba(190, 230, 255, 0.55);
+}
+
+.board-ice-badge {
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(20, 40, 80);
+    border-width: 1px;
+    border-color: rgb(190, 230, 255);
+}
+
+.board-ice-badge > Label {
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: rgb(255, 255, 255);
+    padding: 0;
+    margin: 0;
+}
+
 .frame {
     background-color: rgb(140, 145, 160);
 }

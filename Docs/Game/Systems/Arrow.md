@@ -1,0 +1,34 @@
+# Arrow block
+
+> Summary: A block with an arrow moves only along the arrow's axis, both ways, and leaves only through a door at either end of it. The designer draws the arrow on the block in the level editor; the level stores its axis, where it lies and how long it is; the board's move rule reads the axis, the views draw the supplied arrow where it was drawn.
+
+## Code
+- Folder: `Assets/Game/Logic/Play/Mechanics/Arrow/` (rule), `Assets/Game/Editor/LevelEditor/Scripts/Tools/ArrowTool.cs` (drawing), `Assets/Game/Runtime/Play/Scripts/Presentation/Blocks/BlockArrow.cs` (view)
+- Assembly: `Game.Data` (`ArrowData`, `ArrowAxis`, `BlockData.Arrow`), `Game.Logic`, `Game`, `Game.Editor`
+- Entry points: `ArrowMechanic` (built by `LevelMechanics.For`), `ArrowTool` (the editor's Arrow tool), `BlockArrow` (a child of `Block.prefab`, reached as `BlockView.Arrow`)
+
+## How it works
+- **Format.** `BlockData.Arrow` is an `ArrowData`: `Axis` (`None`, `Horizontal`, `Vertical`; stored as ints, never reorder), `Start`, the arrow's first cell relative to the block's position, and `Length` in cells. `IsSet` is false for `None`. `CellAt(i)` gives its cells, `Middle()` the point halfway along it (a `BoardPoint`, in cells), `LiesOn(shape)` whether every cell of it is one of the shape's: the one place for the rule the validator and the editor's edits both apply.
+- **Rule.** `ArrowMechanic` is a move rule ([Board](Board.md), Mechanics). It keeps each block's axis and nothing else, so where the arrow lies or how long it is never changes how the block moves. It allows a direction only along the axis (`AxisAllows(axis, direction)`, true for `None`). The board asks it for every step and, with the direction out through the door, for every exit, so a horizontal block leaves only through a door on the left or right side. It never locks a block, since it always allows two directions; with ice, the ice locks the block first and the arrow applies once it melts. A block appended at run time (a rocket's split) has no axis in the rule (see Known gaps).
+- **Drag.** Nothing in the drag knows the arrow: the sub-cell offset follows the finger only toward a neighbour `CanStep` allows, so a dragged arrow block slides along its axis and stays put across it.
+- **Validator.** `ArrowOnBlockCheck` (`ArrowOffBlock`, error): an arrow that is set must lie on the block's own cells and have at least one. `BlocksCanLeaveCheck` counts a door only when the block's axis allows the direction out through it, so an arrow block whose doors of its color are all off its axis gets the `BlockCannotLeave` warning ([Levels](Levels.md)). The validator knows nothing of the art, so it allows any length.
+- **Editor.** The Arrow tool (shortcut A, [Level editor](LevelEditor.md)): a press on a block takes its arrow off, so a click removes it; dragging from there along the block's row or column draws a new one from the pressed cell toward the finger. The axis is the one the finger moved along most; the arrow stops at the block's last cell that way and at `ArrowTool.MaxLength` (3) cells, the longest supplied arrow, which a test holds to the prefab's models. Dragging back to the pressed cell takes the arrow off again. One stroke is one undo step. Erasing a block cell under the arrow, or cutting it off by making the board smaller, removes the arrow (`LevelEdits`). The board draws the arrow over its cells as a double-headed arrow, above the ice tint and under the ice badge, so all three stay readable on one block. The selection's label names the arrow.
+- **View.** `BlockViewBuilder` calls `BlockArrow.Show(arrow, art)` for every block view it builds: the level's arrow for a staged block, none for a part appended at run time. `BlockArrow` holds the three supplied arrows of `Arrows.fbx` (one, two and three cells long, double-headed, long along Y and facing -Z as imported) and shows the one as long as the drawn arrow, lying on the block's top at the arrow's middle and turned to its axis; with no arrow it shows none, so a pooled block keeps no arrow from an earlier level. The arrows use `BlockArrow.mat`, the `Game/Block` shader in a light color, so a leaving block's arrow is cut at the frame with the block and shaded like it. An iced arrow block keeps its arrow visible under the ice count, which stands above the arrow (`IceSettings.CountLift`).
+
+## Rules & invariants
+- The arrow is a move rule only: it neither guards a block nor changes a booster's hit.
+- Only the axis is a rule; start and length are presentation, read by the views and the editor alone.
+- `ArrowMechanic.Allows` does not allocate (asked every drag frame).
+
+## Known gaps
+- A rocket's split: the hit block keeps its index and so its axis; the parts appended have none and move freely. With the arrow's cells in the level, the part holding them could keep it; to settle with session C's split.
+
+## Tests
+- `Tests/Play/Mechanics/Arrow/ArrowMechanicTests`: horizontal and vertical arrows step only along their axis and are not locked, a block without an arrow steps any way, a horizontal arrow leaves through a side door and not a top one, an iced arrow block is locked until its ice melts and then moves along its axis only.
+- `Tests/Levels/LevelValidatorTests`: an arrow on the block's own cells is fine, one running past the block or without cells is an error; an arrow block whose doors are all off its axis is warned, one with a door on its axis is not.
+- `Tests/LevelEditor/Tools/ArrowToolTests`: dragging along a row or a column draws a horizontal or vertical arrow from the pressed cell, backward too; the arrow ends on the block's last cell and at the longest arrow; a click on a block with an arrow removes it, as does dragging back to the pressed cell; an empty cell draws nothing; the Block prefab has an arrow model for every length the tool draws.
+- `Tests/LevelEditor/Edits/LevelEditsTests`: erasing a cell under an arrow removes it, one beside it keeps it, cutting it off by resizing removes it.
+- The view is checked by eye (scene preview or play mode).
+
+## Related
+- [Board](Board.md), [Ice](Ice.md), [Levels](Levels.md), [Level editor](LevelEditor.md), [Play](Play.md), [Decisions](../Decisions.md)

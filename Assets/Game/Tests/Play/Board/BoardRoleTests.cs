@@ -37,6 +37,15 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void IsLocked_WhileAMoveRuleStillAllowsADirection_IsFalse()
+        {
+            var board = BoardWith(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build(), Direction.Left);
+
+            Assert.IsFalse(board.IsLocked(0));
+            Assert.IsFalse(Boards.Of(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build()).IsLocked(0));
+        }
+
+        [Test]
         public void Hit_WithoutGuards_TakesTheBlock()
         {
             var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build());

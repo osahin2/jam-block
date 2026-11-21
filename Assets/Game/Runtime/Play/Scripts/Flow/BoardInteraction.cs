@@ -19,6 +19,7 @@ namespace Game.Play
         private readonly List<BlockView> _blocks = new List<BlockView>();
         private LevelData _level;
         private LevelAttempt _attempt;
+        private IceMechanic _ice;
         private BoardLayout _layout;
         private DoorView[] _doors;
         private Action<Vector2> _onPicked;
@@ -51,10 +52,11 @@ namespace Game.Play
             _board = board;
         }
 
-        public void Begin(LevelData level, LevelAttempt attempt, StagedLevel staged)
+        public void Begin(LevelData level, LevelAttempt attempt, IceMechanic ice, StagedLevel staged)
         {
             _level = level;
             _attempt = attempt;
+            _ice = ice;
             _layout = staged.Layout;
             _blocks.Clear();
             _blocks.AddRange(staged.Blocks);
@@ -146,6 +148,7 @@ namespace Game.Play
             {
                 CatchUpShape(i, blocks[i]);
                 _blocks[i].CatchUp(blocks[i]);
+                _blocks[i].Ice.CatchUp(_ice.IceLeft(_attempt.Board, i));
             }
         }
 
@@ -154,7 +157,7 @@ namespace Game.Play
             if (index < _blocks.Count && _blocks[index].CellCount == block.Shape.Count)
                 return;
             if (index == _blocks.Count)
-                _blocks.Add(_blockViews.Build(block.ColorId, block.Shape, _layout.CellCenter(block.Position), _board.transform, _pieces));
+                _blocks.Add(_blockViews.Build(block, _layout.CellCenter(block.Position), _board.transform, _pieces));
             else
                 _blockViews.Rebuild(_blocks[index], block, _pieces);
             _blocks[index].UseOutline(_outline);
@@ -168,6 +171,8 @@ namespace Game.Play
                 return;
             if (pose.HasLeft)
                 Leave(pose);
+            else if (pose.IsLocked)
+                _blocks[pose.Block].Refuse();
             else
                 _blocks[_attempt.HeldBlock].Hold();
         }

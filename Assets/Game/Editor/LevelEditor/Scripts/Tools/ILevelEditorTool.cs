@@ -11,5 +11,6 @@ namespace Game.Editor.LevelEditor
         bool Press(LevelData level, Cell cell, int colorId);
         bool Drag(LevelData level, Cell cell);
         void Release();
+        bool RightClick(LevelData level, Cell cell);
     }
 }

@@ -90,6 +90,10 @@ namespace Game.Logic.Play
             return false;
         }
 
+        public bool IsLocked(int block) =>
+            !Allows(block, Direction.Up) && !Allows(block, Direction.Down) &&
+            !Allows(block, Direction.Left) && !Allows(block, Direction.Right);
+
         public bool CanStep(int block, Direction direction)
         {
             var moving = _blocks[block];

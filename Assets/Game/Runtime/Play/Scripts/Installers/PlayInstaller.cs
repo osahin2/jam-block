@@ -17,6 +17,7 @@ namespace Game.Play
         [SerializeField] private ColorPalette _palette;
         [SerializeField] private BlockMotionSettings _motion;
         [SerializeField] private BlockOutlineSettings _outline;
+        [SerializeField] private IceSettings _ice;
         [SerializeField] private CameraFramingSettings _framing;
         [SerializeField] private WinRewardSettings _reward;
         [SerializeField] private TimeWarningSettings _timeWarning;
@@ -34,6 +35,7 @@ namespace Game.Play
             builder.RegisterInstance(_motion);
             builder.RegisterInstance(_outline);
             builder.Register<BlockOutlineMaterials>(Lifetime.Scoped);
+            builder.RegisterInstance(_ice);
             builder.RegisterInstance(_framing);
             builder.RegisterInstance(_reward);
             builder.RegisterInstance(_timeWarning);

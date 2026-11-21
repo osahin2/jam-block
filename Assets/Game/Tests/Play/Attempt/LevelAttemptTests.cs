@@ -295,6 +295,36 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void Grab_OnALockedBlock_HoldsNothingAndNamesItInALockedPose()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 1, 1, 1).Ice(1).Rect(Blue, 2, 1, 1, 1).Door(Blue, Side.Bottom, 2).Build();
+            level.TimeLimitSeconds = TimeLimit;
+            var attempt = Attempts.Of(level);
+
+            var grabbed = attempt.Grab(0.5f, 1.5f, out var pose);
+            attempt.Tick(5f);
+
+            Assert.IsTrue(grabbed);
+            Assert.IsTrue(pose.IsLocked);
+            Assert.IsFalse(pose.HasLeft);
+            Assert.AreEqual(0, pose.Block);
+            Assert.AreEqual(new Cell(0, 1), pose.Position);
+            Assert.AreEqual(Board.NoBlock, attempt.HeldBlock);
+            Assert.IsFalse(attempt.MoveTo(0.5f, 2.5f, out _));
+            Assert.AreEqual(TimeLimit - 5f, attempt.RemainingSeconds, Tolerance);
+        }
+
+        [Test]
+        public void Grab_OnABlockThatCanMove_GivesNoLockedPose()
+        {
+            var attempt = TwoBlocks();
+
+            attempt.Grab(2.5f, 1.5f, out var pose);
+
+            Assert.IsFalse(pose.IsLocked);
+        }
+
+        [Test]
         public void Release_WithNothingHeld_ReturnsNoBlock()
         {
             Assert.AreEqual(Board.NoBlock, TwoBlocks().Release());

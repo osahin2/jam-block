@@ -20,7 +20,13 @@ namespace Game.Editor.LevelEditor
             [LevelProblemKind.DoorOutsideSide] = "This door runs past the end of its side.",
             [LevelProblemKind.DoorsOverlap] = "This door overlaps another door on the same side.",
             [LevelProblemKind.BlockCannotLeave] =
-                "No door of this block's color is wide enough for it, so it can never leave. Widen a door or add one."
+                "No door of this block's color is wide enough for it on a side it can move toward, so it can never leave. " +
+                "Widen a door or add one; for a block with an arrow, a door must be at either end of the arrow.",
+            [LevelProblemKind.IceNeverMelts] =
+                "This block's ice never melts: ice drops by one for each block that leaves, and too few blocks can leave " +
+                "before it. Lower its ice or add blocks without ice.",
+            [LevelProblemKind.ArrowOffBlock] =
+                "This block's arrow runs over cells the block does not have. Draw the arrow again with the Arrow tool."
         };
 
         private static readonly Dictionary<LevelPart, Func<LevelData, int, ILevelSelection>> Subjects =

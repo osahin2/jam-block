@@ -114,7 +114,7 @@ namespace Game.Play
             for (var i = 0; i < views.Length; i++)
             {
                 var block = level.Blocks[i];
-                views[i] = _blockViews.Build(block.ColorId, block.Shape, layout.CellCenter(block.Position), parent, pieces);
+                views[i] = _blockViews.Build(block, layout.CellCenter(block.Position), parent, pieces);
             }
             return views;
         }

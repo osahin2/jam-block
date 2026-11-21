@@ -5,6 +5,8 @@ namespace Game.Editor.LevelEditor
 {
     public interface ILevelSelection
     {
+        IReadOnlyList<SelectionField> Fields { get; }
+
         bool Exists(LevelData level);
         int ColorId(LevelData level);
         string Describe(LevelData level);

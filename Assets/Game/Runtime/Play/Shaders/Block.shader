@@ -15,6 +15,9 @@ Shader "Game/Block"
         _RimSoftness("Rim Softness", Range(0.01, 1)) = 0.3
         _RimStrength("Rim Strength", Range(0, 1)) = 0.4
         _CutShade("Cut Face Shade", Range(0, 1)) = 0.8
+        _SurfaceMap("Surface Map (board space)", 2D) = "white" {}
+        _SurfaceScale("Surface Scale", Float) = 1
+        _SurfaceStrength("Surface Strength", Range(0, 1)) = 1
     }
 
     SubShader
@@ -35,7 +38,12 @@ Shader "Game/Block"
             half _RimSoftness;
             half _RimStrength;
             half _CutShade;
+            float _SurfaceScale;
+            half _SurfaceStrength;
         CBUFFER_END
+
+        TEXTURE2D(_SurfaceMap);
+        SAMPLER(sampler_SurfaceMap);
 
         float4x4 _BoardWorldToLocal;
         float4 _BoardHalfSize;
@@ -73,6 +81,7 @@ Shader "Game/Block"
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS : TEXCOORD1;
                 float height : TEXCOORD2;
+                float2 surfaceUV : TEXCOORD3;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -87,7 +96,9 @@ Shader "Game/Block"
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 // Above the board's ground: the supplied pieces are turned inside their prefabs, so their own Y
                 // is not up.
-                output.height = mul(_BoardWorldToLocal, float4(position.positionWS, 1)).y;
+                float3 onBoard = mul(_BoardWorldToLocal, float4(position.positionWS, 1)).xyz;
+                output.height = onBoard.y;
+                output.surfaceUV = onBoard.xz * _SurfaceScale;
                 return output;
             }
 
@@ -104,7 +115,8 @@ Shader "Game/Block"
                 float3 toLight = GetMainLight().direction;
                 half lit = smoothstep(_RampThreshold - _RampSoftness * 0.5h, _RampThreshold + _RampSoftness * 0.5h, dot(normal, toLight));
                 half shade = lerp(_GradientShade, 1.0h, saturate(input.height / _GradientHeight));
-                half3 color = lerp(_ShadowColor.rgb, _BaseColor.rgb, lit) * shade;
+                half3 surface = SAMPLE_TEXTURE2D(_SurfaceMap, sampler_SurfaceMap, input.surfaceUV).rgb;
+                half3 color = lerp(_ShadowColor.rgb, _BaseColor.rgb, lit) * shade * lerp(1.0h, surface, _SurfaceStrength);
                 // Faces leaning toward the light's side (the far half of each stud, the far edges) catch it brighter
                 // than the flat top, which is what makes the studs read round.
                 half lean = dot(normal, SafeNormalize(float3(toLight.x, 0, toLight.z)));

@@ -26,7 +26,8 @@ namespace Game.Tests.Play
             _art = Load<BoardArtSettings>();
             _palette = Load<ColorPalette>();
             var motion = Load<BlockMotionSettings>();
-            _builder = new BoardBuilder(_art, _palette, motion, new BlockViewBuilder(_art, _palette, motion, new BlockPieceBuilder(_art)));
+            _builder = new BoardBuilder(_art, _palette, motion,
+                new BlockViewBuilder(_art, _palette, motion, Load<IceSettings>(), new BlockPieceBuilder(_art)));
             _board = new GameObject("Board").transform;
         }
 

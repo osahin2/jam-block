@@ -12,6 +12,7 @@ namespace Game.Tests.Play
         private BlockView _view;
         private Outline _outline;
         private BlockMotionSettings _motion;
+        private IceSettings _ice;
 
         [SetUp]
         public void SetUp()
@@ -20,9 +21,11 @@ namespace Game.Tests.Play
             _outline = _view.gameObject.AddComponent<Outline>();
             var view = new SerializedObject(_view);
             view.FindProperty("_outline").objectReferenceValue = _outline;
+            view.FindProperty("_ice").objectReferenceValue = IceCovers.Under(_view.transform);
             view.ApplyModifiedPropertiesWithoutUndo();
             _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
-            _view.Init(_motion, new[] { new Cell(0, 0), new Cell(1, 0) });
+            _ice = ScriptableObject.CreateInstance<IceSettings>();
+            _view.Init(_motion, _ice, new[] { new Cell(0, 0), new Cell(1, 0) });
         }
 
         [TearDown]
@@ -30,6 +33,18 @@ namespace Game.Tests.Play
         {
             Object.DestroyImmediate(_view.gameObject);
             Object.DestroyImmediate(_motion);
+            Object.DestroyImmediate(_ice);
+        }
+
+        [Test]
+        public void Refuse_ShakesFromTheBlocksCell()
+        {
+            _view.SetPose(Vector3.right);
+
+            _view.Refuse();
+
+            Assert.AreEqual(Vector3.right, _view.transform.localPosition);
+            Assert.IsFalse(_view.IsLeaving);
         }
 
         [Test]

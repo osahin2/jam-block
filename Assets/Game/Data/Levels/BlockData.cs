@@ -10,6 +10,7 @@ namespace Game.Data.Levels
         public Cell Position;
         public List<Cell> Shape = new List<Cell>();
         public int Ice;
+        public ArrowData Arrow = new ArrowData();
 
         public int ExtentAlong(Side side) => ShapeExtent.Along(Shape, side);
     }

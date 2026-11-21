@@ -81,5 +81,35 @@ namespace Game.Tests.LevelEditor
             Assert.AreEqual(9, level.Blocks[0].Shape.Count);
             Assert.AreEqual(1, level.Doors.Count);
         }
+
+        [Test]
+        public void ErasingACellUnderAnArrow_RemovesTheArrow()
+        {
+            var level = new LevelBuilder(4, 3).Rect(Red, 0, 0, 3, 1).Arrow(ArrowAxis.Horizontal, 0, 0, 2).Build();
+
+            LevelEdits.TryRemoveBlockCell(level, new Cell(1, 0));
+
+            Assert.IsFalse(level.Blocks[0].Arrow.IsSet);
+        }
+
+        [Test]
+        public void ErasingACellBesideAnArrow_KeepsTheArrow()
+        {
+            var level = new LevelBuilder(4, 3).Rect(Red, 0, 0, 3, 1).Arrow(ArrowAxis.Horizontal, 0, 0, 2).Build();
+
+            LevelEdits.TryRemoveBlockCell(level, new Cell(2, 0));
+
+            Assert.IsTrue(level.Blocks[0].Arrow.IsSet);
+        }
+
+        [Test]
+        public void ResizingOffACellUnderAnArrow_RemovesTheArrow()
+        {
+            var level = new LevelBuilder(4, 3).Rect(Red, 0, 0, 3, 1).Arrow(ArrowAxis.Horizontal, 1, 0, 2).Build();
+
+            LevelEdits.Resize(level, 2, 3);
+
+            Assert.IsFalse(level.Blocks[0].Arrow.IsSet);
+        }
     }
 }

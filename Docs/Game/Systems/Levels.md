@@ -11,7 +11,7 @@
 | Type | Fields |
 |---|---|
 | `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors`; `IsOnBoard(cell)` |
-| `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position`; `Ice`, the ice on the block at the start (0: none; rules in [Board](Board.md), Mechanics); `ExtentAlong(side)` through `ShapeExtent`, which the board's blocks share |
+| `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position`; `Ice`, the ice on the block at the start (0: none; rules in [Board](Board.md), Mechanics); `Arrow`, an `ArrowData`: the axis the block may move along (`ArrowAxis`: `None`, `Horizontal`, `Vertical`, stored as ints, never reorder), the arrow's first cell relative to `Position` and its length, as drawn in the editor ([Arrow block](Arrow.md)); `ExtentAlong(side)` through `ShapeExtent`, which the board's blocks share; `ShapeMiddle.Of(shape)`, where a block's ice count stands in the game and the editor |
 | `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers; `FitsSide(width, height)`, `Overlaps(side, start, end)` and `SpanFits`, the one place for the door rules the validator and the level editor both apply |
 | `Cell` | `X` column from the left, `Y` row from the top; value equality, `+`, `-`, `Touches` (shares an edge), `IsInside(width, height)` and `IndexIn(width)`, used by the board and the validator alike |
 
@@ -34,9 +34,11 @@
 | `DisconnectedBlock` | error | a block whose cells are not one group of edge-touching cells (it is moved and built as one piece) |
 | `DoorOutsideSide` | error | a door shorter than one cell or past the end of its side |
 | `DoorsOverlap` | error | a door covering a cell of the same side that an earlier door covers |
-| `BlockCannotLeave` | warning | no door of the block's color is as wide as the block's extent along the door's side |
+| `BlockCannotLeave` | warning | no door of the block's color, on a side the block's arrow lets it leave through, is as wide as the block's extent along the door's side |
+| `IceNeverMelts` | error | the block's ice is more than the number of blocks that can ever leave before it, on every block it locks for good ([Ice](Ice.md)) |
+| `ArrowOffBlock` | error | the block's arrow runs over cells the block does not have, or has no cells ([Arrow block](Arrow.md)) |
 
-- The validator is a list of checks (`ILevelCheck`, in `Validation/`: `TimeLimitCheck`, `HasBlocksCheck`, `BlockCellsCheck`, `DoorPlacementCheck`, `BlocksCanLeaveCheck`), run in that order after the size, which every other check needs to index cells and so stops the rest. A mechanic adds its check as one entry in `LevelValidator`'s list; a check adds to the report and changes nothing else.
+- The validator is a list of checks (`ILevelCheck`, in `Validation/`: `TimeLimitCheck`, `HasBlocksCheck`, `BlockCellsCheck`, `DoorPlacementCheck`, `BlocksCanLeaveCheck`, `IceMeltsCheck`, `ArrowOnBlockCheck`), run in that order after the size, which every other check needs to index cells and so stops the rest. A mechanic adds its check as one entry in `LevelValidator`'s list; a check adds to the report and changes nothing else.
 - Errors make a level unplayable and are not saved; warnings are shown but do not stop saving.
 - `BlockCannotLeave` checks widths only; whether the block can reach the door is the solver's question (phase 7).
 - The level editor ([Level editor](LevelEditor.md)) shows the report and saves only without errors; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.
@@ -48,7 +50,7 @@
 
 ## Tests
 - `Tests/Levels/Content/LevelAssetTests`: a level survives Unity serialization.
-- `Tests/Levels/LevelValidatorTests`: each problem kind (door without cells or before its side included), warnings versus errors, every problem reported by kind.
+- `Tests/Levels/LevelValidatorTests`: each problem kind (door without cells or before its side included, ice that never melts on every block it locks), warnings versus errors, every problem reported by kind.
 - `Tests/Levels/DoorDataTests`: a door fits its side and overlaps only on shared cells of the same side.
 - `Tests/Levels/ProjectLevelsTests`: there are level assets, every one has no errors, and every color id in them has a material in the `ColorPalette` (`ColorPalette.Has`, the one check the editor uses too).
 - `Tests/Levels/LevelBuilder`: builds levels for the tests.

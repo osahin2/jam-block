@@ -19,7 +19,8 @@ namespace Game.Logic.Play
         public static LevelMechanics For(LevelData level)
         {
             var ice = new IceMechanic(level);
-            return new LevelMechanics(ice, new IMoveRule[] { ice }, new IBlockGuard[] { ice });
+            var arrow = new ArrowMechanic(level);
+            return new LevelMechanics(ice, new IMoveRule[] { ice, arrow }, new IBlockGuard[] { ice });
         }
     }
 }

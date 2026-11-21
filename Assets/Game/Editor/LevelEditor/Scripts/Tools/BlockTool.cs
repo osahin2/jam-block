@@ -31,5 +31,7 @@ namespace Game.Editor.LevelEditor
             _block != LevelEdits.NoBlock && LevelEdits.TryGrowBlock(level, _block, cell);
 
         public void Release() => _block = LevelEdits.NoBlock;
+
+        public bool RightClick(LevelData level, Cell cell) => false;
     }
 }

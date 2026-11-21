@@ -29,6 +29,19 @@ namespace Game.Tests.Levels
             return Block(colorId, x, y, shape.ToArray());
         }
 
+        public LevelBuilder Ice(int ice)
+        {
+            _level.Blocks[_level.Blocks.Count - 1].Ice = ice;
+            return this;
+        }
+
+        public LevelBuilder Arrow(ArrowAxis axis, int startX = 0, int startY = 0, int length = 1)
+        {
+            _level.Blocks[_level.Blocks.Count - 1].Arrow =
+                new ArrowData { Axis = axis, Start = new Cell(startX, startY), Length = length };
+            return this;
+        }
+
         public LevelBuilder Door(int colorId, Side side, int start, int length = 1)
         {
             _level.Doors.Add(new DoorData { ColorId = colorId, Side = side, Start = start, Length = length });

@@ -5,8 +5,12 @@ namespace Game.Editor.LevelEditor
 {
     public sealed class DoorSelection : ILevelSelection
     {
+        private static readonly SelectionField[] NoFields = new SelectionField[0];
+
         private readonly DoorData _door;
         private int _start;
+
+        public IReadOnlyList<SelectionField> Fields => NoFields;
 
         public DoorSelection(DoorData door)
         {

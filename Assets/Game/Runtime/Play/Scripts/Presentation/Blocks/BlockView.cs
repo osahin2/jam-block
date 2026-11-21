@@ -11,6 +11,8 @@ namespace Game.Play
         private const float SnapDistanceSqr = 0.000001f;
 
         [SerializeField] private Outline _outline;
+        [SerializeField] private IceCover _ice;
+        [SerializeField] private BlockArrow _arrow;
 
         private readonly List<BoardPiece> _pieces = new List<BoardPiece>();
         private readonly List<Renderer> _renderers = new List<Renderer>();
@@ -22,8 +24,10 @@ namespace Game.Play
         public bool IsLeaving { get; private set; }
         public int CellCount => _cells.Count;
         public Color Color => _renderers[0].sharedMaterial.color;
+        public IceCover Ice => _ice;
+        public BlockArrow Arrow => _arrow;
 
-        public void Init(BlockMotionSettings settings, IReadOnlyList<Cell> shape)
+        public void Init(BlockMotionSettings settings, IceSettings ice, IReadOnlyList<Cell> shape)
         {
             _settings = settings;
             _cells.Clear();
@@ -32,6 +36,7 @@ namespace Game.Play
             _pieces.Clear();
             _renderers.Clear();
             transform.localScale = Vector3.one;
+            _ice.Init(ice, _renderers);
         }
 
         private void Awake() => enabled = false;
@@ -85,6 +90,16 @@ namespace Game.Play
         public bool Shows(Cell cell) => gameObject.activeSelf && !IsLeaving && _cells.Contains(cell);
 
         public void Hold() => _outline.Show();
+
+        public void Refuse()
+        {
+            StopMotion();
+            transform.localPosition = _target;
+            _motion = transform
+                .DOPunchPosition(Vector3.right * _settings.LockedShakeStrength, _settings.LockedShakeDuration,
+                    _settings.LockedShakeVibrato)
+                .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+        }
 
         public void SnapTo(Vector3 position)
         {

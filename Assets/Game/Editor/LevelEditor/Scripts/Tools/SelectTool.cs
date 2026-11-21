@@ -34,6 +34,8 @@ namespace Game.Editor.LevelEditor
         {
         }
 
+        public bool RightClick(LevelData level, Cell cell) => false;
+
         public void Select(ILevelSelection selection) => Selection = selection;
 
         public void ClearSelection() => Selection = null;

@@ -25,6 +25,12 @@ namespace Game.Editor.LevelEditor
         [Shortcut(Prefix + "Door Tool", typeof(LevelEditorWindow), KeyCode.D)]
         private static void UseDoorTool(ShortcutArguments args) => Run(args, window => window.UseTool<DoorTool>());
 
+        [Shortcut(Prefix + "Arrow Tool", typeof(LevelEditorWindow), KeyCode.A)]
+        private static void UseArrowTool(ShortcutArguments args) => Run(args, window => window.UseTool<ArrowTool>());
+
+        [Shortcut(Prefix + "Ice Tool", typeof(LevelEditorWindow), KeyCode.I)]
+        private static void UseIceTool(ShortcutArguments args) => Run(args, window => window.UseTool<IceTool>());
+
         [Shortcut(Prefix + "Erase Tool", typeof(LevelEditorWindow), KeyCode.E)]
         private static void UseEraseTool(ShortcutArguments args) => Run(args, window => window.UseTool<EraseTool>());
 

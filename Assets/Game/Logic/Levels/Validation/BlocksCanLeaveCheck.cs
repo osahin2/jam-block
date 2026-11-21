@@ -1,4 +1,5 @@
 using Game.Data.Levels;
+using Game.Logic.Play;
 
 namespace Game.Logic.Levels
 {
@@ -18,7 +19,8 @@ namespace Game.Logic.Levels
         {
             foreach (var door in level.Doors)
             {
-                if (door.ColorId == block.ColorId && block.ExtentAlong(door.Side) <= door.Length)
+                if (door.ColorId == block.ColorId && block.ExtentAlong(door.Side) <= door.Length &&
+                    ArrowMechanic.AxisAllows(block.Arrow.Axis, Direction.OutOf(door.Side)))
                     return true;
             }
             return false;
