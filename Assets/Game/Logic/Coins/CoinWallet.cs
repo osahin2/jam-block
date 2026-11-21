@@ -24,5 +24,18 @@ namespace Game.Logic.Coins
             Balance += amount;
             _store.Save(Balance);
         }
+
+        public bool CanSpend(int amount) => amount <= Balance;
+
+        public bool TrySpend(int amount)
+        {
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "An amount to spend cannot be negative.");
+            if (!CanSpend(amount))
+                return false;
+            Balance -= amount;
+            _store.Save(Balance);
+            return true;
+        }
     }
 }

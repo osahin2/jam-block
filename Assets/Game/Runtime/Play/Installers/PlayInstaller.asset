@@ -18,6 +18,9 @@ MonoBehaviour:
   _outline: {fileID: 11400000, guid: b0bf432743d4e4809ad3fe5b07f30a6b, type: 2}
   _framing: {fileID: 11400000, guid: 859904e593a6d46ee8b35dde5ab6a619, type: 2}
   _reward: {fileID: 11400000, guid: 1841d6de924944f9c9c4d89429723cc3, type: 2}
-  _coinFlow: {fileID: 11400000, guid: e96cbb706afe64ba2ad94c61845c4f59, type: 2}
   _timeWarning: {fileID: 11400000, guid: 402e25fda6a214e5d906685d656b1765, type: 2}
   _screens: {fileID: 11400000, guid: c44c2ca582f47450ca21676369dd7bf5, type: 2}
+  _boosterMotion: {fileID: 11400000, guid: 0018f4c6da198430bb8e642684bb8de3, type: 2}
+  _freeze: {fileID: 11400000, guid: 53ff93b6da79c41688572c724e232c7e, type: 2}
+  _hammer: {fileID: 11400000, guid: 78fd010cc6571422b8f5c2af28adc9c4, type: 2}
+  _vacuum: {fileID: 11400000, guid: 12e9761d5ce364e00978cf12fefc7d32, type: 2}

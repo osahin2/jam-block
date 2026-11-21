@@ -58,6 +58,50 @@ namespace Game.Tests.Coins
         }
 
         [Test]
+        public void CanSpend_ComparesTheAmountWithTheBalance()
+        {
+            var wallet = new CoinWallet(new MemoryCoinStore(120));
+
+            Assert.IsTrue(wallet.CanSpend(120));
+            Assert.IsFalse(wallet.CanSpend(121));
+        }
+
+        [Test]
+        public void TrySpend_WithEnoughCoins_LowersTheBalanceAndSaves()
+        {
+            var store = new MemoryCoinStore(120);
+            var wallet = new CoinWallet(store);
+
+            Assert.IsTrue(wallet.TrySpend(120));
+
+            Assert.AreEqual(0, wallet.Balance);
+            Assert.AreEqual(0, store.Saved);
+        }
+
+        [Test]
+        public void TrySpend_WithTooFewCoins_ChangesAndSavesNothing()
+        {
+            var store = new MemoryCoinStore(120);
+            var wallet = new CoinWallet(store);
+
+            Assert.IsFalse(wallet.TrySpend(121));
+
+            Assert.AreEqual(120, wallet.Balance);
+            Assert.AreEqual(0, store.SaveCount);
+        }
+
+        [Test]
+        public void TrySpend_ANegativeAmount_ThrowsAndSavesNothing()
+        {
+            var store = new MemoryCoinStore(120);
+            var wallet = new CoinWallet(store);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => wallet.TrySpend(-1));
+            Assert.AreEqual(120, wallet.Balance);
+            Assert.AreEqual(0, store.SaveCount);
+        }
+
+        [Test]
         public void New_WithANegativeStoredBalance_Throws()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => new CoinWallet(new MemoryCoinStore(-1)));
