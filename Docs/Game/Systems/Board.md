@@ -5,15 +5,29 @@
 ## Code
 - Folder: `Assets/Game/Logic/Play/Board/`, `Assets/Game/Logic/Play/Drag/`
 - Assembly: `Game.Logic`
-- Entry points: `Board` (`Logic/Play/Board/Board.cs`), `BlockDrag` (`Logic/Play/Drag/BlockDrag.cs`); `Direction`, `StepResult`, `DragPose`, `BoardBlock` are their parameter and result types
+- Folder: `Assets/Game/Logic/Play/Mechanics/` (the mechanics plugged into the board)
+- Entry points: `Board` (`Logic/Play/Board/Board.cs`), `BlockDrag` (`Logic/Play/Drag/BlockDrag.cs`), `LevelMechanics.For(level)` (`Logic/Play/Board/LevelMechanics.cs`); `Direction`, `StepResult`, `DragPose`, `BoardBlock` are their parameter and result types; `IMoveRule` and `IBlockGuard` are the board's roles, `IBoardFacts` what they read, `IReadOnlyBoard` the read-only view for the views and target checks
 
 ## How it works
-- `new Board(level)` copies the blocks into an occupancy grid (one block index or empty per cell).
-- `CanStep(block, direction)`: every cell of the block, moved one cell, is inside the board and empty or the block's own. A block that has left cannot step.
+- `new Board(level, rules, guards)` copies the blocks into a list and an occupancy grid (one block index or empty per cell). The list has room for one block per cell of the level's blocks, so blocks appended at run time (a split) never grow it. The rules and guards come from `LevelMechanics.For(level)`.
+- `CanStep(block, direction)`: every move rule allows the step, and every cell of the block, moved one cell, is inside the board and empty or the block's own. A block that is gone cannot step.
 - `Step(block, direction)` moves the block one cell when the step is free and returns a `StepResult`: `Moved`, the block's `Position` and `ExitDoor`, the index of the door it left through or `StepResult.NoDoor`. A step that is not free changes nothing and returns `Moved` false.
-- `TryLeave(block, out exitDoor)` checks the block where it stands against the doors in level order. It leaves through the first door that has its color, lies on a side the block touches, spans the block's whole extent along that side, and has no other block between it and any of the block's cells, since the block slides out straight through it (an L whose arm touches the door stays while another block is under its other part). The drag direction does not matter. The block's cells are freed, `HasLeft` is set and `RemainingBlocks` drops, and it returns true with the door (false with `StepResult.NoDoor` when the block stays, and always for a block that has already left). `Step` calls it after every step, and the level attempt on every touch.
-- `IsCleared` is true when every block has left.
+- `TryLeave(block, out exitDoor)` checks the block where it stands against the doors in level order. It leaves through the first door that has its color, lies on a side the block touches, spans the block's whole extent along that side, is allowed by every move rule asked with the direction out through the door, and has no other block between it and any of the block's cells, since the block slides out straight through it (an L whose arm touches the door stays while another block is under its other part). The drag direction does not matter. The block is removed (below) and it returns true with the door (false with `StepResult.NoDoor` when the block stays, and always for a block that is already gone). `Step` calls it after every step, and the level attempt on every touch.
+- `Hit(block)` is a booster's hit on a whole block: when a guard guards the block, the first such guard takes the hit and the block stays; otherwise the block is removed (below). A hit on a block already gone changes nothing. The board owns this order, so no effect can break a guarded block: there is no public way to remove a block past its guards. A hit on one cell (`HitCell`, the rocket's) follows the same order.
+- **Removal.** Every way a block leaves the board entirely ends in one private removal: its cells are freed, `BoardBlock.IsGone` is set, `RemainingBlocks` drops and `GoneCount` rises. A block that is gone keeps its index in `Blocks`.
+- `IsCleared` is true when every block is gone.
 - `BlockAt(cell)` returns the block on a cell, or `Board.NoBlock` for an empty cell or one outside the board.
+- `BoardBlock.ExtentAcross(side)` is how far the block reaches from that side, for the leave animation.
+
+## Mechanics
+The board knows no mechanic ([Decisions](../Decisions.md)). It asks two role interfaces at fixed points:
+- `IMoveRule.Allows(board, block, direction)`: whether the block may step one cell that way. `CanStep` asks it for every step, and the exit asks it with the direction out through the door, so a rule that forbids a direction also forbids leaving that way. Contract: answers from the board's state and its own, changes nothing, and is asked often (every drag frame), so it must not allocate.
+- `IBlockGuard.Guards(board, block)` and `TakeHit(block)`: whether the block is guarded, and taking a hit for it. `Board.IsGuarded(block)` asks every guard; `Board.Hit` gives the hit to the first guard that guards the block. Contract: `TakeHit` is called only by the board, only on a block the guard guards, and a guarded block is never removed by the hit. `IceMechanic` implements `TakeHit` explicitly, so whoever holds the ice to show it cannot melt it.
+- The roles get the board as `IBoardFacts`: only the facts a mechanic reads (today `GoneCount`, which the ice counts from), so a role can neither change the board nor reach the other roles through it. A mechanic that needs another fact adds it there, and no other role's signature changes. `IReadOnlyBoard` (`IBoardFacts` plus `Blocks`, `BlockAt` and `IsGuarded`) is what the level attempt hands the play feature's views and an effect's `CanTarget`.
+- `LevelMechanics.For(level)` is the one place that builds a level's mechanics: the rule and guard lists for the board, and each mechanic by name for whoever shows it (`Ice`). The game, the level editor and the solver build through it, so none can miss a mechanic. A new mechanic is a class, a field in the level format, a line there and, when it has a level rule, a check in `LevelValidator`'s list ([Levels](Levels.md)).
+
+### Ice
+`IceMechanic` (`Mechanics/Ice/`) plays both roles. It keeps each block's starting ice (`BlockData.Ice`) and the hits each block took, and computes a block's ice left when asked: the starting ice minus `GoneCount` minus its hits, never below zero. So every block gone, through a door or broken, melts one ice on every iced block, and nothing has to tell the ice that a block went. A block with ice left is not allowed to move or leave and is guarded; a hit on it takes one ice. At zero it plays as any other block. A block appended at run time (a split) has no starting ice, so its ice left is 0.
 
 ## Drag
 `BlockDrag` turns a finger position into whole-cell steps and a sub-cell offset, in cells from the board's top-left corner.
@@ -27,12 +41,16 @@
 - A blocked step is an ordinary event: the finger can run ahead of a block that is stopped. `CanStep` is for the view's sub-cell offset; the decision is in `Step` either way.
 - A door of another color is wall: steps past the board's edge are never free, so a block can only leave through its own door.
 - Only the moved or touched block is checked for an exit: a block placed touching its door at the start, or held at its door by a block in the way that moved off later, leaves on the next tap, as in the reference; nothing leaves without the player touching it.
-- `Step` and `CanStep` do not allocate.
+- `Step`, `CanStep`, `Hit` and `IsGuarded` do not allocate.
+- A block's index never changes: the drag, the views and the leave animation refer to blocks by index.
 
 ## Tests
 - `Tests/Play/Board/BoardStepTests`: free and blocked steps, edges, other blocks, L shapes, a blocked step that changes nothing.
 - `Tests/Play/Drag/BlockDragTests`: see [Play](Play.md).
 - `Tests/Play/Board/BoardExitTests`: exit through a door on each side (which also checks `Direction`'s table indexed by `Side`), exit on touch from any direction, other color is wall, partial cover stays, extent along the side only, L shapes, an L held by a block between its other part and the door, `TryLeave` for a block at its door, away from it, after the block in its way moved off and for a block that has already left, two doors of one color, cleared after the last block.
+- `Tests/Play/Board/BoardRemovalTests`: a hit on an unguarded block frees its cells and clears the board on the last block, a hit on a block already gone changes nothing, `GoneCount` counts blocks through a door and hit but not a touch that leaves nothing, `BoardBlock.ExtentAcross`.
+- `Tests/Play/Board/BoardRoleTests`: a move rule stops a step in the direction it forbids only, the exit asks the rules with the direction out through the door, with no guards a hit takes the block. `Boards.Of(level)` builds a board through `LevelMechanics` for the tests.
+- `Tests/Play/Mechanics/Ice/IceMechanicTests`: the level's ice at the start, an iced block cannot step or leave, one ice melts per block gone through a door or hit, a hit takes one ice and keeps the block, a hit once the ice is gone takes the block, a block whose ice is gone plays as any other, never below zero. `Tests/Play/Board/LevelMechanicsTests`: the ice is handed to the board as a rule and a guard.
 
 ## Related
 - [Level attempt](LevelAttempt.md), which the play feature uses instead of `Board` and `BlockDrag` directly

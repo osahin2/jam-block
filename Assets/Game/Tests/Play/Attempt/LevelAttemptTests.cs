@@ -149,7 +149,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnABlockAtItsDoor_LeavesAtOnceWithoutHoldingIt()
         {
-            var attempt = new LevelAttempt(new LevelBuilder(3, 3)
+            var attempt = Attempts.Of(new LevelBuilder(3, 3)
                 .Rect(Red, 0, 0, 1, 1)
                 .Rect(Blue, 2, 1, 1, 1)
                 .Door(Red, Side.Top, 0)
@@ -169,7 +169,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnTheLastBlockAtItsDoor_Wins()
         {
-            var attempt = new LevelAttempt(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Build());
+            var attempt = Attempts.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Door(Red, Side.Top, 0).Build());
 
             attempt.Grab(0.5f, 0.5f, out _);
 
@@ -179,7 +179,7 @@ namespace Game.Tests.Play
         [Test]
         public void Grab_OnABlockAtItsDoorWithABlockInTheWay_HoldsIt()
         {
-            var attempt = new LevelAttempt(new LevelBuilder(2, 3)
+            var attempt = Attempts.Of(new LevelBuilder(2, 3)
                 .Block(Red, 0, 1, new Cell(0, 0), new Cell(1, 0), new Cell(1, 1))
                 .Rect(Blue, 0, 2, 1, 1)
                 .Door(Red, Side.Bottom, 0, 2)
@@ -226,7 +226,7 @@ namespace Game.Tests.Play
 
             Assert.IsFalse(moved);
             Assert.AreEqual(0, released);
-            Assert.AreEqual(new Cell(0, 1), attempt.PositionOf(0));
+            Assert.AreEqual(new Cell(0, 1), attempt.Board.Blocks[0].Position);
         }
 
         [Test]
@@ -309,7 +309,7 @@ namespace Game.Tests.Play
                 .Door(Blue, Side.Bottom, 2)
                 .Build();
             level.TimeLimitSeconds = TimeLimit;
-            return new LevelAttempt(level);
+            return Attempts.Of(level);
         }
 
         private static void LeaveFirstBlock(LevelAttempt attempt)

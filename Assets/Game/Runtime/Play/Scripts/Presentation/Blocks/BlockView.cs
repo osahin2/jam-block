@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Game.Logic.Play;
 using UnityEngine;
 
 namespace Game.Play
@@ -79,6 +80,12 @@ namespace Game.Play
                 .OnComplete(Hide)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
             IsLeaving = true;
+        }
+
+        public void CatchUp(BoardBlock block)
+        {
+            if (block.IsGone && !IsLeaving)
+                Hide();
         }
 
         private Tween Snap(Vector3 position) =>

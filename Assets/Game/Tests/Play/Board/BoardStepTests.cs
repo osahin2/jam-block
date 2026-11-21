@@ -13,7 +13,7 @@ namespace Game.Tests.Play
         [Test]
         public void Step_IntoFreeCell_MovesTheBlock()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build());
 
             var result = board.Step(0, Direction.Right);
 
@@ -26,7 +26,7 @@ namespace Game.Tests.Play
         [Test]
         public void BlockAt_FindsTheBlockOnACellAndNothingElsewhere()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 1, 2, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 1, 2, 1).Build());
 
             Assert.AreEqual(1, board.BlockAt(new Cell(2, 1)));
             Assert.AreEqual(Board.NoBlock, board.BlockAt(new Cell(2, 2)));
@@ -36,7 +36,7 @@ namespace Game.Tests.Play
         [Test]
         public void CanStep_PastTheBoardEdge_IsFalse()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build());
 
             Assert.IsFalse(board.CanStep(0, Direction.Up));
             Assert.IsFalse(board.CanStep(0, Direction.Left));
@@ -47,7 +47,7 @@ namespace Game.Tests.Play
         [Test]
         public void CanStep_IntoAnotherBlock_IsFalse()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
 
             Assert.IsFalse(board.CanStep(0, Direction.Right));
         }
@@ -55,7 +55,7 @@ namespace Game.Tests.Play
         [Test]
         public void Step_FreesTheCellsTheBlockLeft()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
 
             board.Step(1, Direction.Down);
 
@@ -65,7 +65,7 @@ namespace Game.Tests.Play
         [Test]
         public void CanStep_BlockLongerThanOneCell_DoesNotBlockItself()
         {
-            var board = new Board(new LevelBuilder(1, 3).Rect(Red, 0, 0, 1, 2).Build());
+            var board = Boards.Of(new LevelBuilder(1, 3).Rect(Red, 0, 0, 1, 2).Build());
 
             var result = board.Step(0, Direction.Down);
 
@@ -79,7 +79,7 @@ namespace Game.Tests.Play
                 .Block(Red, 0, 0, new Cell(0, 0), new Cell(0, 1), new Cell(1, 1))
                 .Rect(Blue, 2, 0, 1, 1)
                 .Build();
-            var board = new Board(level);
+            var board = Boards.Of(level);
 
             var result = board.Step(0, Direction.Right);
 
@@ -93,7 +93,7 @@ namespace Game.Tests.Play
                 .Block(Red, 0, 0, new Cell(0, 0), new Cell(0, 1), new Cell(1, 1))
                 .Rect(Blue, 2, 1, 1, 1)
                 .Build();
-            var board = new Board(level);
+            var board = Boards.Of(level);
 
             Assert.IsFalse(board.CanStep(0, Direction.Right));
         }
@@ -101,7 +101,7 @@ namespace Game.Tests.Play
         [Test]
         public void Step_WhenTheStepIsNotFree_LeavesTheBlockInPlace()
         {
-            var board = new Board(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Rect(Blue, 1, 0, 1, 1).Build());
 
             var result = board.Step(0, Direction.Right);
 

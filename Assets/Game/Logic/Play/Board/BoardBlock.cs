@@ -8,7 +8,7 @@ namespace Game.Logic.Play
 
         public int ColorId { get; }
         public Cell Position { get; internal set; }
-        public bool HasLeft { get; internal set; }
+        public bool IsGone { get; internal set; }
         internal int CellCount => _shape.Length;
 
         internal BoardBlock(BlockData data)
@@ -17,6 +17,8 @@ namespace Game.Logic.Play
             Position = data.Position;
             _shape = data.Shape.ToArray();
         }
+
+        public int ExtentAcross(Side side) => ShapeExtent.Across(_shape, side);
 
         internal Cell CellAt(int index) => Position + _shape[index];
     }
