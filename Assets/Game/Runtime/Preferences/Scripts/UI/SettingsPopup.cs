@@ -15,11 +15,15 @@ namespace Game.Preferences
         [SerializeField] private SwitchView _vibration;
         [SerializeField] private Button _closeButton;
         [SerializeField] private Button _homeButton;
+        [SerializeField] private RectTransform _panel;
+        [Tooltip("How much shorter the panel is without the home button, in UI units.")]
+        [SerializeField, Min(0f)] private float _homeRoom = 170f;
 
         private IAudioService _audio;
         private IHapticService _haptics;
         private Action _onClose;
         private Action _onHome;
+        private float _height;
 
         public override UILayer Layer => UILayer.Popup;
 
@@ -37,15 +41,34 @@ namespace Game.Preferences
             _vibration.Listen(on => _haptics.Enabled = on);
             _closeButton.onClick.AddListener(ChooseClose);
             _homeButton.onClick.AddListener(ChooseHome);
+            _height = _panel.sizeDelta.y;
+        }
+
+        public void Show(Action onClose)
+        {
+            Bind(onClose, null);
+            FitHome(false);
         }
 
         public void Show(Action onClose, Action onHome)
+        {
+            Bind(onClose, onHome);
+            FitHome(true);
+        }
+
+        private void Bind(Action onClose, Action onHome)
         {
             _sound.Show(!_audio.SfxMuted);
             _music.Show(!_audio.MusicMuted);
             _vibration.Show(_haptics.Enabled);
             _onClose = onClose;
             _onHome = onHome;
+        }
+
+        private void FitHome(bool shown)
+        {
+            _homeButton.gameObject.SetActive(shown);
+            _panel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, shown ? _height : _height - _homeRoom);
         }
 
         private void ChooseClose()

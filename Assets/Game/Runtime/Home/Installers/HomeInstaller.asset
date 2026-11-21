@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: HomeInstaller
   m_EditorClassIdentifier: 
   _screens: {fileID: 11400000, guid: e6fccf5585b1f47aa8c6bf457da4d1a7, type: 2}
+  _tabBar: {fileID: 11400000, guid: 9788f1ded7c174ad39b090992887cf5f, type: 2}
