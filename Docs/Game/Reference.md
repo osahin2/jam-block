@@ -10,7 +10,7 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - One color can have more than one door (two doors of one color on opposite sides, for example), and one side can hold doors of different colors.
 
 ## Blocks
-- A block is a set of cells of one color: rectangles (1 x 2, 1 x 3, 2 x 2, 3 x 1) and L-shaped tetrominoes on these levels. Cells of a block always stay together.
+- A block is a set of cells of one color: rectangles (1 x 2, 1 x 3, 2 x 2, 3 x 1) and L-shaped tetrominoes on these levels. Cells of a block always stay together; only the rocket booster takes a cell away (see "Boosters and ice").
 
 ## Movement
 - **Free drag.** The player touches a block and drags it; the block follows the finger continuously, between cells as well, in both axes at once (a diagonal drag moves it diagonally). A held block gets an outline.
@@ -98,6 +98,18 @@ Cells are counted from column 0 on the left and row 0 at the top.
 - **Tablets.** On a 10:16 and a 3:4 screen the HUD, the booster slots and the popups keep their size against the screen's height and the extra width stays empty at the sides, with the coin count at the right edge; the board fills the width and grows with it until the space between the HUD and the slots binds it. Held sideways, Android shows the portrait game in a portrait window with dark bars.
 - **Settings in a level.** A narrow, tall panel with a header ribbon and a close button on its corner; inside a darker box, one row per switch (vibration, sound, music: an icon and a small track switch, no caption), then placeholder buttons (legal terms, restore purchases, support, language) and a green home button with a block icon at the bottom.
 
+## Boosters and ice
+Seen on later levels than the first five, where the booster slots are locked.
+- **Ice.** An iced block is covered in light blue ice with a number on it and cannot be moved. The number drops by one for every block that leaves the board entirely, whichever way it goes (a door, the hammer, the vacuum, the rocket's hit on a block's last cell), and by one for every hammer or rocket hit on the iced block itself; at zero the ice breaks and the block plays as any other. Later levels also put ice with a number on doors.
+- **Slots.** Four boosters under the board, left to right: freeze, rocket, hammer, vacuum. A slot shows its stock as a number on its lower right corner, or a green "+" at zero.
+- **Buying.** A booster at zero opens a popup over the board: its name, its icon, one line on what it does, a green button for 3 at 1400 coins and a button for 1 by watching an ad.
+- **Freeze** stops the timer for 10 seconds; it cannot be used again while the time is frozen.
+- **Aiming** (rocket, hammer, vacuum). The screen goes dark except the board and the active booster's button, which glows; a banner at the top names the booster with one line ("Tap to blast one piece!"). The rocket shows a crosshair on every cell of every block, iced blocks included. Tapping the button again or tapping anything that is not a target cancels; the stock goes down only when a shot is made. The timer keeps running while aiming and stops for under a second while the rocket flies and explodes.
+- **Rocket.** The rocket flies up from the bottom of the screen to the chosen cell and blows it away with a burst of pieces. What remains of the block splits into separate blocks wherever its cells no longer touch side to side: blowing the corner of a three-cell L leaves two single cells, the middle of a longer piece leaves two blocks. On an iced block it takes one ice instead.
+- **Hammer** breaks the chosen block entirely; on an iced block it takes one ice instead.
+- **Vacuum** takes every block of the chosen block's color, except the locked (iced) ones.
+
 ## What the case takes from this
 - In scope: free drag with collisions, exit through a door of the block's color that covers the block's extent, win when the board is empty, countdown timer with fail at zero, fail popup with restart and home, pause, restart, a coin reward on win, home with top UI, level button and placeholder tabs, settings with three toggles.
-- Placeholder or left out: lives (shown, not spent), the out-of-time offer, the pre-level booster popup, boosters, profile, shop, level path map, the other tabs.
+- Placeholder or left out: lives (shown, not spent), the out-of-time offer, the pre-level booster popup, profile, shop, level path map, the other tabs.
+- Optional scope, in phase 7: the ice blocker on blocks and the four boosters with their stock and purchase; ice on doors and buying by watching an ad are left out.

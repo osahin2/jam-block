@@ -130,7 +130,7 @@ Format:
 - Instead of: ending the drag inside the attempt, which leaves the view with a block between cells and no call that tells it so.
 
 ## The coin wallet only earns
-- Why: the case asks for a coin inventory whose count stays correct, and nothing in its required scope spends coins: the reference spends them on boosters, the shop, lives and the out-of-time offer, all left out above. `CoinWallet` keeps the balance non-negative and rejects negative amounts as programmer errors. The first spend planned is the out-of-time offer, optional after the required scope (phase 7 in the plan).
+- Why: the case asks for a coin inventory whose count stays correct, and nothing in its required scope spends coins: the reference spends them on boosters, the shop, lives and the out-of-time offer, all left out above. `CoinWallet` keeps the balance non-negative and rejects negative amounts as programmer errors. The first spend planned is buying boosters, optional after the required scope (phase 7 in the plan), which adds `CoinWallet.TrySpend`.
 - Instead of: a spend rule nothing calls, which is dead code; or building the out-of-time offer before the editor, which the evaluation weighs more.
 
 ## Board input through the EventSystem on one board-sized collider
@@ -355,3 +355,31 @@ Format:
 ## Game code carries no comments; reasons and contracts live in the notes
 - Why: comments drift from the code and were written where the code already spoke; the system notes and Decisions are read anyway and are where a reader looks for why. An interface's contract, an engine quirk a reader could "fix" wrongly or a measured value goes into the note under the name of the type it is about. A hook refuses any edit that adds a comment to `Assets/Game`. Core is a package copied into other projects and read without this project's notes, so it keeps short comments on its public contracts.
 - Instead of: comments only for reasons, which kept growing into comments on what the code does; XML doc comments, which repeat the signatures.
+
+## Mechanics plug into the board through role interfaces; the board knows none of them
+- Why: the board keeps what every mechanic shares (its blocks, occupancy, moves, exits, the count of blocks gone, breaking a block or a cell) and asks two role interfaces at fixed points: `IMoveRule` whether a block may step or leave in a direction, `IBlockGuard` whether a block is guarded and, if so, to take a hit for it. `IceMechanic` plays both roles and owns the ice's state; the arrow block will be a second `IMoveRule`. A new mechanic is a class, a field in the level format and one line in `LevelMechanics.For(level)`, the one place that builds the mechanics for the game, the level editor and the solver alike; the board, the drag, the attempt and the booster effects stay as they are. Two interfaces, not one, so a mechanic that only limits moves has no empty guard methods.
+- Instead of: the ice's hits and a chip method on the board, which makes every mechanic an edit to the board; one mechanic interface with every hook, which leaves most of them empty; mechanics built from a data-driven list in the level, which needs a type registry in logic, view and editor for two mechanics and turns a missing registration from a compile error into a silent one at run time.
+
+## Ice counts the blocks gone and is read when asked; views catch up by pulling
+- Why: every way a block leaves the board entirely ends in the board's one private removal, which counts it, so a block's ice left is its starting ice minus that count minus the hits it took: nothing has to be told that a block went, a restart starts from a new board, and the solver gets ice right through the same board. Views work the same way: whoever changes the board (the drag, a booster) calls one `CatchUp`, and each block view compares the logic's state with what it shows (ice left, shape, gone) and plays the difference; new blocks from a split get views from the pools.
+- Instead of: a counter on each iced block lowered by a "block left" event, an event bus carrying flow inside one feature, with state to reset; the logic returning what happened for the views to switch on, which needs a switch over kinds and lets the views drift from the logic.
+
+## A booster is a logic effect and a presentation
+- Why: what a booster does to the board is a rule, so it lives in `Game.Logic` as a command (`IBoardEffect`: `CanTarget`, `Apply`) and is tested without Unity; `LevelAttempt.TryApply(effect, x, y)` is its one way in, checking the state, applying, checking for a win and ending the aim. In `Game`, `TargetedBooster` fixes the order every aimed booster follows (aim, apply, stock down and saved, its own animation, catch up), so the stock goes down only when a shot lands and before anything is shown; each booster adds only its effect and its animation. Freeze has no target, so it calls `LevelTimer.Freeze` and implements `IBooster` directly.
+- Instead of: a method per booster on `LevelAttempt`, which changes the attempt for every booster; one effect interface for Freeze too, with a target cell it ignores.
+
+## Board touches go through modes: drag, pick, busy
+- Why: aiming turns a tap into a choice of cell instead of a grab, and while a shot plays the logic is already ahead of the views, so a touch could hold a block that is gone or a split part whose view is not built yet. Each mode is a small state `BoardInteraction` switches between (`Drag`, `Pick`, `Busy`), and the board input stays one collider and one set of handlers.
+- Instead of: flags checked in the grab, drag and release handlers, which every new mode would add to.
+
+## A rocket hit splits a block into separate blocks
+- Why: the reference does it: what remains of a block after a cell is blown away becomes one block per group of cells touching side to side. The hit block keeps its index for its first group and the others are appended, so the drag, the views and the leave animation keep their indices; the board's block list has room for one block per cell of the level, so a split never allocates.
+- Instead of: a block that moves as one with a gap in it, which the reference does not have and which the exit rule (every cell inside the door's run) would treat oddly.
+
+## Aiming does not stop the time; the buy popup does
+- Why: the reference keeps the timer running while a booster aims and while it fires (it stops for under a second during the rocket's flight, too short to matter), so aiming costs time and the boosters stay a choice under pressure. The buy popup covers the board and asks for a decision about coins, so it pauses the level like the pause popup.
+- Instead of: stopping the time while aiming, which makes aiming free; a running clock under the buy popup, which punishes reading it.
+
+## A purchase saves the booster stock before spending the coins
+- Why: Core Save writes each key on its own, and the stock and the coins are two keys, so the two writes are not one step. Saving the stock first means a crash between them leaves the player with boosters they did not pay for rather than coins gone for nothing.
+- Instead of: one save document for coins and boosters, which ties two features' data together for a window of milliseconds.
