@@ -148,6 +148,51 @@ namespace Game.Tests.Play
             Assert.AreEqual(0, _effect.Applied);
         }
 
+        [Test]
+        public void Freeze_BeforeTheFirstTouch_IsRefused()
+        {
+            var attempt = TwoBlocks();
+
+            Assert.IsFalse(attempt.Freeze(10f));
+            Assert.IsFalse(attempt.IsFrozen);
+        }
+
+        [Test]
+        public void Freeze_StopsTheTimeForItsSeconds()
+        {
+            var attempt = Touched(TwoBlocks());
+
+            Assert.IsTrue(attempt.Freeze(10f));
+            attempt.Tick(12f);
+
+            Assert.AreEqual(TimeLimit - 2f, attempt.RemainingSeconds, Tolerance);
+            Assert.IsFalse(attempt.IsFrozen);
+        }
+
+        [Test]
+        public void Freeze_WhileFrozen_IsRefused()
+        {
+            var attempt = Touched(TwoBlocks());
+            attempt.Freeze(10f);
+            attempt.Tick(4f);
+
+            Assert.IsFalse(attempt.CanFreeze);
+            Assert.IsFalse(attempt.Freeze(10f));
+            attempt.Tick(7f);
+            Assert.IsTrue(attempt.CanFreeze);
+
+            Assert.AreEqual(TimeLimit - 1f, attempt.RemainingSeconds, Tolerance);
+        }
+
+        [Test]
+        public void Freeze_AfterTheLevelFailed_IsRefused()
+        {
+            var attempt = Touched(TwoBlocks());
+            attempt.Tick(TimeLimit);
+
+            Assert.IsFalse(attempt.Freeze(10f));
+        }
+
         private static LevelAttempt Touched(LevelAttempt attempt)
         {
             attempt.Grab(1.5f, 0.5f, out _);

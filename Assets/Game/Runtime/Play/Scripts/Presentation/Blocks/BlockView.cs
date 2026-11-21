@@ -26,6 +26,7 @@ namespace Game.Play
             CellCount = cellCount;
             _pieces.Clear();
             _renderers.Clear();
+            transform.localScale = Vector3.one;
         }
 
         private void Awake() => enabled = false;
@@ -97,6 +98,23 @@ namespace Game.Play
                 .OnComplete(Hide)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
             IsLeaving = true;
+        }
+
+        public bool TryVanish(Vector3 target, float duration, float delay, Ease ease)
+        {
+            if (IsLeaving || !gameObject.activeSelf)
+                return false;
+            _outline.Hide();
+            StopMotion();
+            _target = target;
+            _motion = DOTween.Sequence()
+                .AppendInterval(delay)
+                .Append(transform.DOLocalMove(target, duration).SetEase(ease))
+                .Join(transform.DOScale(0f, duration).SetEase(ease))
+                .OnComplete(Hide)
+                .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+            IsLeaving = true;
+            return true;
         }
 
         public void CatchUp(BoardBlock block)

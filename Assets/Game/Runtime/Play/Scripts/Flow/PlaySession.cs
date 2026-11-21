@@ -17,6 +17,7 @@ namespace Game.Play
         private bool _running;
         private Action _onWon;
         private Action _onFailed;
+        private IBooster _booster;
 
         public float RemainingSeconds => _attempt == null ? 0f : _attempt.RemainingSeconds;
 
@@ -33,6 +34,7 @@ namespace Game.Play
 
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
+            _booster?.Cancel();
             _pieces.ReleaseAll();
             _attempt = new LevelAttempt(level, LevelMechanics.For(level));
             _running = true;
@@ -59,8 +61,21 @@ namespace Game.Play
 
         public void Resume() => _attempt.Resume();
 
+        public bool IsAvailable(IBooster booster) => _running && booster.IsAvailable(_attempt);
+
+        public void Use(IBooster booster, AimingOverlay overlay, BoosterShots shots)
+        {
+            if (_booster != null || !IsAvailable(booster))
+                return;
+            _booster = booster;
+            booster.Use(new BoosterContext(_attempt, _interaction, overlay, shots), BoosterDone);
+        }
+
+        private void BoosterDone() => _booster = null;
+
         private void End(LevelOutcome outcome)
         {
+            _booster?.Cancel();
             _running = false;
             _interaction.Release();
             var ended = outcome == LevelOutcome.Won ? _onWon : _onFailed;

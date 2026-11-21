@@ -27,5 +27,7 @@ namespace Game.Play
             local = default;
             return false;
         }
+
+        public Vector2 ToScreen(Vector3 local) => _camera.WorldToScreenPoint(_board.TransformPoint(local));
     }
 }
