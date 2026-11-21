@@ -4,34 +4,39 @@ using Game.Data.Levels;
 
 namespace Game.Logic.Play
 {
-    public sealed class Board
+    public sealed class Board : IReadOnlyBoard
     {
         public const int NoBlock = -1;
 
         private readonly int[] _occupant;
-        private readonly BoardBlock[] _blocks;
+        private readonly List<BoardBlock> _blocks;
         private readonly DoorData[] _doors;
+        private readonly IReadOnlyList<IMoveRule> _rules;
+        private readonly IReadOnlyList<IBlockGuard> _guards;
 
         public int Width { get; }
         public int Height { get; }
         public int RemainingBlocks { get; private set; }
+        public int GoneCount { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
         public IReadOnlyList<BoardBlock> Blocks => _blocks;
 
-        public Board(LevelData level)
+        public Board(LevelData level, IReadOnlyList<IMoveRule> rules, IReadOnlyList<IBlockGuard> guards)
         {
             Width = level.Width;
             Height = level.Height;
+            _rules = rules;
+            _guards = guards;
             _occupant = new int[Width * Height];
             Array.Fill(_occupant, NoBlock);
             _doors = level.Doors.ToArray();
-            _blocks = new BoardBlock[level.Blocks.Count];
-            for (var i = 0; i < _blocks.Length; i++)
+            _blocks = new List<BoardBlock>(CellsOf(level));
+            for (var i = 0; i < level.Blocks.Count; i++)
             {
-                _blocks[i] = new BoardBlock(level.Blocks[i]);
+                _blocks.Add(new BoardBlock(level.Blocks[i]));
                 SetOccupant(_blocks[i], i);
             }
-            RemainingBlocks = _blocks.Length;
+            RemainingBlocks = _blocks.Count;
         }
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
@@ -41,21 +46,35 @@ namespace Game.Logic.Play
         public bool TryLeave(int block, out int exitDoor)
         {
             exitDoor = StepResult.NoDoor;
-            var leaving = _blocks[block];
-            if (leaving.HasLeft)
+            if (_blocks[block].IsGone)
                 return false;
             exitDoor = FindExitDoor(block);
             if (exitDoor == StepResult.NoDoor)
                 return false;
-            SetOccupant(leaving, NoBlock);
-            Remove(leaving);
+            Remove(block);
             return true;
+        }
+
+        public void Hit(int block)
+        {
+            if (!_blocks[block].IsGone && !TryAbsorbHit(block))
+                Remove(block);
+        }
+
+        public bool IsGuarded(int block)
+        {
+            for (var i = 0; i < _guards.Count; i++)
+            {
+                if (_guards[i].Guards(this, block))
+                    return true;
+            }
+            return false;
         }
 
         public bool CanStep(int block, Direction direction)
         {
             var moving = _blocks[block];
-            if (moving.HasLeft)
+            if (moving.IsGone || !Allows(block, direction))
                 return false;
             for (var i = 0; i < moving.CellCount; i++)
             {
@@ -82,10 +101,35 @@ namespace Game.Logic.Play
             return new StepResult(true, moving.Position, exitDoor);
         }
 
-        private void Remove(BoardBlock block)
+        private void Remove(int index)
         {
-            block.HasLeft = true;
+            var block = _blocks[index];
+            SetOccupant(block, NoBlock);
+            block.IsGone = true;
             RemainingBlocks--;
+            GoneCount++;
+        }
+
+        private bool TryAbsorbHit(int block)
+        {
+            for (var i = 0; i < _guards.Count; i++)
+            {
+                if (!_guards[i].Guards(this, block))
+                    continue;
+                _guards[i].TakeHit(block);
+                return true;
+            }
+            return false;
+        }
+
+        private bool Allows(int block, Direction direction)
+        {
+            for (var i = 0; i < _rules.Count; i++)
+            {
+                if (!_rules[i].Allows(this, block, direction))
+                    return false;
+            }
+            return true;
         }
 
         private void SetOccupant(BoardBlock block, int occupant)
@@ -112,6 +156,8 @@ namespace Game.Logic.Play
             if (!Touches(block, door.Side))
                 return false;
             if (!Covers(door, block))
+                return false;
+            if (!Allows(index, Direction.OutOf(door.Side)))
                 return false;
             return IsWayOutFree(index, door.Side);
         }
@@ -151,6 +197,14 @@ namespace Game.Logic.Play
                     return false;
             }
             return true;
+        }
+
+        private static int CellsOf(LevelData level)
+        {
+            var cells = 0;
+            foreach (var block in level.Blocks)
+                cells += block.Shape.Count;
+            return cells;
         }
 
         private int IndexOf(Cell cell) => cell.IndexIn(Width);

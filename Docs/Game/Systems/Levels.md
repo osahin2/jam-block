@@ -3,15 +3,15 @@
 > Summary: The level format shared by the level editor and the game: board size, blocks with shape and color, doors on the board's sides, time limit. Plain C# types in `Game.Data`, stored in one `LevelAsset` ScriptableObject per level, checked by `LevelValidator`.
 
 ## Code
-- Folder: `Assets/Game/Data/Levels/` (format), `Assets/Game/Logic/Levels/` (validation), `Assets/Game/Runtime/Levels/` (asset)
+- Folder: `Assets/Game/Data/Levels/` (format), `Assets/Game/Logic/Levels/Validation/` (the validator and its checks), `Assets/Game/Logic/Levels/Report/` (the report), `Assets/Game/Runtime/Levels/` (asset)
 - Assembly: `Game.Data` (`noEngineReferences: true`), `Game.Logic`, `Game`
-- Entry points: `LevelData` (`Data/Levels/LevelData.cs`), `LevelValidator` (`Logic/Levels/LevelValidator.cs`), `LevelAsset` (`Runtime/Levels/Scripts/Content/LevelAsset.cs`)
+- Entry points: `LevelData` (`Data/Levels/LevelData.cs`), `LevelValidator` (`Logic/Levels/Validation/LevelValidator.cs`), `LevelAsset` (`Runtime/Levels/Scripts/Content/LevelAsset.cs`)
 
 ## How it works
 | Type | Fields |
 |---|---|
 | `LevelData` | `Width`, `Height` in cells; `TimeLimitSeconds`; `Blocks`; `Doors`; `IsOnBoard(cell)` |
-| `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position` |
+| `BlockData` | `ColorId`; `Position`, the block's anchor cell; `Shape`, its cells relative to `Position`; `Ice`, the ice on the block at the start (0: none; rules in [Board](Board.md), Mechanics); `ExtentAlong(side)` through `ShapeExtent`, which the board's blocks share |
 | `DoorData` | `ColorId`; `Side` (`Top`, `Bottom`, `Left`, `Right`); `Start`, the first covered cell along the side; `Length` in cells; `End` and `Covers(along)`, the one place that says which cells a door covers; `FitsSide(width, height)`, `Overlaps(side, start, end)` and `SpanFits`, the one place for the door rules the validator and the level editor both apply |
 | `Cell` | `X` column from the left, `Y` row from the top; value equality, `+`, `-`, `Touches` (shares an edge), `IsInside(width, height)` and `IndexIn(width)`, used by the board and the validator alike |
 
@@ -36,6 +36,7 @@
 | `DoorsOverlap` | error | a door covering a cell of the same side that an earlier door covers |
 | `BlockCannotLeave` | warning | no door of the block's color is as wide as the block's extent along the door's side |
 
+- The validator is a list of checks (`ILevelCheck`, in `Validation/`: `TimeLimitCheck`, `HasBlocksCheck`, `BlockCellsCheck`, `DoorPlacementCheck`, `BlocksCanLeaveCheck`), run in that order after the size, which every other check needs to index cells and so stops the rest. A mechanic adds its check as one entry in `LevelValidator`'s list; a check adds to the report and changes nothing else.
 - Errors make a level unplayable and are not saved; warnings are shown but do not stop saving.
 - `BlockCannotLeave` checks widths only; whether the block can reach the door is the solver's question (phase 7).
 - The level editor ([Level editor](LevelEditor.md)) shows the report and saves only without errors; `ProjectLevelsTests` fails when any `LevelAsset` in the project has an error.

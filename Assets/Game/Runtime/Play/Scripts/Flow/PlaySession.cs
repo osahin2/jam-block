@@ -34,7 +34,7 @@ namespace Game.Play
         public void Start(LevelData level, Action onWon, Action onFailed)
         {
             _pieces.ReleaseAll();
-            _attempt = new LevelAttempt(level);
+            _attempt = new LevelAttempt(level, LevelMechanics.For(level));
             _running = true;
             _onWon = onWon;
             _onFailed = onFailed;

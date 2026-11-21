@@ -55,7 +55,14 @@ namespace Game.Play
         {
             var block = _attempt.Release();
             if (block != LevelAttempt.NoBlock)
-                _blocks[block].SnapTo(_layout.CellCenter(_attempt.PositionOf(block)));
+                _blocks[block].SnapTo(_layout.CellCenter(_attempt.Board.Blocks[block].Position));
+        }
+
+        public void CatchUp()
+        {
+            var blocks = _attempt.Board.Blocks;
+            for (var i = 0; i < blocks.Count; i++)
+                _blocks[i].CatchUp(blocks[i]);
         }
 
         private void Grab(Vector2 screen)
@@ -95,13 +102,14 @@ namespace Game.Play
         {
             var side = _level.Doors[pose.ExitDoor].Side;
             var frame = _layout.FrameWidth / _layout.CellSize;
-            var length = _level.Blocks[pose.Block].ExtentAcross(side) + frame;
+            var length = _attempt.Board.Blocks[pose.Block].ExtentAcross(side) + frame;
             var slide = _motion.SlideDuration(length);
             var doorCell = _layout.CellCenter(pose.Position);
             var outside = doorCell + _layout.ToLocal(Direction.OutOf(side)) * (length * _layout.CellSize);
             _blocks[pose.Block].Leave(doorCell, outside, slide);
             var snap = _motion.SnapDuration;
             _doors[pose.ExitDoor].LetThrough(snap + _motion.SlideDuration(frame), snap + slide);
+            CatchUp();
         }
     }
 }

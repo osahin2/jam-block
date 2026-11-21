@@ -5,7 +5,7 @@ namespace Game.Logic.Play
 {
     public sealed class LevelAttempt
     {
-        public const int NoBlock = Board.NoBlock;
+        public const int NoBlock = Play.Board.NoBlock;
 
         private readonly Board _board;
         private readonly BlockDrag _drag;
@@ -14,12 +14,15 @@ namespace Game.Logic.Play
         public LevelOutcome Outcome { get; private set; }
         public float RemainingSeconds => _timer.RemainingSeconds;
         public bool IsPaused => _timer.IsPaused;
+        public bool IsAiming { get; private set; }
+        public bool CanUseBoosters => TakesTouches && _timer.HasStarted;
         public int HeldBlock => _drag.Block;
+        public IReadOnlyBoard Board => _board;
         private bool TakesTouches => Outcome == LevelOutcome.Playing && !IsPaused;
 
-        public LevelAttempt(LevelData level)
+        public LevelAttempt(LevelData level, LevelMechanics mechanics)
         {
-            _board = new Board(level);
+            _board = new Board(level, mechanics.Rules, mechanics.Guards);
             _drag = new BlockDrag(_board);
             _timer = new LevelTimer(level.TimeLimitSeconds);
         }
@@ -27,8 +30,8 @@ namespace Game.Logic.Play
         public bool Grab(float x, float y, out DragPose pose)
         {
             pose = DragPose.None;
-            var cell = new Cell((int)Math.Floor(x), (int)Math.Floor(y));
-            if (!TakesTouches || !_board.Contains(cell))
+            var cell = CellAt(x, y);
+            if (!TakesTouches || IsAiming || !_board.Contains(cell))
                 return false;
             _timer.Start();
             var block = _board.BlockAt(cell);
@@ -61,7 +64,27 @@ namespace Game.Logic.Play
             return block;
         }
 
-        public Cell PositionOf(int block) => _board.Blocks[block].Position;
+        public bool Aim()
+        {
+            if (!CanUseBoosters)
+                return false;
+            _drag.End();
+            IsAiming = true;
+            return true;
+        }
+
+        public void CancelAim() => IsAiming = false;
+
+        public bool TryApply(IBoardEffect effect, float x, float y)
+        {
+            var cell = CellAt(x, y);
+            if (!IsAiming || !TakesTouches || !_board.Contains(cell) || !effect.CanTarget(_board, cell))
+                return false;
+            effect.Apply(_board, cell);
+            UpdateWon();
+            IsAiming = false;
+            return true;
+        }
 
         public LevelOutcome Tick(float deltaSeconds)
         {
@@ -73,6 +96,8 @@ namespace Game.Logic.Play
         public void Pause() => _timer.Pause();
 
         public void Resume() => _timer.Resume();
+
+        private static Cell CellAt(float x, float y) => new Cell((int)Math.Floor(x), (int)Math.Floor(y));
 
         private void UpdateWon()
         {

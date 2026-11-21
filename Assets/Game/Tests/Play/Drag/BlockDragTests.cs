@@ -103,7 +103,7 @@ namespace Game.Tests.Play
 
         private static BlockDrag Grab(LevelData level, float x, float y)
         {
-            var board = new Board(level);
+            var board = Boards.Of(level);
             var drag = new BlockDrag(board);
             drag.Begin(board.BlockAt(new Cell((int)x, (int)y)), x, y);
             return drag;

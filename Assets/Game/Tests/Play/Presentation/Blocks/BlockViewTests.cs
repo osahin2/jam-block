@@ -1,4 +1,6 @@
+using Game.Data.Levels;
 using Game.Play;
+using Game.Tests.Levels;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -83,6 +85,40 @@ namespace Game.Tests.Play
 
             Assert.AreEqual(Vector3.forward, _view.transform.localPosition);
             Assert.IsFalse(_view.enabled);
+        }
+
+        [Test]
+        public void CatchUp_WithABlockStillOnTheBoard_KeepsShowingIt()
+        {
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(1, 0, 0, 1, 1).Build());
+
+            _view.CatchUp(board.Blocks[0]);
+
+            Assert.IsTrue(_view.gameObject.activeSelf);
+        }
+
+        [Test]
+        public void CatchUp_WithABlockGoneWithoutLeaving_StopsShowingIt()
+        {
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(1, 0, 0, 1, 1).Build());
+            board.Hit(0);
+
+            _view.CatchUp(board.Blocks[0]);
+
+            Assert.IsFalse(_view.gameObject.activeSelf);
+        }
+
+        [Test]
+        public void CatchUp_WhileTheBlockLeavesThroughItsDoor_LetsItSlideOut()
+        {
+            var board = Boards.Of(new LevelBuilder(3, 3).Rect(1, 1, 0, 1, 1).Door(1, Side.Top, 1).Build());
+            board.TryLeave(0, out _);
+            _view.Leave(Vector3.zero, Vector3.forward, 0.3f);
+
+            _view.CatchUp(board.Blocks[0]);
+
+            Assert.IsTrue(_view.gameObject.activeSelf);
+            Assert.IsTrue(_view.IsLeaving);
         }
     }
 }
