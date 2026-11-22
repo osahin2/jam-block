@@ -19,3 +19,6 @@ MonoBehaviour:
   _doorDropDuration: 0.05
   _doorRiseDelay: 0.1
   _doorRiseDuration: 0.06
+  _lockedShakeStrength: 0.15
+  _lockedShakeDuration: 0.3
+  _lockedShakeVibrato: 10

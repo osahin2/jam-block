@@ -26,12 +26,13 @@ Third party     VContainer, UniTask (only where needed)      Unity 2022.3 (base 
 | [Pooling](../Systems/Pooling.md) | `PrefabPool<T>`: prewarm, get under a parent with the prefab's pose, release | - | `PrefabPool<T>` (no service) |
 | [Audio](../Systems/Audio.md) | Sound effect cues on pooled sources, looping music with crossfade, volume and mute saved | Pooling, Save | `IAudioService`, `SfxCue`, `RegisterCoreAudio(settings)` |
 | [Haptics](../Systems/Haptics.md) | Semantic haptic presets through a platform backend (own iOS plugin), on/off saved, replaceable backend | Save | `IHapticService`, `RegisterCoreHaptics()` |
+| [Display](../Systems/Display.md) | Target frame rate and keep screen on, applied once at startup from a settings asset | - | `DisplaySettings`, `RegisterCoreDisplay(settings)` (no service) |
 | [Installers](../Systems/Installers.md) | `ScriptableObjectInstaller`: an asset that registers one feature's settings and services; a scope runs a list of them | - | `ScriptableObjectInstaller` |
 
 Every installer except Pooling's references VContainer; no service class does.
 
 ## Using Core in a game
-- **Root scope** (boot scene, never unloaded): `RegisterCoreSave()` first, then the app-wide modules that need it: `RegisterCoreAudio`, `RegisterCoreHaptics`, `RegisterCoreScenes`, `RegisterCoreLevels`.
+- **Root scope** (boot scene, never unloaded): `RegisterCoreDisplay(settings)` and `RegisterCoreSave()` first, then the app-wide modules that need it: `RegisterCoreAudio`, `RegisterCoreHaptics`, `RegisterCoreScenes`, `RegisterCoreLevels`.
 - **Content scene scope** (child of the root scope): `RegisterCoreUI(root)` with the scene's `UIRoot`, then each feature's `ScriptableObjectInstaller` from a serialized list; a feature installer calls `RegisterUIScreens(catalog)` for its screens.
 - The game keeps exactly one `AudioListener`, in the boot scene.
 - `Core.Save` is the only writer of persistent data; modules that keep player settings (Audio, Haptics, Levels) save through it.

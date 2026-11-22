@@ -31,6 +31,7 @@ Game systems get a note each in `Game/Systems/` as they are built.
 - [Boosters](Game/Systems/Boosters.md) - Freeze, Rocket, Hammer and Vacuum: saved stock with a free start (`BoosterInventory`), buying a pack with coins (`BoosterPurchase`, stock saved first), slots under the board, the aiming overlay dimming around the board, `TargetedBooster` fixing aim, apply, stock, shot, catch up; effects in logic (`HammerEffect`, `VacuumEffect`)
 - [Home](Game/Systems/Home.md) - the home screen after the reference: top bar, level path, level button and a five-tab nav bar whose middle tabs switch panels with an animated selection
 - [Preferences](Game/Systems/Preferences.md) - the settings popup: sound, music and vibration switches written to Core's audio and haptics, opened from Home's gear and as pause in the Game scene (with a home button)
+- [Player build](Game/Systems/PlayerBuild.md) - Android APK (development, release) and iOS Xcode project from a menu or batch mode with a size report; the mobile player, URP and quality settings and why
 - [Buttons](Game/Systems/Buttons.md) - `PressFeedback`: every button shrinks while pressed and springs back, tuned in one settings asset in the Boot scope
 - [Popups](Game/Systems/Popups.md) - `PopupEntrance`: every popup's dimmer fades in and its parts grow in one after the other, tuned in one settings asset in the Boot scope
 - [Level editor](Game/Systems/LevelEditor.md) - UI Toolkit window over a working copy of a level: a searchable level list (open, reorder by drag, duplicate, delete), New and Duplicate, a new level becoming an asset on its first save, Play saving and starting the game with that level; board drawn from above, select, block, door and erase tools as strategies, rebindable shortcuts, problems marked on the board and listed in plain words, the level previewed in the Game scene, undo per stroke, save only without errors
@@ -45,6 +46,7 @@ Systems of the Core package (`Packages/com.base-setup.core/`), one note each.
 - [Pooling](Base/Systems/Pooling.md) - `PrefabPool<T>` over `ObjectPool<T>`: prewarm inactive under a root, get under a parent with the prefab's pose, release, max idle size
 - [Audio](Base/Systems/Audio.md) - `SfxCue` one-shots on pooled sources, looping music with crossfade, volume and mute per channel saved through Save
 - [Haptics](Base/Systems/Haptics.md) - semantic presets through a platform backend (own iOS plugin, silent elsewhere), on/off saved through Save, game-supplied backend possible
+- [Display](Base/Systems/Display.md) - target frame rate (60, phones run at 30 without it) and keep screen on, applied once from a settings asset when the root container is built
 - [Installers](Base/Systems/Installers.md) - `ScriptableObjectInstaller`: a feature's settings and services registered from one asset, scopes run a list of them
 - [VContainer for Zenject users](Base/Architecture/VContainer-for-Zenject-users.md) - concept map and the differences that matter
 

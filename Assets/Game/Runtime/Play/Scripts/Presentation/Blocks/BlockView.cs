@@ -62,10 +62,10 @@ namespace Game.Play
 
         public void Follow(Vector3 target)
         {
-            if (enabled && target == _target)
+            _target = target;
+            if (enabled)
                 return;
             StopMotion();
-            _target = target;
             enabled = true;
         }
 

@@ -430,6 +430,7 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  _display: {fileID: 11400000, guid: 6fb8a6d6e68a24de5b55811e9156a384, type: 2}
   _audio: {fileID: 11400000, guid: f1152960f5331400880e0b986d92eeb9, type: 2}
   _transition: {fileID: 879341654}
   _installers:
