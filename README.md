@@ -1,6 +1,6 @@
 # rollic-case-study
 
-A vertical slice of a block-sliding color puzzle for Android (portrait, 1080 x 1920): home screen, settings, five levels with timer, coins, pause, restart and fail popup, and a visual level editor for designers. The case's optional scope is in too: ice blocker, arrow block, functional boosters and the unsolvable-level warning.
+A vertical slice of a block-sliding color puzzle for Android (portrait, 1080 x 1920): home screen, settings, levels with timer, coins, pause, restart and fail popup, and a visual level editor for designers that every level is made with. The case's optional scope is in too: ice blocker, arrow block, functional boosters and the unsolvable-level warning.
 
 <!-- Draft: GIF of the full flow, links to the APK and the recording. -->
 
@@ -17,7 +17,7 @@ A vertical slice of a block-sliding color puzzle for Android (portrait, 1080 x 1
 |---|---|
 | Home: level button, settings button, top UI, tab bar | Done. The middle tabs switch placeholder panels; avatar, lives and the coins' "+" are placeholders. |
 | Settings: vibration, sound and music toggles, placeholder buttons, close | Done. Each toggle shows its state and is saved. |
-| Gameplay: five levels, timer, coins, pause, restart, fail popup, home | Done. The timer starts on the first touch; coins are saved when the reward is taken. |
+| Gameplay: at least five levels, timer, coins, pause, restart, fail popup, home | Done. The timer starts on the first touch; coins are saved when the reward is taken. |
 | Level editor: board size, doors, blocks, timer, save, play | Done, with undo, a level list, validation, a scene preview and Play from the editor. |
 | Optional: unsolvable-level warning | Done. The editor solves the level after every change and asks before saving an unsolvable one. |
 | Optional: ice blocker and arrow block | Done, in the game and in the editor. |
@@ -113,8 +113,8 @@ Bound fields follow undo by themselves, states live in USS and layout in UXML. O
 ### The solver runs on the game's own rules and warns, never refuses
 A breadth-first search over every arrangement on the game's own board, so it cannot drift from the rules and finds the fewest moves. The editor asks before saving an unsolvable level but still saves it, as the case asks for a warning. *Instead of* a heuristic search, which cannot prove a level unsolvable.
 
-### The five levels are designed in the editor, at the reference's scale
-The case asks for "the first 5 levels" without saying whether they must copy the reference game's first five layouts. They are read as the game's opening levels: the reference's first five set their scale (4 x 5 to 5 x 6 boards, two to six blocks, five minutes, 40 coins each), and the layouts were designed from scratch in the level editor, which the case requires the five levels to come from.
+### The levels are designed in the editor, at the reference's scale
+The case asks for "the first 5 levels" without saying whether they must copy the reference game's first five layouts. They are read as the game's opening levels: the reference's first five set their scale (4 x 5 to 5 x 6 boards, two to six blocks, five minutes, 40 coins each), and the layouts were designed from scratch in the level editor, which the case requires the levels to come from.
 
 ## Performance
 The code follows the usual mobile practices: nothing allocates in the drag path, the timer tick or the HUD's countdown, and board pieces and block views come from pools. On a low-end phone (Huawei Mate 20 Lite, Android 10) the game plays smoothly at 60 fps with no bottleneck found, so no further optimization pass was made.
@@ -126,7 +126,7 @@ The code follows the usual mobile practices: nothing allocates in the drag path,
 
 ## LLM tools
 Claude Code (Anthropic, Pro plan) was used throughout, with a clear split of roles:
-- **The developer decided and reviewed:** the first plan and the overall architecture, the folder structure, what to build and in what order; reviewed the code, pointed out structures that went wrong and proposed how to change them; edited the prefabs; designed the five levels in the level editor; tried every step in the editor and on a device.
+- **The developer decided and reviewed:** the first plan and the overall architecture, the folder structure, what to build and in what order; reviewed the code, pointed out structures that went wrong and proposed how to change them; edited the prefabs; designed the levels in the level editor; tried every step in the editor and on a device.
 - **Claude Code did the mechanical work:** wrote the code, the tests and the docs following those decisions, ran compiles, tests and editor scripts in batch mode, studied the reference game on a device over adb, and ran independent code reviews in a separate agent.
 - **Written by Claude Code and not edited by hand:** the tests, the level editor's UI Toolkit code and the shader code. They were checked by running them, not line by line.
 
