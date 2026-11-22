@@ -1,29 +1,12 @@
 # Buttons
 
-> Summary: One touch feedback for every button in the game: the button shrinks while pressed and springs back on release, tuned in one settings asset.
+> One touch feedback for every button: it shrinks while pressed and springs back, tuned in one settings asset in the Boot scope.
 
-## Code
-- Folder: `Assets/Game/Runtime/Buttons/` (`Scripts/Presentation/`, `Scripts/Settings/`, `Scripts/Installers/`; assets in `Settings/`, `Installers/`)
-- Assembly: `Game`
-- Entry points: `PressFeedback` (`Buttons/Scripts/Presentation/PressFeedback.cs`), a component added next to a `Button` (any `Selectable`); `ButtonFeedbackSettings` (`Buttons/Settings/ButtonFeedbackSettings.asset`); `ButtonsInstaller` (`Buttons/Installers/ButtonsInstaller.asset`, in the Boot scope's list)
+**Code:** `Runtime/Buttons/`. **Entry:** `PressFeedback` (next to any `Selectable`), the prefabs `TextButton`, `TextButtonGreen`, `IconButton`, `CloseButton`.
 
-## How it works
-- **Press.** `PressFeedback` handles the EventSystem's pointer down and up. On a press with the primary button, while the `Selectable` is interactable, it scales the button to `PressedScale` of its size at rest; on the release it springs back. The EventSystem sends the release to the pressed object, so a finger that slides off still brings the button back.
-- **Motion.** One DOTween scale tween at a time, killed before the next; it runs in unscaled time, so a pause through `Time.timeScale`, which the game does not use today, would not freeze it, and is linked to the object with `KillOnDisable`. `OnDisable` also puts the button back at its size at rest, so a popup closed by its own button opens next time at the right size.
-- **Settings.** The pressed scale, the press and release durations and eases are in `ButtonFeedbackSettings`, registered in the Boot scope by `ButtonsInstaller`, so every scene's buttons share one tuning. Screens are created through the container ([UI](../../Base/Systems/UI.md)), so the component gets the settings with an `[Inject]` method.
-- **Buttons.** The buttons with feedback use the `Button`'s Transition None, so the scale is their only press visual: the HUD's restart and pause, the popups' buttons, the settings popup's switches, close and home, and the Home screen's level button.
+## Rules
+- A button's only press visual is this component (Transition None); no screen animates its own buttons. A non-interactable button does not react.
+- The release reaches the pressed object even when the finger slides off, so the button always comes back. `OnDisable` restores the rest size, so a popup closed by its own button reopens right.
+- Unscaled time, one tween at a time.
 
-- **Prefabs.** Every button is an instance of one of `Buttons/Prefabs/`: `TextButton` (the blue button with a navy label), its variant `TextButtonGreen` (green, green label), `IconButton` (a square with an icon; the HUD's restart and pause and the coins' "+" override its sprites) and `CloseButton` (the popups' corner close). Each carries a `Button` with Transition None and a `PressFeedback`, so a new button starts with both.
-
-## Rules & invariants
-- A button gets its feedback only from this component; no screen animates its own buttons.
-- A non-interactable button does not react.
-- A press allocates one DOTween tween (recycling is off in the DOTween settings) and nothing else.
-
-## Tests
-- No EditMode test of the motion: the component is a tween on pointer events, which DOTween does not run in EditMode. Checked in the editor: press and hold a button, slide off and release, press a button that closes its popup and open the popup again.
-- `Tests/Buttons/Presentation/ScreenButtonsTests`: every button in the game's prefabs has a graphic that is a raycast target and a `PressFeedback`, so a button that takes no touch or gives no feedback fails here.
-- `Tests/Bootstrap/InstallerAssetTests`: `ButtonsInstaller` has its settings assigned.
-
-## Related
-- [Play](Play.md), [Preferences](Preferences.md), [App flow](AppFlow.md)
+Related: [Popups](Popups.md)

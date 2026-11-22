@@ -1,149 +1,131 @@
 # Decisions
 
-> Summary: One short entry per choice a reviewer could ask about. The README's "architecture decisions" section is written from this file, so each entry says what was chosen and why in a few lines. Newest last.
-
-Format:
-```
-## <Decision as a statement>
-- Why: <the reason, one or two lines>
-- Instead of: <the alternative and why it lost>
-```
+> One short entry per choice a reviewer could ask about: what was chosen, why, and what it was chosen over. The README's decisions section is written from it. Newest last.
 
 ## Four game assemblies: Data, Logic, Runtime, Editor
-- Why: the separation of data, logic and view is checked by the compiler, not only by convention. `Game.Logic` has no engine reference, so rules cannot touch a view and run in EditMode tests without a scene. The editor and the game share one data assembly, so there is only one level format.
-- Instead of: one `Game` assembly with folders, where a rule could reach a transform and nothing would stop it.
+- Why: the compiler checks the separation of data, logic and view; `Game.Logic` has no engine reference, so rules run in EditMode tests without a scene, and the editor and game share one level format.
+- Instead of: one assembly with folders, where a rule could reach a transform unchecked.
 
 ## One entry class per feature
-- Why: other features know one class and its data types (`PlaySession.Start(level, onEnded)`), so a feature can change inside without touching its callers, and the coupling between features is visible in a few signatures.
-- Instead of: features reaching into each other's services, or an event bus where it is not visible who reacts.
+- Why: other features know one class and its data types, so a feature changes inside without touching callers and coupling shows in a few signatures.
+- Instead of: features reaching into each other's services, or an event bus that hides who reacts.
 
 ## A base package (Core) reused from earlier work
-- Why: save, scene switching, UI screens, pooling, audio and haptics are not what the case evaluates; reusing a tested, game-agnostic package keeps the time for the game and the editor.
-- Instead of: writing these systems again inside the case.
+- Why: save, scenes, UI, pooling, audio and haptics are not what the case evaluates; a tested package keeps the time for the game and the editor.
+- Instead of: writing them again.
 
-## Dependency injection, with VContainer
-- Why DI: each class states what it needs in its constructor, the object graph is put together in one place per scene (the scope and the feature installers), and tests build classes directly with test doubles. With a service locator or static singletons the dependencies hide inside method bodies, a missing service shows up only when that line runs, and tests must set up and reset global state. Constructor injection is the usual practice in .NET and common in larger Unity codebases.
-- Why VContainer: it is maintained (1.19.0, July 2026), small, and resolves without allocating. It injects only what is registered or created through it and never scans the scene for MonoBehaviours, so composition stays explicit; it checks the graph for circular dependencies when the container is built, `[Inject]` members included; the container cannot change after it is built. The project uses constructor injection for every plain class and `[Inject]` methods only on MonoBehaviours, which cannot have constructors.
-- Instead of: Zenject, whose original repository has had no release since 9.2.0 (May 2020) and its community fork Extenject none since 9.2.1 (November 2021; a 9.3.1 pre-release in July 2022). It brings signals, memory pools, factories, sub-containers and decorator and convention bindings this game does not use, and scans the scene's GameObjects through reflection at start. Its editor-time validation of the graph, which VContainer lacks, matters little with three scenes.
-- Changing the container: only the composition root uses it: three scopes, the feature installers, three entry points and `PlaySession` (`IStartable`, `ITickable`), and `[Inject]` methods on 13 MonoBehaviours. `Game.Data`, `Game.Logic`, `Game.Editor` and the game's tests do not reference it, and no class outside an installer holds the resolver. A move to another container rewrites those files and Core's installers; the classes they build stay as they are.
+## Dependency injection with VContainer
+- Why: constructors state what a class needs, each scene is composed in one place, tests build classes directly. VContainer is maintained, small, resolves without allocating and never scans the scene. Only the composition root references it, so a container change touches scopes and installers only.
+- Instead of: a service locator or singletons, which hide dependencies; Zenject, unreleased since 2021 and much larger than needed.
 
-## No event bus in the case, with a rule for when one fits
-- Why: a bus pays off when unrelated observers (analytics, quests, tutorials) watch facts the publisher must not know about. The case has no such observer: flow is owned by one orchestrator, the coin balance has one owner, sound and haptics are called from presentation. The rule and the planned shape (a small typed Core bus, struct messages, synchronous, per scope) are in the Communication convention, so it can be added when a real observer appears.
-- Instead of: a bus from day one, which hides who reacts and leaves order to subscription order; or forbidding it outright, which forces cross-cutting observers into every publisher's constructor.
+## No event bus, with a rule for when one fits
+- Why: a bus pays off for unrelated observers (analytics, quests); the case has none. Flow has one orchestrator, the coin balance one owner. The rule and the planned shape are in the conventions.
+- Instead of: a bus from day one, which hides who reacts and leaves order to subscriptions.
 
 ## Free drag, with the rules in whole cells
-- Why: the reference moves a block continuously under the finger in both axes, stopped by walls and other blocks. The logic keeps whole cells (`Step(block, direction)`, a check whether a step is free) so rules and tests stay discrete; the view adds a sub-cell offset of up to half a cell toward a free neighbour cell and none toward a blocked one, commits a step when the finger passes half a cell, and settles the block on its cell on release. The move result is the block's new cell and, when it left, the door it left through.
-- Instead of: swipe-to-slide until blocked, which is a different game; or continuous positions in the logic, which makes collisions and tests float-based.
+- Why: the reference moves blocks continuously under the finger; keeping the logic in whole cells keeps rules and tests discrete, while the view adds a sub-cell offset.
+- Instead of: swipe-to-slide (a different game), or float positions in the logic.
 
-### Blocks follow their target with frame-rate independent exponential smoothing
-- Why: the block should feel attached to the finger: `1 - e^(-ln2 · dt / halfLife)` of the remaining distance per frame has no inertia, so starts and reversals answer at once, needs no velocity state to reset between drags, behaves the same at any frame rate and cannot pass the target on a long frame. The half-life is tuned in the motion settings.
-- Instead of: `Vector3.SmoothDamp`, a critically damped spring whose velocity state eases every start and carries through reversals; or `Lerp(a, b, k · dt)`, which changes with the frame rate and overshoots when `k · dt > 1`.
+### Blocks follow the finger with frame-rate independent exponential smoothing
+- Why: no inertia, no velocity state, the same at any frame rate, never overshoots.
+- Instead of: `SmoothDamp`, which eases every start; `Lerp(k·dt)`, which depends on the frame rate.
 
-## DOTween for tweens
-- Why: it is the tween library most Unity developers already know, so a motion is a few readable lines. Version 1.3.045, in `Assets/Plugins/Demigiant/`.
-- Instead of: hand-written timers and state fields in every view for each motion.
+## DOTween for one-shot motions
+- Why: most Unity developers know it, so a motion is a few readable lines.
+- Instead of: hand-written timers in every view.
 
 ## Levels as ScriptableObject assets holding engine-free data
-- Why: one asset per level gives asset references, the inspector and Unity's undo (the level editor edits an in-memory ScriptableObject copy with it and writes the copy back only when it has no errors, so a dirty asset with errors is never saved by Ctrl+S); the level types in `Game.Data` are plain C# with an own `Cell` and a color id, so logic and tests never touch the engine, and the view maps color ids to the supplied art.
-- Instead of: JSON files, which need own undo, file handling and a second format check; or `Vector2Int` and `Color` in the data, which ties the data assembly to the engine.
-
-### Level data as plain classes with public fields, the asset class in Game
-- Why: Unity serializes public fields of a `[Serializable]` type without an engine reference, so `Game.Data` stays engine-free (`noEngineReferences: true`) and the logic and its tests never load the engine. `LevelAsset`, the ScriptableObject, is in `Game` and holds one `LevelData`. Nothing changes the data at runtime: `Board` copies what it needs into its own state.
-- Instead of: private `[SerializeField]` fields with getters, which need `UnityEngine` in `Game.Data`; or a second, read-only copy of every type.
+- Why: assets give references, the inspector and Unity's undo; the level types are plain C# with public fields, so logic and tests never load the engine.
+- Instead of: JSON files with their own undo and format check; `Vector2Int` and `Color` in the data.
 
 ## Boot, Home and Game scenes
-- Why: Core.Scenes switches additive scenes on top of a boot scene; leaving a level rebuilds cleanly. Continue and restart rebuild the level inside the Game scene without a scene switch, as the reference goes straight to the next level.
-- Instead of: one content scene with screens, where leftovers from a level are easier to miss.
+- Why: Core switches additive scenes over a boot scene, so leaving a level rebuilds cleanly; next level and restart stay inside Game, as in the reference.
+- Instead of: one scene with screens, where level leftovers are easier to miss.
 
 ## A block is a set of cells relative to an anchor
-- Why: one type covers rectangles, L shapes and any later shape; a step changes only the anchor; the view builds the block from the same cells. The exit check uses the block's extent along the door's side, which works for every shape.
-- Instead of: width and height plus a shape kind, which needs a case per shape in the rules, the editor and the view.
+- Why: one type covers every shape; a step changes only the anchor; the view builds from the same cells.
+- Instead of: width, height and a shape kind, with a case per shape everywhere.
 
-## Levels are validated when they are made, not when they are played
-- Why: levels come only from the level editor. `LevelValidator` returns every problem with the block, door or cell it is about, split into errors (cannot be played, not saved) and warnings (probably a mistake, shown); the editor uses it before saving and a test checks every level asset in the project. The board takes a level as given.
-- Instead of: checks in the `Board` constructor as well, a second guard for data that cannot reach the game without passing the editor and the test; or exceptions as the validation, which give the editor only the first problem as text.
+## Levels are validated when made, not when played
+- Why: levels come only from the editor, which shows every problem with its block, door or cell; a test checks every level asset.
+- Instead of: a second check in the board, or exceptions that report only the first problem.
 
-## One level attempt is the play session's only rule object
-- Why: the session needs one answer per touch and per frame: is this touch taken, where is the block, is the level over. `LevelAttempt` owns the board, the drag and the timer and the rules between them (the first touch starts the timer, a popup stops both, the outcome is set once), so they are tested without a scene and the session only shows what it returns. A restart is a new attempt, so nothing survives from the last try.
-- Instead of: the session calling `Board`, `BlockDrag` and a timer itself, which puts the win, fail and pause rules in view code.
+## One level attempt is the session's only rule object
+- Why: the board, drag, timer and the rules between them are tested without a scene; a restart is a new attempt.
+- Instead of: the session calling each part, which puts win, fail and pause rules in view code.
 
 ## Board input through the EventSystem on one board-sized collider
-- Why: the EventSystem sends a press to the UI first, so HUD buttons and popups block the board without extra checks, and it is the input path the UI uses anyway. One collider covers the board, so touches outside it never arrive, and which block is under the finger stays a logic question (`Board.BlockAt`), not a physics one. Drag positions are projected onto the touch plane, which also works when the finger leaves the collider. The visual spike polled `Pointer.current` to move fast; it was replaced in phase 4 step 4. Only the first pointer and the primary button drag (a second finger or a right click moves nothing), and the EventSystem's drag threshold is turned off on the board, so a block follows from the first movement as before. The projection runs in the board root's local space, the space the board is built and framed in, so the board root can be moved without breaking touches. The camera's `PhysicsRaycaster` raycasts into a fixed array (`maxRayIntersections` 4); at its default of 0 it calls `RaycastAll` every frame and allocates.
-- Instead of: polling the pointer each frame, which ignores UI; or a collider and handler per block, which moves the block lookup into physics and needs colliders rebuilt as blocks move.
+- Why: UI takes a press first, so HUD and popups block the board for free; which block is touched stays a logic question.
+- Instead of: polling the pointer, which ignores UI; a collider per block, which moves the lookup into physics.
 
-## The level editor window is UI Toolkit only
-- Why: Unity recommends UI Toolkit for complex editor tools, and it gives the usability the editor is evaluated for with little code: fields bound to the working copy follow undo by themselves, hover and selected states live in USS, the layout lives in UXML apart from the code, and a `ListView` keeps the level list quick at any length. The window has no IMGUI inside it, so it runs on one UI model.
-- Instead of: IMGUI, quick for painting a grid, but hover, selection states and keeping fields in step with undo are hand-written; or a board in an `IMGUIContainer` inside a UI Toolkit window, which leaves two UI models in one window.
+## The level editor is UI Toolkit only
+- Why: bound fields follow undo by themselves, states live in USS, layout in UXML, and `ListView` stays quick with thousands of levels.
+- Instead of: IMGUI, where hover, selection and undo sync are hand-written; or both models in one window.
 
-## Levels are previewed in the Game scene, built by the game and never saved
-- Why: the designer sees a level in the Scene and Game views as the game will build it, framing included, without entering play mode. The preview shows the level through the game's own `LevelStage` (layout, build, camera framing), so there is no second way of drawing or framing a level, and its objects are `DontSave` and not editable, so the level stays in its asset only and the scene file never changes. It shows the level open in the level editor, live, or else the level asset last selected in the Project window; following the selection while no window is open needs an `[InitializeOnLoad]` editor hook, a static class called only by the window (the play starter is the other one, for the same reason: it acts after a domain reload).
-- Instead of: saving the level into the scene, which gives a level two sources and a scene diff per level edit; or a preview inside the editor window (`PreviewRenderUtility`), which does not show the game camera's framing.
+## Levels are previewed in the Game scene, built by the game, never saved
+- Why: the designer sees the level as the game frames it without entering play mode, through the same `LevelStage`; the scene file never changes.
+- Instead of: saving levels into the scene; an in-window preview that lacks the game camera.
 
 ## The held block's outline is a fork of Quick Outline
-- Why: the outline has to follow the block's outer shape only, an L's concave corner included, with nothing on the seams between its quarter pieces or around the studs, at an even width on screen. Quick Outline (MIT, by Chris Nolet) does this with two small passes over the block's own pieces: a mask pass marks the stencil wherever any piece is drawn, then a fill pass draws the pieces again pushed out along smoothed normals only where nothing is marked, so only the rim around the whole silhouette shows. The push grows with depth, so the width stays the same on screen. Its passes have no light mode, which URP draws as unlit passes, so it works in URP 14 as published. It is vendored in `Assets/Plugins/QuickOutline/` with its own assembly: the original files in one commit, our changes in the next, so the history shows what was taken and what was changed.
-- What we changed, for pooled pieces and allocation-free grabs: the block view gives the renderers once it is built, instead of a search in `Awake`; one shared mask and one shared fill material, made from `BlockOutlineSettings` (color, width) and owned by the Game scope, instead of material instances per component loaded from `Resources`; turning it on and off swaps each renderer's materials between two arrays made at build, instead of building lists with LINQ on every enable; the smoothed normals are written into UV3 once at import (`BlockPlatesImport`), instead of at run time with LINQ and a static mesh registry. The outline outlines a piece's whole mesh, so the blocks are built from flat plates made from the supplied pieces in Blender (`Tools/Blender/make_block_plates.py`): with the supplied pieces sunk into the ground, the hidden part spilled the outline below the block. The modes we do not use, the bake fields and `OnValidate` are gone. A deactivated outline forgets its renderers, since they return to their pools and may serve another block. Builds keep every mesh channel (Optimize Mesh Data is off), so UV3 survives though no material asset reads it.
-- Instead of: an own inverted-hull shader, which draws lines on the seams between pieces and around the studs; a ribbon mesh built from the cells, which matched the block only through measured corner radii at one height and needed geometry code of its own; a screen-space outline as a renderer feature, a full-screen pass every frame on mobile for one held block; Quick Outline as published, which allocates on every enable and does not follow pooled pieces.
+- Why: it outlines the block's outer shape only, at an even screen width, in URP as published. Forked (MIT, original and changes in separate commits) for pooled pieces and allocation-free grabs. Blocks are flat plates made from the supplied pieces in Blender, as the deep supplied pieces spilled the outline below the ground.
+- Instead of: an inverted hull (lines on seams), a ribbon mesh (fragile geometry), a full-screen outline pass every frame on mobile.
 
-## The coin wallet saves itself through a port it is given
-- Why: the case's coin criterion is that the count stays right after leaving a level, so every change must reach the disk. `CoinWallet` reads its balance from an `ICoinStore` once and writes every change to it; the interface is in `Game.Logic`, the Core.Save implementation in `Game`. The rest of the game knows only the wallet, the logic stays engine-free and its tests use an in-memory store.
-- Instead of: a `Game` class wrapping the wallet that saves after each call, which mostly forwards and lets a caller that uses the wallet directly forget to save.
+## The coin wallet saves itself through a port
+- Why: every change must reach the disk; the interface sits in the logic, the Save implementation in `Game`, tests use memory.
+- Instead of: a wrapper that saves after each call, which a direct caller could bypass.
 
-## A level ends in one place in the play session, which calls back won or failed
-- Why: a win is set by the touch that takes the last block out, a fail by the tick that reaches zero; `LevelAttempt.Tick` returns the outcome as it stands, so the session's tick sees both the same way and ends the level the first frame it is no longer playing. The session is the play feature's entry, so it reports the end to its caller through the callbacks given to `Start` and does not know what comes next; `GameEntry`, the Game scene's flow, decides (next level, same level, later the win screen and the fail popup). Two callbacks, `onWon` and `onFailed`, give each reaction its own method in the flow instead of a branch on the outcome there, and the session forgets the attempt before calling back, so a callback can start the next level at once.
-- Instead of: one `onEnded(outcome)` callback, which moves the branch on the outcome into every caller; `Tick` returning whether the outcome changed, which misses a win set by a touch; the interaction reacting to the win where the touch set it, which puts a second end path next to the timer's; an event bus, which the conventions keep out of flow.
+## A level ends in one place and calls back won or failed
+- Why: the session sees a touch's win and the timer's fail the same way; two callbacks give each reaction its own method in the flow.
+- Instead of: one `onEnded(outcome)` that pushes a branch into every caller.
 
-## Folders: feature first, code and assets apart, fixed folder names
-- Why: a feature's files stay under one folder in each assembly, so adding or removing a feature touches one place, at any number of features. Inside a Runtime or Editor feature, code sits in `Scripts/<Role>/` and assets in folders named by their Unity type (`Installers/`, `Settings/`, `Prefabs/`, ...); both name lists are fixed in the conventions and nothing sits loose at a feature root, so where a file goes is never a choice and a reviewer finds the same shape in every feature. Each scene's scope and entry flow live in `Bootstrap/`, so all three scenes are put together the same way.
-- Instead of: an asset tree by type beside the code (`Content/Settings/<Feature>/`, `Content/Installers/<Feature>/`), which repeats the feature tree under every asset type and scatters one feature over many folders as the game grows; or code and assets of a role in one folder, as before, which mixes scripts with content and left files loose at feature roots. Feature first above the assemblies too (`Coins/Data/`, `Coins/Logic/`, `Coins/Runtime/`, each joined to its assembly by an `.asmref`) was weighed and left: a folder's assembly would come from the nearest `.asmref` instead of its path, so a missing one silently moves logic into the runtime assembly, and the four-layer split, which the case weighs first, would no longer show at the top. The layers scale without it: when one layer grows too large to compile or own as a whole, its feature folders become assemblies of their own (`Logic/Coins/` as `Game.Logic.Coins`), each still under its layer, so the dependency direction stays visible in the folders.
+## Folders: feature first, code and assets apart, fixed names
+- Why: a feature lives under one folder per assembly, and fixed role and asset folder names make every file's place obvious.
+- Instead of: an asset tree by type, which scatters a feature; feature folders above the assemblies, which hides the four-layer split.
 
-## Board pieces come from a source the caller gives; the game's are pooled lazily in the Game scope
-- Why: the game and the level editor's scene preview build the board with the same `BoardBuilder`, but need its pieces made differently: the game reuses them on every restart and next level, while the preview must make plain unsaved objects in edit mode, where pools would leave hidden objects in the open scene. So the builder takes every piece from an `IBoardPieceSource` the caller gives and keeps nothing: the game's `PooledBoardPieces` gives the whole board back before the next level, the preview's `PreviewBoardPieces` makes copies and destroys them. The pools fill lazily on the first level instead of being prewarmed: a level is about 150 small objects built once behind a transition, so prewarming would only move that work into the scene's load and need pool sizes kept in step with the levels. They live in the Game scope because their pieces belong to the Game scene.
-- Instead of: the builder owning the board's lifetime, which clashed with the preview destroying the same objects; pools prewarmed from a settings asset sized for the largest level; no pool, which instantiates on every restart and still needs the instances tracked.
+## Board pieces come from a source the caller gives
+- Why: the game pools pieces and the editor preview makes unsaved copies, with the same builder. Pools fill on the first level: prewarming 150 small objects would only move the work.
+- Instead of: the builder owning the board's lifetime; prewarmed pools sized in settings.
 
-## The Game scene's flow is one method per step, with the screens' buttons as its transitions
-- Why: the flow has five steps (play, pause, won, continue, failed) and each screen's `Show` takes the callbacks of its buttons, so `GameEntry` reads top to bottom as the flow chart: `Won` opens the complete popup with `Continue`, `Failed` the failed popup with `Play` and `ToHome`. No step needs state of its own beyond the run and the HUD, and a new screen is one more method.
-- Instead of: a state machine with a class per state, which spreads five short methods over five files and a transition table for no behavior the methods lack; screens awaited with UniTask, which the conventions keep for work that is really awaited and which leaves a pending task when the scene is left from a popup.
+## The Game flow is one method per step
+- Why: each screen's buttons lead to the next method, so `GameEntry` reads like the flow chart.
+- Instead of: a state machine with a class per state; screens awaited with UniTask.
 
-## The run that is played is a strategy chosen once
-- Why: the player's run and a designer's test run differ in three things: which level, which number, what a win does to progress. `ILevelRun` holds all three, so the flow calls `_run.Level`, `_run.Number` and `_run.Advance()` with no branch on where the run came from; a third kind (a daily level) is one more class.
-- Instead of: methods for each kind on the former `LevelSequence` (`CompleteCurrent`, `After`) with the flow keeping the level and choosing between them, which put the run's kind into the flow and needed the number worked out a second time for the HUD.
+## The played run is a strategy chosen once
+- Why: the player's run and a designer's test differ in level, number and what a win does to progress; `ILevelRun` holds all three, so the flow never branches on it.
+- Instead of: methods per kind with the choice in the flow.
 
-## Game code is written to explain itself, without comments
-- Why: the aim is code that reads on its own: names that say what a type or method is for, long rules split into named steps and named types, so a reader follows the code rather than a description of it that can drift away from it. What the code cannot say (an interface's contract, an engine quirk a reader could "fix" wrongly, a measured value) is written in the system notes under the name of the type it is about. A hook refuses any edit that adds a comment to `Assets/Game`. Core is a package copied into other projects and read without this project's notes, so it keeps short comments on its public contracts.
-- Instead of: comments only for reasons, which kept growing into comments on what the code does; XML doc comments, which repeat the signatures.
+## Game code explains itself, without comments
+- Why: names and small named steps say what the code does; contracts and engine facts live in the system notes. A hook refuses new comments in `Assets/Game`. Core, a reusable package, keeps short comments on its public contracts.
+- Instead of: comments that drift from the code.
 
-## Mechanics plug into the board through role interfaces; the board knows none of them
-- Why: the board keeps what every mechanic shares (its blocks, occupancy, moves, exits, the count of blocks gone, breaking a block or a cell) and asks two role interfaces at fixed points: `IMoveRule` whether a block may step or leave in a direction, `IBlockGuard` whether a block is guarded and, if so, to take a hit for it. `IceMechanic` plays both roles and owns the ice's state; the arrow block will be a second `IMoveRule`. A new mechanic is a class, a field in the level format, one line in `LevelMechanics.For(level)` and, when it has a level rule, one check in `LevelValidator`'s list; `LevelMechanics.For` is the one place that builds the mechanics for the game, the level editor and the solver alike; the board, the drag, the attempt and the booster effects stay as they are. Two interfaces, not one, so a mechanic that only limits moves has no empty guard methods.
-- Instead of: the ice's hits and a chip method on the board, which makes every mechanic an edit to the board; one mechanic interface with every hook, which leaves most of them empty; mechanics built from a data-driven list in the level, which needs a type registry in logic, view and editor for two mechanics and turns a missing registration from a compile error into a silent one at run time.
+## Mechanics plug into the board through role interfaces
+- Why: the board asks `IMoveRule` and `IBlockGuard` at fixed points; a new mechanic is a class, a level field, one line in `LevelMechanics.For` and maybe one validator check.
+- Instead of: a method per mechanic on the board; one interface with every hook, mostly empty; a data-driven registry.
 
 ### The level attempt makes the board and its mechanics together
-- Why: a board and its mechanics share state (the ice's hits count against the board's blocks gone), so they must be made in pairs; when the session built the mechanics and handed them in, nothing stopped a second board from sharing them, and handing the views the whole set gave them its guard list and so `TakeHit`. Now `LevelAttempt(level)` builds both, `Board`'s constructor and `LevelMechanics`' rule and guard lists are internal to `Game.Logic`, and the views read the mechanics they show by name through `LevelAttempt.Mechanics`. The compiler holds the boundary, and a new mechanic with a view adds a property, never a parameter to `BoardPresenter.Show`.
-- Instead of: passing each shown mechanic to `Begin` (`Ice`, `Arrow`, one more parameter per mechanic); a note saying not to build a second board; `LevelMechanics` building the board, which makes a second call build a second board on the same mechanics.
+- Why: they share state, so they come in pairs; internal constructors let the compiler hold the boundary and keep views away from guards.
+- Instead of: the session building them, which let a second board share mechanics.
 
-## Ice counts the blocks gone and is read when asked; views catch up by pulling
-- Why: every way a block leaves the board entirely ends in the board's one private removal, which counts it, so a block's ice left is its starting ice minus that count minus the hits it took: nothing has to be told that a block went, a restart starts from a new board, and the solver gets ice right through the same board. Views work the same way: whoever changes the board (the drag, a booster) calls one `CatchUp`, and each block view compares the logic's state with what it shows (ice left, shape, gone) and plays the difference; new blocks from a split get views from the pools.
-- Instead of: a counter on each iced block lowered by a "block left" event, an event bus carrying flow inside one feature, with state to reset; the logic returning what happened for the views to switch on, which needs a switch over kinds and lets the views drift from the logic.
+## Ice counts the blocks gone; views catch up by pulling
+- Why: ice left is computed from the board's one removal count, so nothing has to be told a block went. Whoever changes the board calls `CatchUp`, and each view plays the difference.
+- Instead of: counters lowered by events; the logic returning results the views switch on.
 
 ## A booster is a logic effect and a presentation
-- Why: what a booster does to the board is a rule, so it lives in `Game.Logic` as a command (`IBoardEffect`: `CanTarget`, `Apply`) and is tested without Unity; `LevelAttempt.TryApply(effect, x, y)` is its one way in, checking the state, applying, checking for a win and ending the aim. In `Game`, `TargetedBooster` fixes the order every aimed booster follows (aim, apply, stock down and saved, its own animation, catch up), so the stock goes down only when a shot lands and before anything is shown; each booster adds only its effect and its animation. Freeze has no target, so it calls `LevelTimer.Freeze` and implements `IBooster` directly.
-- Instead of: a method per booster on `LevelAttempt`, which changes the attempt for every booster; one effect interface for Freeze too, with a target cell it ignores.
+- Why: what it does to the board is a tested command (`IBoardEffect`); `TargetedBooster` fixes the order every aimed booster follows, so each adds only its effect and shot.
+- Instead of: a method per booster on the attempt; a booster subclass per animation.
 
-### One targeted booster class; a booster is a definition, an effect and a shot
-- Why: every aimed booster follows the same order, so `TargetedBooster` owns it and takes what differs as parts: the logic effect (`IBoardEffect`) and the shot prefab its `TargetedDefinition` names (`BoosterShot`, a view with its own animation). A new aimed booster is an effect, a shot prefab, a definition asset and a line in `PlayInstaller`, with no new booster class and no change to the flow. A definition is a settings asset per booster; what only one kind has (the freeze's seconds, an aimed booster's shot) is on a subclass, so no asset carries a field it leaves empty.
-- Instead of: a `TargetedBooster` subclass per booster overriding its animation, which repeats a class per booster for one method; one definition class with the shot and the seconds on all, which leaves fields empty that the installer test reports.
-
-## The board's touch path is three classes: input, presenter, projection
-- Why: one class had grown six jobs (touch modes, drag, the leave animation, screen geometry, keeping the block views in step with the attempt, and lookups for the boosters' shots), so every booster and every mechanic with a view changed it, and the boosters held the whole of it to read one screen point. `BoardInput` turns touches into calls on the attempt by mode; `BoardPresenter` owns the block and door views indexed like the attempt's blocks and shows what the attempt returns (hold, refuse, follow, snap back, leave through a door, vanish, catch up); `BoardProjection` converts between screen points and board cells. The overlay and the shots get the projection and the presenter injected, so a booster's context carries only the attempt, the input and the presenter it calls. The door view keeps its side, so leaving needs no level data.
-- Instead of: one board interaction for all of it; a facade over the three, which would only forward; the projection folded into `TouchPlane`, which stays the plane math the projection uses.
+## The board's touch path is input, presenter, projection
+- Why: one class had six jobs and changed with every booster and mechanic; now each changes for one reason, and boosters get only what they use.
+- Instead of: one board interaction, or a facade that only forwards.
 
 ### Board touches go through modes: drag, pick, busy
-- Why: aiming turns a tap into a choice of cell instead of a grab, and while a shot plays the logic is already ahead of the views, so a touch could hold a block that is gone or a split part whose view is not built yet. Each mode is a small state `BoardInput` switches between (`Drag`, `Pick`, `Busy`), and the board input stays one collider and one set of handlers.
-- Instead of: flags checked in the grab, drag and release handlers, which every new mode would add to.
+- Why: aiming picks a cell instead of grabbing, and during a shot the logic is ahead of the views; one mode at a time replaces the listeners.
+- Instead of: flags in every handler.
 
 ## A mechanic shows itself on a block through a block feature
-- Why: the block view, its builder and the board presenter each named the ice and the arrow (serialized fields, `Ice` and `Arrow` properties, an ice and an arrow parameter on every build, an ice call in the catch up), so every new mechanic would have changed all of them. Now each mechanic with a view has one plain class, `IceFeature` or `ArrowFeature` (`IBlockFeature`: `Show` and `CatchUp`), registered by the installer with its own settings; `BlockViewBuilder` shows every feature on each view it builds or rebuilds and catches them up when the presenter asks, and the view parts (`IceCover`, `BlockArrow`) only present what the feature gives them. A new mechanic adds its feature, its part on the block prefab and its line in `BlockFeatures.Of`, the one list the installer registers, the scene preview hands to `LevelStage` and the tests use; a feature with settings adds a parameter there, which the compiler carries to those three callers, so none can fall behind. A view part is found with `BlockView.Part<T>()`, a lookup by type unlike the one rejected for mechanics below: a part is a child component of the prefab, finding it by type is the engine's own way, the alternative is a serialized field per mechanic on the view (the coupling this removes), and the builder tests fail when the prefab lacks a part.
-- Instead of: a field and a call per mechanic in the view, builder and presenter; settings serialized on the view parts, which skips the installer that owns tuning; `[Inject]` on the view parts, which pooled instances never get (the pool instantiates without the container) and the scene preview has no container for.
+- Why: the view, builder and presenter no longer name any mechanic; a new one adds a feature, a prefab part and one line in `BlockFeatures.Of`.
+- Instead of: a field and a call per mechanic in three classes.
 
-### The editor's board draws mechanics through one drawing each, in two layers
-- Why: the board view held an if per mechanic and the drawing code of both. `IBlockMechanicDrawing` (`DrawOnBlock`, `DrawOnTop`) moves each mechanic's drawing into its own class over a small `IBoardCanvas` (one implementation, the board view, kept as an interface on purpose: a drawing gets cell geometry and a way to add a box, not the view's input events and `Show`), and the two layers keep the order that left all three marks readable (tints and arrows under badges). Arrow and ice edits moved out of `LevelEdits` into `ArrowEdits` and `IceEdits`; `LevelEdits` still drops an arrow left off its block after cells are removed, the one edit of a mechanic that follows a shape change.
-- Instead of: an if per mechanic in `LevelBoardView` and in `LevelEdits`; one editor interface per mechanic for drawing, selection fields and descriptions together, which no second mechanic needs yet.
+### The editor draws mechanics through one drawing each, in two layers
+- Why: each mechanic's drawing is its own class, and the layers keep tint, arrow and badge readable together.
+- Instead of: an if per mechanic in the board view.

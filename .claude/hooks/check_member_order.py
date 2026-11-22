@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks the member order of C# classes and structs (Docs/Conventions/CodeStyle.md).
+"""Checks the member order of C# classes and structs (Docs/Conventions.md, Code style).
 
 Claude Code hook: reads the hook payload from stdin and checks the edited .cs file. When the order is
 wrong it prints the problems to stderr and exits 2, so Claude sees them and fixes the file.
@@ -288,7 +288,7 @@ def main():
     problems = check(path)
     if not problems:
         return 0
-    print("Member order does not follow Docs/Conventions/CodeStyle.md:", file=sys.stderr)
+    print("Member order does not follow Docs/Conventions.md (Code style):", file=sys.stderr)
     print("\n".join(problems), file=sys.stderr)
     print(expected_order(), file=sys.stderr)
     return 2

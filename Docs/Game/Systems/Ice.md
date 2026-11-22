@@ -1,36 +1,15 @@
 # Ice
 
-> Summary: The ice blocker from end to end: a number on a block that locks it until that many blocks have left the board (or boosters chip it off), the level rule that every ice can melt, the editor's ice field and drawing, and the `IceCover` view that turns a block to ice, cracks and melts.
+> A number on a block that locks it until that many blocks have left the board; boosters chip one off. Rule in `Game.Logic`, a level check, an editor tool and the `IceCover` view.
 
-## Code
-- Folder: `Assets/Game/Logic/Play/Mechanics/Ice/` (rules), `Assets/Game/Logic/Levels/Validation/IceMeltsCheck.cs` (level rule), `Assets/Game/Runtime/Play/Scripts/Presentation/Blocks/IceFeature.cs` and `IceCover.cs` (view), `Assets/Game/Editor/LevelEditor/Scripts/Edits/IceEdits.cs` and `Views/IceDrawing.cs` (editor), `Assets/Game/Runtime/Play/Scripts/Settings/IceSettings.cs` (tuning), `Assets/Game/Editor/LevelEditor/Scripts/Selection/` (the editor's field)
-- Assembly: `Game.Data` (`BlockData.Ice`, `ShapeMiddle`), `Game.Logic`, `Game`, `Game.Editor`
-- Entry points: `IceMechanic` (through `LevelMechanics.For(level).Ice`), `IceMeltsCheck` (in `LevelValidator`'s list), `IceFeature` (an `IBlockFeature`, registered by `PlayInstaller` with `IceSettings`), `IceCover` (a child of `Block.prefab`, reached as `BlockView.Part<IceCover>()`), `IceDrawing` (an `IBlockMechanicDrawing` of the editor's board)
+**Code:** `Logic/Play/Mechanics/Ice/`, `Logic/Levels/Validation/IceMeltsCheck.cs`, `Runtime/Play/Scripts/Presentation/Blocks/` (`IceFeature`, `IceCover`), `Editor/LevelEditor/Scripts/` (`IceEdits`, `IceDrawing`). **Entry:** `IceMechanic` (via `LevelMechanics.Ice`), `IceFeature`.
 
-## How it works
-- **Rule.** `BlockData.Ice` is the ice at the start (0: none). `IceMechanic` is a move rule and a guard ([Board](Board.md), Mechanics): a block with ice left cannot step or leave and takes a booster's hit as one ice. Its ice left is the starting ice minus the board's `GoneCount` minus its hits, never below zero, read when asked.
-- **Locked.** `Board.IsLocked(block)` is true when no move rule allows any direction, so it covers every mechanic that stops a block entirely, not only ice. `LevelAttempt.Grab` holds no locked block: it starts the timer, returns true and gives `DragPose.Locked(block, cell)` (`IsLocked`), so `BoardPresenter` plays the block's refusal (`BlockView.Refuse`, a short sideways punch from `BlockMotionSettings`'s Locked values) instead of an outline.
-- **Level rule.** `IceMeltsCheck` (`IceNeverMelts`, error): ice melts only by blocks gone, so with the blocks' ice sorted from the smallest, the i-th (0-based) must not exceed i. The check finds how many blocks can ever leave (the first i whose ice is above i, or every block) and reports each block whose ice is above that number: every block it locks for good, not only the first. Boosters are left out: a level must be solvable without them.
-- **Editor.** The Ice tool (shortcut I): a click on a block adds one ice, a right click takes one off. A block's selection also has an Ice field (a `SelectionField`, a delayed number field; [Level editor](LevelEditor.md), Selections); a change records an undo step ("Set Ice") and goes through `IceEdits.Set(block, ice)`, which keeps the ice at 0 or more. The board draws (`IceDrawing`) an iced block's cells under a pale ice tint, so its color still shows, and the count as a dark round badge in the corner of the block's top-left cell, so it never meets an arrow on the same block. The selection's label names the ice.
-- **Middle.** `ShapeMiddle.Of(shape)` is where the count stands on the block in the game: the shape's center when the cell under it belongs to the shape, else the shape's cell nearest the center (an L with long arms).
-- **View.** `IceFeature`, one of the block features `BlockViewBuilder` shows on every block view it builds or rebuilds ([Play](Play.md)), calls `IceCover.Show(iceLeft, view, settings, art)` with `IceMechanic.IceLeft`: the level's starting ice for a staged block, none for a part appended at run time (`IceLeft` gives 0 for a block index past the level's blocks, a split part) or a view rebuilt after a rocket hit (a block with ice left loses no cell, so it has melted by then); the scene preview builds through the same features, so it shows ice too. `IceCover` reads the view's shape, piece renderers and material (`BlockView.Shape`, `Pieces`, `Material`). `IceCover` turns the block's pieces to ice with one `MaterialPropertyBlock` on their renderers: the ice colors of `IceSettings` in place of the block's color and shadow color, and the supplied `icetexture.jpg` as the `Game/Block` shader's surface map, laid in the board's space so it runs on across the block's cells (the pieces' UVs point into an atlas that was never supplied). A property block leaves the renderers' materials alone, so the outline's material arrays stay right. `Show` with no ice takes the property block off, which also cleans a pooled piece that was iced in the level before. The count is a `TextMeshPro` in Lilita One with the Navy preset, lying on the block's top.
-- **Catching up.** The level attempt builds `LevelMechanics.For(level)` with its board, and `IceFeature` reads the ice from it. `BoardPresenter.CatchUp` hands each block view its `BoardBlock` and then lets every block feature catch up (`BlockViewBuilder.CatchUpFeatures`); `IceFeature.CatchUp` gives `IceMechanic.IceLeft` to `IceCover.CatchUp(iceLeft)` compares with the count it shows: lower and above zero cracks (the new count, a punch on it, a few shards per cell), zero melts (the count shrinks away, the block fades from ice to its color over `MeltDuration` and the property block is taken off, more shards). Ice never rises, so a higher or equal count does nothing.
-- **Shards.** One particle system under the cover, made from the door burst's (cubes, shrinking away) with local simulation, a one-cell box shape pointing up, gravity and no emission of its own; `IceCover` emits a number per cell at each cell's top with `EmitParams`, so the shards come from the whole block whatever its shape. Their material is `IceShard` (URP Lit with the ice texture).
+## Rules
+- Ice left = starting ice − `GoneCount` − hits on the block, never below zero, computed when asked, so nothing has to tell the ice a block went. A block with ice left is a move rule's "no" and a guard's "yes". Parts made by a split have no ice.
+- `IceMechanic` implements `TakeHit` explicitly, so whoever shows the ice cannot melt it.
+- `IceNeverMelts`: with the blocks' ice sorted ascending, the i-th must not exceed i. Boosters are left out: a level must be solvable without them.
+- A grab on a locked block holds nothing and returns `DragPose.Locked`; the view shakes the block.
+- `IceCover` uses a `MaterialPropertyBlock`, so the outline's material arrays stay intact; showing zero ice removes it, which also cleans a pooled piece. The count only goes down; the view reads it from the logic on every catch-up.
+- The ice texture is imported at 512 px: it is tiled small, the full 2048 costs memory for no visible gain.
 
-## Rules & invariants
-- The view never decides: the ice left comes from the logic on every catch up, and the count only goes down.
-- A block without cells (an `EmptyBlock` level error, which the scene preview may still show) shows no ice; `ShapeMiddle.Of` needs at least one cell.
-- The crack and the melt are tweens with the cover as their target, stopped with `DOTween.Kill(this)` before the next one, never through a kept handle.
-- The ice texture is imported at 512 px: it is tiled at a quarter repeat per board unit and the full 2048 would cost memory for no visible gain.
-- A block made at run time (a rocket's split) has no starting ice: its view must be shown with `Show(0)` so a pooled piece carries no ice from an earlier level.
-
-## Tests
-- `Tests/Levels/LevelValidatorTests`: ice that melts as blocks leave, ice on the only block, every block locked by too much ice, two blocks iced only by each other.
-- `Tests/Levels/ShapeMiddleTests`: a square's center, an L's center, a shape whose center is off it.
-- `Tests/Play/Mechanics/Ice/IceMechanicTests`, `Tests/Play/Board/BoardRoleTests`: an iced block is locked, a melted one and a block a rule stops in one direction only are not.
-- `Tests/Play/Attempt/LevelAttemptTests`: a grab on a locked block holds nothing, names it in a locked pose, starts the timer and moves nothing.
-- `Tests/LevelEditor/Selection/SelectionFieldsTests`: a block's Ice field reads and writes its ice, keeps its block when an earlier one is removed, never goes below zero; a door has no fields.
-- `Tests/Play/Presentation/Blocks/IceCoverTests`: showing ice turns the pieces to ice and shows the count, showing none takes both off, a block without cells shows none, a lower count cracks, the same or a higher count changes nothing, zero melts. `BlockViewTests`: a refusal shakes from the block's cell. The look, the crack and the melt are checked by eye in play mode.
-
-## Related
-- [Board](Board.md), [Level attempt](LevelAttempt.md), [Levels](Levels.md), [Play](Play.md), [Level editor](LevelEditor.md), [Reference](../Reference.md) ("Boosters and ice"), [Decisions](../Decisions.md)
+Related: [Board](Board.md), [Level editor](LevelEditor.md), [Play](Play.md)

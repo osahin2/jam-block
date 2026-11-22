@@ -25,7 +25,7 @@ Module `Foo`, everything under `Packages/com.base-setup.core/`:
 
 ## Wiring and docs
 - Register it in the game's root scope (after `RegisterCoreSave()` if it saves) and add `Core.Foo` to `Game.asmdef` references only when the game calls it. `Game.Data` and `Game.Logic` never reference Core.
-- Write `Docs/Base/Systems/Foo.md` from `Docs/Templates/System.md`: what it does, entry points, how it works (with a one-line why where a choice is not obvious), rules, tests, what is not verified yet. No links into `Docs/Game/`.
+- Write `Docs/Base/Systems/Foo.md` as a short brief: a one-line summary, **Code** and **Entry**, then a few **Rules** (contracts, invariants, non-obvious reasons). No test lists or walkthroughs, no links into `Docs/Game/`.
 - Add a line to `Docs/00-Index.md` (Core) and a row to the module table in `Docs/Base/Architecture/Overview.md`.
 - Do not add the module to any CLAUDE.md.
 - Compile, check for errors, run EditMode tests (skill `unity-editor`).

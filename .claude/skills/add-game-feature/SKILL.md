@@ -5,7 +5,7 @@ description: Add a feature, a rule, a UI screen, a settings asset or a level-edi
 
 # Adding to the game
 
-Read the conventions first: `Docs/Conventions/Assemblies.md`, `LogicAndView.md`, `SettingsAndInstallers.md`, `Communication.md`. Check `Docs/Game/Plan.md` for the phase and its scope; do not build optional scope early.
+Read `Docs/Conventions.md` first. Build only the scope the developer asked for; the case's optional scope (`Docs/Game/Case.md`) waits until the required scope is done.
 
 ## Where code goes
 | It is... | Assembly | Folder |
@@ -16,7 +16,7 @@ Read the conventions first: `Docs/Conventions/Assemblies.md`, `LogicAndView.md`,
 | Level editor or other editor tooling | `Game.Editor` | `Assets/Game/Editor/<Feature>/Scripts/<Role>/`; UXML in `Layouts/`, USS in `Styles/` |
 | A test | `Game.Tests` | `Assets/Game/Tests/<Feature>/` plus the subject's folders without `Scripts/` |
 
-The role and asset folder names are fixed lists in `Docs/Conventions/Assemblies.md`; nothing sits at a Runtime or Editor feature's root but `Scripts/` and asset folders. A scene's scope and its entry flow go in `Runtime/Bootstrap/`, not in a feature.
+The role and asset folder names are fixed lists in `Docs/Conventions.md`; nothing sits at a Runtime or Editor feature's root but `Scripts/` and asset folders. A scene's scope and its entry flow go in `Runtime/Bootstrap/`, not in a feature.
 
 If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass the value in (time, a random seed) or move the code to `Game`.
 
@@ -26,11 +26,11 @@ If `Game.Logic` needs something from `UnityEngine`, the design is wrong: pass th
 3. Data types in `Game.Data`, rules in `Game.Logic` with EditMode tests before any view.
 4. Settings: one ScriptableObject class per concern in `Runtime/<Feature>/Scripts/Settings/`, its asset in `Runtime/<Feature>/Settings/`; create the asset with an editor script (skill `unity-editor`).
 5. Installer: a sealed `ScriptableObjectInstaller` (Core.Installers) in `Scripts/Installers/` that registers the settings (`RegisterInstance`) and the feature's services; create the asset in the feature's `Installers/`, named after the class, and add it to the scene scope's installer list with an editor script. The installer asset test then checks its references.
-6. Views per `LogicAndView.md`: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
-7. A note in `Docs/Game/Systems/<Feature>.md` (template `Docs/Templates/System.md`) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
+6. Views per the conventions' Logic and view: they show state and forward input, decisions stay in the logic; prefab views get settings through `Init`, scene views through `[Inject] Construct`.
+7. A note in `Docs/Game/Systems/<Feature>.md` (a short brief: a one-line summary, **Code** and **Entry**, then **Rules** with only contracts, invariants and non-obvious reasons, a few bullets; no test lists or walkthroughs) and its line in `Docs/00-Index.md`. A choice a reviewer could ask about: an entry in `Docs/Game/Decisions.md`.
 
 ## A new UI screen
-Build it from the shared prefabs (`Buttons/Prefabs/`, `Popups/Prefabs/PopupPanel` and `PopupDimmer`, `Coins/Prefabs/CoinCounter`); a piece the screen repeats, or one another screen will need, becomes a prefab of its feature first, and the screen holds instances with overrides. Lay it out after the reference's screen ([Reference](../../../Docs/Game/Reference.md)), check it in prefab mode (the UI Environment shows the game's scale) and render it at 1080 x 1920 and 1080 x 2400.
+Build it from the shared prefabs (`Buttons/Prefabs/`, `Popups/Prefabs/PopupPanel` and `PopupDimmer`, `Coins/Prefabs/CoinCounter`); a piece the screen repeats, or one another screen will need, becomes a prefab of its feature first, and the screen holds instances with overrides. Lay it out after the reference's screen, check it in prefab mode (the UI Environment shows the game's scale) and render it at 1080 x 1920 and 1080 x 2400.
 
 A prefab variant of Core's `UIScreenTemplate`: the script in the feature's `Scripts/UI/`, the prefab in its `Prefabs/` (in `Prefabs/UI/` once the feature has prefabs of another concept too), added to the feature's `UIScreenCatalog` (in `Settings/`). Buttons the flow reacts to are named callbacks in the screen's `Show` method. Every button gives visual feedback on touch.
 

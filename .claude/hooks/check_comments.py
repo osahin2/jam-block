@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks the comments of C# files in Assets/Game and the Core package (Docs/Conventions/CodeStyle.md).
+"""Checks the comments of C# files in Assets/Game and the Core package (Docs/Conventions.md, Code style).
 
 Claude Code hooks, reading the hook payload from stdin:
   --block-new  (PreToolUse) refuses an edit of a game .cs file (Assets/Game) that adds a comment line; the edit is
