@@ -10,7 +10,7 @@
 - The board takes touches only while playing and not paused; release is always allowed.
 - `IBoardEffect`: `CanTarget` changes nothing; `Apply` is called only on a cell `CanTarget` accepted and changes the board only through `Hit`/`HitCell`. `TryApply` is the one way an effect reaches the board.
 - Boosters work only after the first touch, while playing and not paused. Aiming ends the drag, so the view must put a held block back first; the time keeps running.
-- `LevelTimer.Freeze` holds the count for that many seconds of play; a paused or unstarted timer uses none of it.
+- `LevelTimer.Freeze` holds the count for that many seconds of play; a paused or unstarted timer uses none of it. `FrozenSeconds` is what is left of it, and zero once the level is decided.
 - `Grab`, `MoveTo`, `Release` and `Tick` do not allocate.
 
 Related: [Board](Board.md), [Play](Play.md), [Boosters](Boosters.md)

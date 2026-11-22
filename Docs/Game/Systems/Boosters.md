@@ -11,6 +11,7 @@
 - `BoosterShot.Build` runs after the effect is applied and before the views catch up, so views still show the board at the tap; it calls `onLanded` once. Its sequence is targeted at the shot, so a replay or stop ends it.
 - Vacuum reads the locks as they are at the tap. Hammer on an iced block takes one ice.
 - Time runs while aiming and while a shot plays; the buy popup pauses it. Slots are off before the first touch and once the level is decided.
+- Freeze shows a bar under the time box (`Hud/FreezeBar`, `FreezeBarSettings`) that empties with `PlaySession.FrozenSeconds`, so it stops when the timer is paused and closes on a restart or a decided level.
 - Slots are placed in the HUD prefab, not made at run time, because their press feedback is injected when Core creates the screen.
 
 Related: [Rocket](Rocket.md), [Level attempt](LevelAttempt.md), [Coins](Coins.md), [Play](Play.md)

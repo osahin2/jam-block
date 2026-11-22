@@ -170,6 +170,19 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void FrozenSeconds_OnceTheLevelIsWon_AreZero()
+        {
+            var attempt = Touched(AttemptAt(new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build()));
+            attempt.Freeze(10f);
+            attempt.Aim();
+
+            attempt.TryApply(_effect, 0.5f, 0.5f);
+
+            Assert.AreEqual(0f, attempt.FrozenSeconds);
+            Assert.IsFalse(attempt.IsFrozen);
+        }
+
+        [Test]
         public void Freeze_WhileFrozen_IsRefused()
         {
             var attempt = Touched(TwoBlocks());

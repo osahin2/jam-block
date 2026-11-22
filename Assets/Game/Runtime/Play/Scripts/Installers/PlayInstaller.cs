@@ -21,6 +21,7 @@ namespace Game.Play
         [SerializeField] private CameraFramingSettings _framing;
         [SerializeField] private WinRewardSettings _reward;
         [SerializeField] private TimeWarningSettings _timeWarning;
+        [SerializeField] private FreezeBarSettings _freezeBar;
         [SerializeField] private UIScreenCatalog _screens;
         [SerializeField] private BoosterMotionSettings _boosterMotion;
         [SerializeField] private FreezeDefinition _freeze;
@@ -48,6 +49,7 @@ namespace Game.Play
             builder.RegisterInstance(_framing);
             builder.RegisterInstance(_reward);
             builder.RegisterInstance(_timeWarning);
+            builder.RegisterInstance(_freezeBar);
         }
 
         private static void InstallBoard(IContainerBuilder builder)

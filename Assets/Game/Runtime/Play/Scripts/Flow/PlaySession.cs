@@ -23,6 +23,8 @@ namespace Game.Play
 
         public float RemainingSeconds => _attempt == null ? 0f : _attempt.RemainingSeconds;
 
+        public float FrozenSeconds => _attempt == null ? 0f : _attempt.FrozenSeconds;
+
         public bool IsDecided => _attempt != null && _attempt.Outcome != LevelOutcome.Playing;
 
         private bool IsBoardSettled => !_input.IsBusy && _board.IsSettled;

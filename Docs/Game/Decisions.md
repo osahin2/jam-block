@@ -137,3 +137,7 @@
 ## The level editor solves after every change and asks before saving an unsolvable level
 - Why: the verdict helps most while editing. A quick check bounded by time keeps editing smooth; Check fully, bounded by arrangements, decides what it leaves open. The case asks for a warning, so an unsolvable level asks before it is saved but can still be kept.
 - Instead of: only a Check button; a full search after every change, which would freeze on large boards; a background thread; refusing to save.
+
+## The freeze bar reads the timer's frozen seconds
+- Why: the freeze is the timer's state, so the bar under the time box reads `FrozenSeconds` each frame as the time label reads the remaining seconds; pause stops the count in the logic, not through `timeScale`, so a bar with its own clock would keep draining under the pause popup. The logic gives seconds and the bar takes the first value it sees as full.
+- Instead of: a 10-second tween started by the booster; a global tick manager that stops everything, when a freeze stops only the timer; a progress ratio in the logic.

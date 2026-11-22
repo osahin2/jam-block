@@ -15,7 +15,8 @@ namespace Game.Logic.Play
         public float RemainingSeconds => _timer.RemainingSeconds;
         public bool IsPaused => _timer.IsPaused;
         public bool IsAiming { get; private set; }
-        public bool IsFrozen => _timer.IsFrozen;
+        public float FrozenSeconds => Outcome == LevelOutcome.Playing ? _timer.FrozenSeconds : 0f;
+        public bool IsFrozen => FrozenSeconds > 0f;
         public bool CanUseBoosters => TakesTouches && _timer.HasStarted;
         public bool CanFreeze => CanUseBoosters && !IsFrozen;
         public int HeldBlock => _drag.Block;

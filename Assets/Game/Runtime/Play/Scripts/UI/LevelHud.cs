@@ -15,6 +15,7 @@ namespace Game.Play
         [SerializeField] private TMP_Text _timeLabel;
         [SerializeField] private CoinCounter _coins;
         [SerializeField] private TimeWarning _timeWarning;
+        [SerializeField] private FreezeBar _freezeBar;
         [SerializeField] private Button _restartButton;
         [SerializeField] private Button _pauseButton;
         [SerializeField] private BoosterBar _boosters;
@@ -47,13 +48,8 @@ namespace Game.Play
 
         private void Update()
         {
-            var seconds = CountdownText.WholeSeconds(_session.RemainingSeconds);
-            if (seconds == _shownSeconds)
-                return;
-            _shownSeconds = seconds;
-            CountdownText.Write(seconds, _time);
-            _timeLabel.SetCharArray(_time);
-            _timeWarning.Show(seconds);
+            _freezeBar.Show(_session.FrozenSeconds);
+            ShowTime();
         }
 
         public void Show(int levelNumber, int coins, Action onRestart, Action onPause,
@@ -64,6 +60,17 @@ namespace Game.Play
             _onRestart = onRestart;
             _onPause = onPause;
             _onOutOfStock = onOutOfStock;
+        }
+
+        private void ShowTime()
+        {
+            var seconds = CountdownText.WholeSeconds(_session.RemainingSeconds);
+            if (seconds == _shownSeconds)
+                return;
+            _shownSeconds = seconds;
+            CountdownText.Write(seconds, _time);
+            _timeLabel.SetCharArray(_time);
+            _timeWarning.Show(seconds);
         }
 
         private void Restart() => _onRestart?.Invoke();

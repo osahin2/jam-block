@@ -121,6 +121,41 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void FrozenSeconds_DrainWithCountedTime()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+
+            timer.Tick(4f);
+
+            Assert.AreEqual(6f, timer.FrozenSeconds, Tolerance);
+        }
+
+        [Test]
+        public void FrozenSeconds_PastTheFreeze_AreZero()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+
+            timer.Tick(12f);
+
+            Assert.AreEqual(0f, timer.FrozenSeconds);
+        }
+
+        [Test]
+        public void FrozenSeconds_WhilePaused_StayTheSame()
+        {
+            var timer = Started(60);
+            timer.Freeze(10f);
+            timer.Tick(3f);
+            timer.Pause();
+
+            timer.Tick(5f);
+
+            Assert.AreEqual(7f, timer.FrozenSeconds, Tolerance);
+        }
+
+        [Test]
         public void Freeze_IsNotUsedUpWhilePaused()
         {
             var timer = Started(60);

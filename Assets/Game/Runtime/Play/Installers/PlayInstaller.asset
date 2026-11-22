@@ -20,6 +20,7 @@ MonoBehaviour:
   _framing: {fileID: 11400000, guid: 859904e593a6d46ee8b35dde5ab6a619, type: 2}
   _reward: {fileID: 11400000, guid: 1841d6de924944f9c9c4d89429723cc3, type: 2}
   _timeWarning: {fileID: 11400000, guid: 402e25fda6a214e5d906685d656b1765, type: 2}
+  _freezeBar: {fileID: 11400000, guid: b622df78d25464fef891fb5cc65502e0, type: 2}
   _screens: {fileID: 11400000, guid: c44c2ca582f47450ca21676369dd7bf5, type: 2}
   _boosterMotion: {fileID: 11400000, guid: 0018f4c6da198430bb8e642684bb8de3, type: 2}
   _freeze: {fileID: 11400000, guid: 53ff93b6da79c41688572c724e232c7e, type: 2}
