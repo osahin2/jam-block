@@ -34,6 +34,7 @@ namespace Game.Editor.LevelEditor
         private bool _hovering;
 
         public float CellSize => _cellSize;
+        public bool TakesEdits { get; set; } = true;
 
         public LevelBoardView(IReadOnlyList<IBlockMechanicDrawing> mechanics)
         {
@@ -48,6 +49,7 @@ namespace Game.Editor.LevelEditor
             RegisterCallback<PointerDownEvent>(OnPointerDown);
             RegisterCallback<PointerMoveEvent>(OnPointerMove);
             RegisterCallback<PointerUpEvent>(OnPointerUp);
+            RegisterCallback<PointerCaptureOutEvent>(_ => Released?.Invoke());
             RegisterCallback<PointerLeaveEvent>(_ => EndHover());
         }
 
@@ -268,7 +270,7 @@ namespace Game.Editor.LevelEditor
 
         private void OnPointerDown(PointerDownEvent evt)
         {
-            if (_level == null || _cellSize < 1f)
+            if (_level == null || _cellSize < 1f || !TakesEdits)
                 return;
             if (evt.button == RightButton)
             {
@@ -311,7 +313,6 @@ namespace Game.Editor.LevelEditor
             if (!this.HasPointerCapture(evt.pointerId))
                 return;
             this.ReleasePointer(evt.pointerId);
-            Released?.Invoke();
         }
     }
 }

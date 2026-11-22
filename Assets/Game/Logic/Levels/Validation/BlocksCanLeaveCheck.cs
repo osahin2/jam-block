@@ -9,11 +9,23 @@ namespace Game.Logic.Levels
         {
             for (var i = 0; i < level.Blocks.Count; i++)
             {
-                var block = level.Blocks[i];
-                if (block.Shape.Count > 0 && !FitsADoor(block, level))
+                if (!CanEverLeave(level.Blocks[i], level))
                     report.Add(LevelProblem.BlockWarning(LevelProblemKind.BlockCannotLeave, i));
             }
         }
+
+        internal static bool EveryBlockFitsADoor(LevelData level)
+        {
+            foreach (var block in level.Blocks)
+            {
+                if (!CanEverLeave(block, level))
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool CanEverLeave(BlockData block, LevelData level) =>
+            block.Shape.Count == 0 || FitsADoor(block, level);
 
         private static bool FitsADoor(BlockData block, LevelData level)
         {

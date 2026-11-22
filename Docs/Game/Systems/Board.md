@@ -10,6 +10,7 @@
 - Every way out of the board ends in one private removal, which raises `GoneCount`. A rocket's split is not a block gone: the hit block keeps its index for its first part, the others are appended. The block list is sized once for the level's cells and never grows; a block's index never changes.
 - `IMoveRule.Allows` answers from state, changes nothing and does not allocate (asked every drag frame). It is also asked with the direction out through a door, so a rule that forbids a direction forbids leaving that way. `IBlockGuard.TakeHit` is called only by the board, on a block the guard guards.
 - `LevelMechanics.For` is the one place a level's mechanics are built, for the game, the editor and the solver.
+- For the solver only (internal): `CanLeave` asks the exit rule without removing the block, `Place` puts a block on a free place, `CurrentArrangement`/`Arrange` save and restore every block's position and gone state. An arrangement holds no hits, so it is only for a board that was never split or hit.
 - `BlockDrag` steps when the finger is more than half a cell past, alternates axes so a block goes round an obstacle, never steps through a block. The sub-cell offset is the view's.
 
 Related: [Level attempt](LevelAttempt.md), [Ice](Ice.md), [Arrow block](Arrow.md), [Levels](Levels.md)

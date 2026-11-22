@@ -1,4 +1,5 @@
 using System.Text;
+using Game.Editor.LevelEditor;
 using Game.Levels;
 using Game.Logic.Levels;
 using Game.Play;
@@ -20,6 +21,26 @@ namespace Game.Tests.Levels
                 var report = LevelValidator.Validate(asset.Level);
                 if (report.HasErrors)
                     failures.AppendLine($"{AssetDatabase.GetAssetPath(asset)}: {report}");
+            }
+
+            Assert.IsEmpty(failures.ToString());
+        }
+
+        [Test]
+        public void EveryLevelAsset_IsSolvable()
+        {
+            var settingsGuids = AssetDatabase.FindAssets($"t:{nameof(SolverSettings)}");
+            Assert.IsNotEmpty(settingsGuids);
+            var budget = AssetDatabase.LoadAssetAtPath<SolverSettings>(AssetDatabase.GUIDToAssetPath(settingsGuids[0])).FullCheckBudget;
+            var failures = new StringBuilder();
+            foreach (var asset in LevelAssets())
+            {
+                var path = AssetDatabase.GetAssetPath(asset);
+                var solution = LevelSolver.Solve(asset.Level, budget);
+                TestContext.WriteLine(
+                    $"{path}: {solution.Verdict}, {solution.Moves.Count} moves, {solution.Rearrangements} rearrangements, {solution.ExploredStates} states");
+                if (solution.Verdict != Solvability.Solvable)
+                    failures.AppendLine($"{path}: {solution.Verdict}");
             }
 
             Assert.IsEmpty(failures.ToString());

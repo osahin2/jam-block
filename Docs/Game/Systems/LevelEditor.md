@@ -15,6 +15,10 @@
 - Problems from `LevelValidator` are shown in plain words and marked on the board; clicking one selects its block or door.
 - The scene preview uses the game's `LevelStage` with unsaved, non-editable copies and never dirties the scene. It loads its settings on first use, as the asset database may not be ready during a script reload.
 - Play refuses with a reason (play mode, compile errors, no build scene) before writing anything. The request crosses the domain reload in `SessionState` and is taken once.
+- After every change without errors the level is solved ([Solver](Solver.md)) for at most `SolverSettings.QuickCheckMilliseconds`, a drag once when it ends, so editing never stalls; a level left undecided offers Check fully, up to `FullCheckBudget` arrangements under a cancelable progress bar. The last solution is kept and the level solved again only when it changed.
+- Show solution plays the fewest moves back on the board from a copy of the level; while it plays the board takes no edits (`LevelBoardView.TakesEdits`) and no selection is shown.
+- Save, Play and close ask before saving an unsolvable level ("Save anyway" or "Keep editing"): the case asks for a warning, not a refusal. An undecided level is saved without asking.
+- A stroke ends when the board loses the pointer capture, not on pointer up, so a stroke cut short still records its undo step.
 - No IMGUI in the window.
 
 Related: [Levels](Levels.md), [Play](Play.md)

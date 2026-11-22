@@ -24,6 +24,7 @@
 - [Buttons](Game/Systems/Buttons.md) - press feedback on every button
 - [Popups](Game/Systems/Popups.md) - the shared popup entrance
 - [Level editor](Game/Systems/LevelEditor.md) - the designers' level editor window
+- [Solver](Game/Systems/Solver.md) - whether a level can be cleared without boosters
 - [Player build](Game/Systems/PlayerBuild.md) - APK and Xcode builds, mobile settings
 
 ## Core

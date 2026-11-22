@@ -19,9 +19,10 @@ namespace Game.Logic.Play
         {
             if (IsSplitPart(block))
                 return 0;
-            var left = _startingIce[block] - board.GoneCount - _hits[block];
-            return left > 0 ? left : 0;
+            return IceAfter(_startingIce[block], board.GoneCount + _hits[block]);
         }
+
+        public static int IceAfter(int ice, int melted) => ice > melted ? ice - melted : 0;
 
         public bool Allows(IReadOnlyBoard board, int block, Direction direction) => IceLeft(board, block) == 0;
 

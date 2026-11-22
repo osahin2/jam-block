@@ -129,3 +129,15 @@
 ### The editor draws mechanics through one drawing each, in two layers
 - Why: each mechanic's drawing is its own class, and the layers keep tint, arrow and badge readable together.
 - Instead of: an if per mechanic in the board view.
+
+## The solver searches every arrangement breadth-first, leaving blocks at once, with no heuristic
+- Why: a block leaving only frees cells and melts ice, so leaving as soon as it can is never wrong; the search branches only where no block can leave, and breadth-first gives the fewest moves. Proving a level unsolvable needs every arrangement anyway, so a heuristic would not help. It runs on the game's own `Board` and mechanics, so it cannot drift from the rules; a test agrees with a plain search on random levels.
+- Instead of: A* or greedy search; a copy of the rules inside the solver.
+
+## The solver counts alike blocks once and does not ask the block just moved
+- Why: on open boards the cost is the number of arrangements. Swapping alike blocks gives the same arrangement, and the block just moved cannot newly reach a door. Both are exact; the second rests on every step being reversible, written as a rule in the solver's note.
+- Instead of: re-asking only blocks whose reach touched freed cells, which measured no gain for a hundred lines and a fragile assumption.
+
+## The level editor solves after every change and asks before saving an unsolvable level
+- Why: the verdict helps most while editing. A quick check bounded by time keeps editing smooth; Check fully, bounded by arrangements, decides what it leaves open. The case asks for a warning, so an unsolvable level asks before it is saved but can still be kept.
+- Instead of: only a Check button; a full search after every change, which would freeze on large boards; a background thread; refusing to save.
