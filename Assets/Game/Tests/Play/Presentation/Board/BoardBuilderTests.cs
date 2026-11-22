@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Editor.LevelEditor;
+using Game.Logic.Play;
 using Game.Play;
 using Game.Tests.Levels;
 using NUnit.Framework;
@@ -26,8 +27,7 @@ namespace Game.Tests.Play
             _art = Load<BoardArtSettings>();
             _palette = Load<ColorPalette>();
             var motion = Load<BlockMotionSettings>();
-            _builder = new BoardBuilder(_art, _palette, motion,
-                new BlockViewBuilder(_art, _palette, motion, Load<IceSettings>(), new BlockPieceBuilder(_art)));
+            _builder = new BoardBuilder(_art, _palette, motion, BlockViewBuilders.WithTheGamesFeatures());
             _board = new GameObject("Board").transform;
         }
 
@@ -101,7 +101,8 @@ namespace Game.Tests.Play
         }
 
         private StagedLevel Build(LevelData level) =>
-            _builder.Build(level, new BoardLayout(level.Width, level.Height, _art), _board, new PreviewBoardPieces());
+            _builder.Build(level, new LevelAttempt(level), new BoardLayout(level.Width, level.Height, _art), _board,
+                new PreviewBoardPieces());
 
         private List<T> TopPieces<T>(T prefab, BoardLayout layout) where T : Component
         {

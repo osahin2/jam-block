@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Game.Data.Levels;
 using UnityEngine;
 
 namespace Game.Play
@@ -21,22 +22,17 @@ namespace Game.Play
         private float _drop;
         private Sequence _passing;
 
-        public void Init(Material material, Transform arrow, float drop, float burstHeight, BlockMotionSettings motion)
+        public Side Side { get; private set; }
+
+        public void Init(Side side, Material material, Transform arrow, float drop, float burstHeight,
+            BlockMotionSettings motion)
         {
-            if (!_hasRest)
-            {
-                _modelRest = _model.localPosition;
-                _burstRest = _burst.transform.localPosition;
-                _hasRest = true;
-            }
+            Side = side;
+            RememberRest();
             StopPassing();
             _model.localPosition = _modelRest;
             _piece.SetMaterial(material);
-            _burstRenderer.sharedMaterial = material;
-            _burst.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            var scaleY = transform.localScale.y;
-            _burst.transform.localPosition = new Vector3(
-                _burstRest.x, (burstHeight - transform.localPosition.y) / scaleY, _burstRest.z);
+            ResetBurst(material, burstHeight);
             _arrow = arrow;
             _arrowRest = arrow.localPosition.y;
             _drop = drop;
@@ -56,6 +52,23 @@ namespace Game.Play
                 .Insert(rise, _model.DOLocalMoveY(_modelRest.y, _motion.DoorRiseDuration))
                 .Insert(rise, _arrow.DOLocalMoveY(_arrowRest, _motion.DoorRiseDuration))
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+        }
+
+        private void RememberRest()
+        {
+            if (_hasRest)
+                return;
+            _modelRest = _model.localPosition;
+            _burstRest = _burst.transform.localPosition;
+            _hasRest = true;
+        }
+
+        private void ResetBurst(Material material, float burstHeight)
+        {
+            _burstRenderer.sharedMaterial = material;
+            _burst.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var height = (burstHeight - transform.localPosition.y) / transform.localScale.y;
+            _burst.transform.localPosition = new Vector3(_burstRest.x, height, _burstRest.z);
         }
 
         private void StopPassing()

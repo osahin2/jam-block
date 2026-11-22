@@ -28,16 +28,16 @@ namespace Game.Play
         {
             _context = context;
             _onDone = onDone;
-            context.Board.Release();
+            context.Input.Release();
             if (_inventory.Count(_definition.Id) == 0 || !context.Attempt.Aim())
             {
                 Finish();
                 return;
             }
-            context.Overlay.Show(_definition, context.Board.ScreenRect(), Cancel);
+            context.Overlay.Show(_definition, Cancel);
             if (_definition.MarksTargets)
-                context.Overlay.MarkTargets(_effect, context.Attempt.Board, context.Board);
-            context.Board.EnterPick(Pick);
+                context.Overlay.MarkTargets(_effect, context.Attempt.Board);
+            context.Input.EnterPick(Pick);
         }
 
         public void Cancel()
@@ -47,7 +47,7 @@ namespace Game.Play
             _context.Attempt.CancelAim();
             _context.Overlay.Hide();
             _context.Shots.Stop();
-            _context.Board.EnterDrag();
+            _context.Input.EnterDrag();
             Finish();
         }
 
@@ -60,14 +60,14 @@ namespace Game.Play
             }
             _inventory.TryUse(_definition.Id);
             _context.Overlay.Hide();
-            _context.Board.EnterBusy();
-            _context.Shots.Play(_definition, LevelAttempt.CellAt(onBoard.x, onBoard.y), _context.Board, Land);
+            _context.Input.EnterBusy();
+            _context.Shots.Play(_definition, LevelAttempt.CellAt(onBoard.x, onBoard.y), Land);
         }
 
         private void Land()
         {
             _context.Board.CatchUp();
-            _context.Board.EnterDrag();
+            _context.Input.EnterDrag();
             Finish();
         }
 

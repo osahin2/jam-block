@@ -39,7 +39,7 @@ namespace Game.Tests.LevelEditor
         {
             var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Ice(2).Build();
 
-            LevelEdits.SetIce(level.Blocks[0], -1);
+            IceEdits.Set(level.Blocks[0], -1);
 
             Assert.AreEqual(0, level.Blocks[0].Ice);
         }

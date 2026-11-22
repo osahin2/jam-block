@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Game.Data.Levels;
-using Game.Logic.Play;
 using UnityEngine;
 
 namespace Game.Play
@@ -10,51 +8,56 @@ namespace Game.Play
         private readonly BoardArtSettings _art;
         private readonly ColorPalette _palette;
         private readonly BlockMotionSettings _motion;
-        private readonly IceSettings _ice;
         private readonly BlockPieceBuilder _pieces;
+        private readonly IReadOnlyList<IBlockFeature> _features;
 
-        public BlockViewBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion, IceSettings ice,
-            BlockPieceBuilder pieces)
+        public BlockViewBuilder(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion,
+            BlockPieceBuilder pieces, IReadOnlyList<IBlockFeature> features)
         {
             _art = art;
             _palette = palette;
             _motion = motion;
-            _ice = ice;
             _pieces = pieces;
+            _features = features;
         }
 
-        public BlockView Build(BlockData block, Vector3 pose, Transform parent, IBoardPieceSource pieces) =>
-            Build(block.ColorId, block.Shape, block.Ice, block.Arrow, pose, parent, pieces);
-
-        public BlockView Build(BoardBlock block, ArrowData arrow, Vector3 pose, Transform parent,
-            IBoardPieceSource pieces) =>
-            Build(block.ColorId, block.Shape, 0, arrow, pose, parent, pieces);
-
-        public void Rebuild(BlockView view, BoardBlock block, ArrowData arrow, PooledBoardPieces pieces)
-        {
-            view.ReleasePieces(pieces);
-            var material = BuildPieces(view, block.ColorId, block.Shape, pieces);
-            view.Ice.Show(0, block.Shape, material, _art);
-            view.Arrow.Show(arrow, _art);
-        }
-
-        private BlockView Build(int colorId, IReadOnlyList<Cell> shape, int ice, ArrowData arrow, Vector3 pose,
-            Transform parent, IBoardPieceSource pieces)
+        public BlockView Build(BlockOnBoard block, Vector3 pose, Transform parent, IBoardPieceSource pieces)
         {
             var view = pieces.Take(_art.Block, parent);
-            var material = BuildPieces(view, colorId, shape, pieces);
-            view.Ice.Show(ice, shape, material, _art);
-            view.Arrow.Show(arrow, _art);
+            Dress(view, block, pieces);
             view.SetPose(pose);
             return view;
         }
 
-        private Material BuildPieces(BlockView view, int colorId, IReadOnlyList<Cell> shape, IBoardPieceSource pieces)
+        public void Rebuild(BlockView view, BlockOnBoard block, PooledBoardPieces pieces)
         {
-            var material = _palette.ForBlock(colorId);
-            view.Init(_motion, _ice, shape);
-            _pieces.Build(view, shape, material, pieces);
-            return material;
+            view.ReleasePieces(pieces);
+            Dress(view, block, pieces);
+        }
+
+        public void CatchUpFeatures(BlockView view, BlockOnBoard block)
+        {
+            for (var i = 0; i < _features.Count; i++)
+                _features[i].CatchUp(view, block);
+        }
+
+        private void Dress(BlockView view, BlockOnBoard block, IBoardPieceSource pieces)
+        {
+            BuildPieces(view, block, pieces);
+            ShowFeatures(view, block);
+        }
+
+        private void BuildPieces(BlockView view, BlockOnBoard block, IBoardPieceSource pieces)
+        {
+            var shape = block.Block.Shape;
+            view.Init(_motion, shape);
+            _pieces.Build(view, shape, _palette.ForBlock(block.Block.ColorId), pieces);
+        }
+
+        private void ShowFeatures(BlockView view, BlockOnBoard block)
+        {
+            for (var i = 0; i < _features.Count; i++)
+                _features[i].Show(view, block);
         }
     }
 }

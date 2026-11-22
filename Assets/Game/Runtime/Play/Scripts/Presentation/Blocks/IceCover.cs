@@ -30,37 +30,18 @@ namespace Game.Play
 
         public int Shown { get; private set; }
 
-        public void Init(IceSettings settings, IReadOnlyList<Renderer> pieces)
-        {
-            _settings = settings;
-            _pieces = pieces;
-            _properties ??= new MaterialPropertyBlock();
-            if (_hasRestScale)
-                return;
-            _countRestScale = _count.transform.localScale;
-            _hasRestScale = true;
-        }
-
-        public void Show(int ice, IReadOnlyList<Cell> shape, Material blockMaterial, BoardArtSettings art)
+        public void Show(int ice, BlockView block, IceSettings settings, BoardArtSettings art)
         {
             DOTween.Kill(this);
-            _shape = shape;
-            _cellSize = art.CellSize;
-            _top = art.TouchHeight;
-            Shown = shape.Count > 0 ? ice : 0;
+            Cover(block, settings, art);
+            Shown = _shape.Count > 0 ? ice : 0;
             if (Shown == 0)
             {
                 Clear();
                 return;
             }
-            var middle = ShapeMiddle.Of(shape);
-            var count = _count.transform;
-            count.localPosition = Top(middle.X, middle.Y) + Vector3.up * _settings.CountLift;
-            count.localScale = _countRestScale;
-            _count.gameObject.SetActive(true);
-            _count.SetText("{0}", ice);
-            _ownColor = blockMaterial.GetColor(BaseColorId);
-            _ownShadowColor = blockMaterial.GetColor(ShadowColorId);
+            ShowCount();
+            TakeOwnColors(block.Material);
             Freeze(0f);
         }
 
@@ -73,6 +54,41 @@ namespace Game.Play
                 Crack();
             else
                 Melt();
+        }
+
+        private void Cover(BlockView block, IceSettings settings, BoardArtSettings art)
+        {
+            _settings = settings;
+            _pieces = block.Pieces;
+            _shape = block.Shape;
+            _cellSize = art.CellSize;
+            _top = art.TouchHeight;
+            _properties ??= new MaterialPropertyBlock();
+            RememberCountRestScale();
+        }
+
+        private void RememberCountRestScale()
+        {
+            if (_hasRestScale)
+                return;
+            _countRestScale = _count.transform.localScale;
+            _hasRestScale = true;
+        }
+
+        private void ShowCount()
+        {
+            var middle = ShapeMiddle.Of(_shape);
+            var count = _count.transform;
+            count.localPosition = Top(middle.X, middle.Y) + Vector3.up * _settings.CountLift;
+            count.localScale = _countRestScale;
+            _count.gameObject.SetActive(true);
+            _count.SetText("{0}", Shown);
+        }
+
+        private void TakeOwnColors(Material blockMaterial)
+        {
+            _ownColor = blockMaterial.GetColor(BaseColorId);
+            _ownShadowColor = blockMaterial.GetColor(ShadowColorId);
         }
 
         private void Crack()

@@ -41,18 +41,7 @@ namespace Game.Logic.Play
             var block = _board.BlockAt(cell);
             if (block == NoBlock)
                 return false;
-            if (_board.IsLocked(block))
-            {
-                pose = DragPose.Locked(block, _board.Blocks[block].Position);
-                return true;
-            }
-            if (!_board.TryLeave(block, out var exitDoor))
-            {
-                _drag.Begin(block, x, y);
-                return true;
-            }
-            pose = DragPose.Left(block, _board.Blocks[block].Position, exitDoor);
-            UpdateWon();
+            pose = GrabBlock(block, x, y);
             return true;
         }
 
@@ -116,6 +105,18 @@ namespace Game.Logic.Play
 
         public static Cell CellAt(float x, float y) => new Cell((int)Math.Floor(x), (int)Math.Floor(y));
 
+        private DragPose GrabBlock(int block, float x, float y)
+        {
+            if (_board.IsLocked(block))
+                return DragPose.Locked(block, _board.Blocks[block].Position);
+            if (!_board.TryLeave(block, out var exitDoor))
+            {
+                _drag.Begin(block, x, y);
+                return DragPose.None;
+            }
+            UpdateWon();
+            return DragPose.Left(block, _board.Blocks[block].Position, exitDoor);
+        }
 
         private void UpdateWon()
         {

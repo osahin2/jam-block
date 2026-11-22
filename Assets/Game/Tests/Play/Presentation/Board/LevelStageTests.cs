@@ -1,6 +1,7 @@
 using System.Text;
 using Game.Editor.LevelEditor;
 using Game.Levels;
+using Game.Logic.Play;
 using Game.Play;
 using NUnit.Framework;
 using UnityEditor;
@@ -20,7 +21,8 @@ namespace Game.Tests.Play
         public void SetUp()
         {
             _framing = Load<CameraFramingSettings>();
-            _stage = new LevelStage(Load<BoardArtSettings>(), Load<ColorPalette>(), Load<BlockMotionSettings>(), Load<IceSettings>(), _framing);
+            _stage = new LevelStage(Load<BoardArtSettings>(), Load<ColorPalette>(), Load<BlockMotionSettings>(),
+                BlockViewBuilders.TheGamesFeatures(), _framing);
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _camera.fieldOfView = 63f;
             _camera.transform.rotation = Quaternion.Euler(76f, 0f, 0f);
@@ -39,7 +41,7 @@ namespace Game.Tests.Play
             foreach (var level in Load<LevelCatalog>().Levels)
             {
                 var board = new GameObject("Board").transform;
-                _stage.Show(level.Level, board, new PreviewBoardPieces(), _camera);
+                _stage.Show(level.Level, new LevelAttempt(level.Level), board, new PreviewBoardPieces(), _camera);
                 foreach (var piece in board.GetComponentsInChildren<Renderer>())
                 {
                     var bounds = piece.bounds;

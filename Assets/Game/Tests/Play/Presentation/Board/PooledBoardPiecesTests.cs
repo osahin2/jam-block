@@ -1,4 +1,5 @@
 using Game.Data.Levels;
+using Game.Logic.Play;
 using Game.Play;
 using Game.Tests.Levels;
 using NUnit.Framework;
@@ -28,7 +29,8 @@ namespace Game.Tests.Play
             board.ApplyModifiedPropertiesWithoutUndo();
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _pieces = new PooledBoardPieces(_board);
-            _stage = new LevelStage(art, Load<ColorPalette>(), Load<BlockMotionSettings>(), Load<IceSettings>(), Load<CameraFramingSettings>());
+            _stage = new LevelStage(art, Load<ColorPalette>(), Load<BlockMotionSettings>(),
+                BlockViewBuilders.TheGamesFeatures(), Load<CameraFramingSettings>());
         }
 
         [TearDown]
@@ -93,7 +95,8 @@ namespace Game.Tests.Play
             Assert.AreEqual(made, CountAll(), "a smaller level is built from the pieces of the larger one");
         }
 
-        private StagedLevel Show(LevelData level) => _stage.Show(level, _board.transform, _pieces, _camera);
+        private StagedLevel Show(LevelData level) =>
+            _stage.Show(level, new LevelAttempt(level), _board.transform, _pieces, _camera);
 
         private static LevelData TwoBlocks() =>
             new LevelBuilder(4, 5).Rect(Red, 0, 0, 2, 2).Rect(Red, 1, 3, 3, 1).Door(Red, Side.Top, 0, 2).Build();

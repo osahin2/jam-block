@@ -1,5 +1,6 @@
 using Game.Bootstrap;
 using Game.Data.Levels;
+using Game.Logic.Play;
 using Game.Play;
 using UnityEditor;
 using UnityEngine;
@@ -27,13 +28,8 @@ namespace Game.Editor.LevelEditor
             if (level == null || !TryFindGameScene(out var scene, out var camera, out var board) || !TryLoadSettings() ||
                 !CanBuild(level))
                 return;
-            _root = new GameObject(RootName);
-            var boardTransform = board.transform;
-            _root.transform.SetPositionAndRotation(boardTransform.position, boardTransform.rotation);
-            _root.transform.localScale = boardTransform.lossyScale;
-            SceneManager.MoveGameObjectToScene(_root, scene);
-            _root.hideFlags = PreviewBoardPieces.PreviewFlags;
-            _stage.Show(level, _root.transform, _pieces, camera);
+            _root = CreateRoot(scene, board);
+            _stage.Show(level, new LevelAttempt(level), _root.transform, _pieces, camera);
         }
 
         public void Clear()
@@ -41,6 +37,17 @@ namespace Game.Editor.LevelEditor
             if (_root != null)
                 Object.DestroyImmediate(_root);
             _root = null;
+        }
+
+        private static GameObject CreateRoot(Scene scene, BoardRoot board)
+        {
+            var root = new GameObject(RootName);
+            var boardTransform = board.transform;
+            root.transform.SetPositionAndRotation(boardTransform.position, boardTransform.rotation);
+            root.transform.localScale = boardTransform.lossyScale;
+            SceneManager.MoveGameObjectToScene(root, scene);
+            root.hideFlags = PreviewBoardPieces.PreviewFlags;
+            return root;
         }
 
         private static bool TryFindGameScene(out Scene gameScene, out Camera camera, out BoardRoot board)
@@ -55,17 +62,22 @@ namespace Game.Editor.LevelEditor
                     var scope = root.GetComponent(typeof(GameScope));
                     if (scope == null)
                         continue;
-                    var fields = new SerializedObject(scope);
                     gameScene = scene;
-                    camera = fields.FindProperty("_camera").objectReferenceValue as Camera;
-                    board = fields.FindProperty("_board").objectReferenceValue as BoardRoot;
-                    return camera != null && board != null;
+                    return TryReadScope(scope, out camera, out board);
                 }
             }
             gameScene = default;
             camera = null;
             board = null;
             return false;
+        }
+
+        private static bool TryReadScope(Component scope, out Camera camera, out BoardRoot board)
+        {
+            var fields = new SerializedObject(scope);
+            camera = fields.FindProperty("_camera").objectReferenceValue as Camera;
+            board = fields.FindProperty("_board").objectReferenceValue as BoardRoot;
+            return camera != null && board != null;
         }
 
         private bool TryLoadSettings()
@@ -79,14 +91,15 @@ namespace Game.Editor.LevelEditor
             var framing = EditorAssets.FindFirst<CameraFramingSettings>();
             if (art == null || _palette == null || motion == null || ice == null || framing == null)
                 return false;
-            _stage = new LevelStage(art, _palette, motion, ice, framing);
+            _stage = new LevelStage(art, _palette, motion, BlockFeatures.Of(ice, art), framing);
             return true;
         }
 
-        private bool CanBuild(LevelData level)
+        private bool CanBuild(LevelData level) =>
+            level.Width >= 1 && level.Height >= 1 && HasEveryColor(level) && Board.CanHold(level);
+
+        private bool HasEveryColor(LevelData level)
         {
-            if (level.Width < 1 || level.Height < 1)
-                return false;
             foreach (var block in level.Blocks)
             {
                 if (!_palette.Has(block.ColorId))

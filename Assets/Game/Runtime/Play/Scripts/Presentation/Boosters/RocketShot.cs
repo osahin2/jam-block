@@ -12,10 +12,9 @@ namespace Game.Play
         [SerializeField] private RectTransform _burstPoint;
         [SerializeField] private ParticleSystem _burst;
 
-        protected override Sequence Build(Vector2 from, Cell target, BoardInteraction board, BoosterMotionSettings motion,
-            Action onLanded)
+        protected override Sequence Build(Vector2 from, Cell target, Action onLanded)
         {
-            var hit = ToLocal(board.ScreenPointOf(target, motion.TargetLift));
+            var hit = ToLocal(Projection.ScreenPointOf(target, Motion.TargetLift));
             var start = new Vector2(ToLocal(from).x, ((RectTransform)transform).rect.yMin - _body.rect.height);
             var heading = hit - start;
             _body.anchoredPosition = start;
@@ -23,11 +22,11 @@ namespace Game.Play
             _body.gameObject.SetActive(true);
             _burstPoint.anchoredPosition = hit;
             _burst.Clear();
-            var color = board.TryFindColorShownAt(target, out var shown) ? shown : Color.white;
+            var color = Board.TryFindColorShownAt(target, out var shown) ? shown : Color.white;
             return DOTween.Sequence()
-                .Append(_body.DOAnchorPos(hit, motion.RocketFlight).SetEase(motion.RocketFlightEase))
+                .Append(_body.DOAnchorPos(hit, Motion.RocketFlight).SetEase(Motion.RocketFlightEase))
                 .AppendCallback(() => Explode(color, onLanded))
-                .AppendInterval(motion.RocketBurstHold);
+                .AppendInterval(Motion.RocketBurstHold);
         }
 
         private void Explode(Color color, Action onLanded)

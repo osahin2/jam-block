@@ -37,12 +37,20 @@ namespace Game.Popups
                 .SetTarget(this)
                 .SetUpdate(true)
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+            FadeInDimmer(sequence);
+            PopParts(sequence);
+        }
 
+        private void FadeInDimmer(Sequence sequence)
+        {
             var hidden = _dimmer.color;
             hidden.a = 0f;
             _dimmer.color = hidden;
             sequence.Insert(0f, _dimmer.DOFade(_dimAlpha, _settings.DimDuration));
+        }
 
+        private void PopParts(Sequence sequence)
+        {
             for (var i = 0; i < _parts.Length; i++)
             {
                 var part = _parts[i];

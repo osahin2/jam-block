@@ -32,14 +32,24 @@ namespace Game.Logic.Play
             Array.Fill(_occupant, NoBlock);
             _doors = level.Doors.ToArray();
             _blocks = new List<BoardBlock>(CellsOf(level));
-            for (var i = 0; i < level.Blocks.Count; i++)
-            {
-                var data = level.Blocks[i];
-                _blocks.Add(new BoardBlock(i, data.ColorId, data.Position, data.Shape));
-                SetOccupant(_blocks[i], i);
-            }
+            PlaceBlocks(level);
             RemainingBlocks = _blocks.Count;
             _parts = new CellGroups(LargestBlockOf(level));
+        }
+
+        public static bool CanHold(LevelData level)
+        {
+            var taken = new HashSet<Cell>();
+            foreach (var block in level.Blocks)
+            {
+                foreach (var offset in block.Shape)
+                {
+                    var cell = block.Position + offset;
+                    if (!level.IsOnBoard(cell) || !taken.Add(cell))
+                        return false;
+                }
+            }
+            return true;
         }
 
         public int BlockAt(Cell cell) => Contains(cell) ? _occupant[IndexOf(cell)] : NoBlock;
@@ -122,6 +132,16 @@ namespace Game.Logic.Play
             SetOccupant(moving, block);
             TryLeave(block, out var exitDoor);
             return new StepResult(true, moving.Position, exitDoor);
+        }
+
+        private void PlaceBlocks(LevelData level)
+        {
+            for (var i = 0; i < level.Blocks.Count; i++)
+            {
+                var data = level.Blocks[i];
+                _blocks.Add(new BoardBlock(i, data.ColorId, data.Position, data.Shape));
+                SetOccupant(_blocks[i], i);
+            }
         }
 
         private void Remove(int index)

@@ -12,7 +12,6 @@ namespace Game.Tests.Play
         private BlockView _view;
         private Outline _outline;
         private BlockMotionSettings _motion;
-        private IceSettings _ice;
 
         [SetUp]
         public void SetUp()
@@ -21,11 +20,9 @@ namespace Game.Tests.Play
             _outline = _view.gameObject.AddComponent<Outline>();
             var view = new SerializedObject(_view);
             view.FindProperty("_outline").objectReferenceValue = _outline;
-            view.FindProperty("_ice").objectReferenceValue = IceCovers.Under(_view.transform);
             view.ApplyModifiedPropertiesWithoutUndo();
             _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
-            _ice = ScriptableObject.CreateInstance<IceSettings>();
-            _view.Init(_motion, _ice, new[] { new Cell(0, 0) });
+            _view.Init(_motion, new[] { new Cell(0, 0) });
         }
 
         [TearDown]
@@ -33,7 +30,6 @@ namespace Game.Tests.Play
         {
             Object.DestroyImmediate(_view.gameObject);
             Object.DestroyImmediate(_motion);
-            Object.DestroyImmediate(_ice);
         }
 
         [Test]
@@ -62,7 +58,7 @@ namespace Game.Tests.Play
         {
             _view.transform.localScale = Vector3.zero;
 
-            _view.Init(_motion, _ice, new[] { new Cell(0, 0) });
+            _view.Init(_motion, new[] { new Cell(0, 0) });
 
             Assert.AreEqual(Vector3.one, _view.transform.localScale);
         }

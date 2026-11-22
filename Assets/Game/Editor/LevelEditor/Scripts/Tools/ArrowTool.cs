@@ -34,7 +34,7 @@ namespace Game.Editor.LevelEditor
             }
             _block = level.Blocks[index];
             _anchor = cell - _block.Position;
-            return LevelEdits.RemoveArrow(_block);
+            return ArrowEdits.Remove(_block);
         }
 
         public bool Drag(LevelData level, Cell cell)
@@ -43,12 +43,12 @@ namespace Game.Editor.LevelEditor
                 return false;
             var pull = cell - _block.Position - _anchor;
             if (pull == new Cell(0, 0))
-                return LevelEdits.RemoveArrow(_block);
+                return ArrowEdits.Remove(_block);
             var axis = Math.Abs(pull.X) >= Math.Abs(pull.Y) ? ArrowAxis.Horizontal : ArrowAxis.Vertical;
             var end = FarthestBlockCellToward(axis, pull);
             var start = new Cell(Math.Min(_anchor.X, end.X), Math.Min(_anchor.Y, end.Y));
             var length = Math.Abs(end.X - _anchor.X) + Math.Abs(end.Y - _anchor.Y) + 1;
-            return LevelEdits.SetArrow(_block, axis, start, length);
+            return ArrowEdits.Set(_block, axis, start, length);
         }
 
         public void Release() => _block = null;

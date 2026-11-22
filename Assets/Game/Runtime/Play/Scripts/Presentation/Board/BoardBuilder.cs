@@ -26,11 +26,12 @@ namespace Game.Play
             _blockViews = blockViews;
         }
 
-        public StagedLevel Build(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
+        public StagedLevel Build(LevelData level, LevelAttempt attempt, BoardLayout layout, Transform parent,
+            IBoardPieceSource pieces)
         {
             BuildGround(level, layout, parent, pieces);
             var doors = BuildFrame(level, layout, parent, pieces);
-            return new StagedLevel(layout, BuildBlocks(level, layout, parent, pieces), doors);
+            return new StagedLevel(layout, BuildBlocks(attempt, layout, parent, pieces), doors);
         }
 
         private void BuildGround(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
@@ -69,10 +70,6 @@ namespace Game.Play
         private void BuildSide(LevelData level, BoardLayout layout, Side side, Transform parent, IBoardPieceSource pieces,
             DoorView[] doors)
         {
-            var outward = layout.ToLocal(Direction.OutOf(side));
-            var turn = Quaternion.LookRotation(outward, Vector3.up);
-            var wallOut = outward * (layout.CellSize + _art.WallWidth) * 0.5f;
-            var doorOut = outward * (layout.CellSize + _art.DoorWidth) * 0.5f;
             var length = side.Length(level.Width, level.Height);
             var start = 0;
             while (start < length)
@@ -80,25 +77,32 @@ namespace Game.Play
                 var door = DoorAt(level, side, start);
                 var end = door?.End ?? NextDoorStart(level, side, start, length);
                 var middle = RunMiddle(level, layout, side, start, end);
-                var cells = end - start;
                 if (door != null)
-                {
-                    var doorScale = new Vector3(cells * _art.DoorScalePerCell, _art.Scale, _art.DoorWidth);
-                    var view = pieces.Take(_art.Door, parent);
-                    Place(view.transform, middle + doorOut, turn, doorScale);
-                    var arrowPosition = middle + doorOut;
-                    arrowPosition.y = _art.FrameTop;
-                    var arrow = Spawn(_art.DoorArrow, arrowPosition, turn, Vector3.one * _art.Scale, parent, pieces);
-                    view.Init(_palette.ForDoor(door.ColorId), arrow.transform, _art.DoorDrop, _art.TouchHeight * 0.5f, _motion);
-                    doors[level.Doors.IndexOf(door)] = view;
-                }
+                    doors[level.Doors.IndexOf(door)] = BuildDoor(door, layout, middle, end - start, parent, pieces);
                 else
-                {
-                    var wallScale = new Vector3(cells * _art.WallScalePerCell, _art.Scale, _art.WallWidth);
-                    Spawn(_art.Wall, middle + wallOut, turn, wallScale, parent, pieces);
-                }
+                    BuildWall(side, layout, middle, end - start, parent, pieces);
                 start = end;
             }
+        }
+
+        private DoorView BuildDoor(DoorData door, BoardLayout layout, Vector3 middle, int cells, Transform parent,
+            IBoardPieceSource pieces)
+        {
+            var turn = FacingOut(layout, door.Side);
+            var position = middle + OutOfEdge(layout, door.Side, _art.DoorWidth);
+            var view = pieces.Take(_art.Door, parent);
+            Place(view.transform, position, turn, new Vector3(cells * _art.DoorScalePerCell, _art.Scale, _art.DoorWidth));
+            var arrow = Spawn(_art.DoorArrow, OnFrameTop(position), turn, Vector3.one * _art.Scale, parent, pieces);
+            view.Init(door.Side, _palette.ForDoor(door.ColorId), arrow.transform, _art.DoorDrop, _art.TouchHeight * 0.5f,
+                _motion);
+            return view;
+        }
+
+        private void BuildWall(Side side, BoardLayout layout, Vector3 middle, int cells, Transform parent,
+            IBoardPieceSource pieces)
+        {
+            var scale = new Vector3(cells * _art.WallScalePerCell, _art.Scale, _art.WallWidth);
+            Spawn(_art.Wall, middle + OutOfEdge(layout, side, _art.WallWidth), FacingOut(layout, side), scale, parent, pieces);
         }
 
         private Vector3 RunMiddle(LevelData level, BoardLayout layout, Side side, int start, int end)
@@ -108,16 +112,28 @@ namespace Game.Play
             return (first + last) * 0.5f + Lift(_art.FrameLift);
         }
 
-        private BlockView[] BuildBlocks(LevelData level, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
+        private Vector3 OnFrameTop(Vector3 position)
         {
-            var views = new BlockView[level.Blocks.Count];
+            position.y = _art.FrameTop;
+            return position;
+        }
+
+        private BlockView[] BuildBlocks(LevelAttempt attempt, BoardLayout layout, Transform parent, IBoardPieceSource pieces)
+        {
+            var views = new BlockView[attempt.Board.Blocks.Count];
             for (var i = 0; i < views.Length; i++)
             {
-                var block = level.Blocks[i];
-                views[i] = _blockViews.Build(block, layout.CellCenter(block.Position), parent, pieces);
+                var block = BlockOnBoard.Of(attempt, i);
+                views[i] = _blockViews.Build(block, layout.CellCenter(block.Block.Position), parent, pieces);
             }
             return views;
         }
+
+        private static Quaternion FacingOut(BoardLayout layout, Side side) =>
+            Quaternion.LookRotation(layout.ToLocal(Direction.OutOf(side)), Vector3.up);
+
+        private static Vector3 OutOfEdge(BoardLayout layout, Side side, float pieceWidth) =>
+            layout.ToLocal(Direction.OutOf(side)) * (layout.CellSize + pieceWidth) * 0.5f;
 
         private static BoardPiece Spawn(BoardPiece prefab, Vector3 position, Quaternion rotation, Vector3 scale,
             Transform parent, IBoardPieceSource pieces)

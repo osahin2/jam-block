@@ -22,11 +22,21 @@ namespace Game.Play
 
         public void Build(BlockView block, IReadOnlyList<Cell> shape, Material material, IBoardPieceSource pieces)
         {
+            Remember(shape);
+            PlaceInnerCorners(block, shape, material, pieces);
+            FillTheOtherQuarters(block, shape, material, pieces);
+        }
+
+        private void Remember(IReadOnlyList<Cell> shape)
+        {
             _cells.Clear();
             _covered.Clear();
             foreach (var cell in shape)
                 _cells.Add(cell);
+        }
 
+        private void PlaceInnerCorners(BlockView block, IReadOnlyList<Cell> shape, Material material, IBoardPieceSource pieces)
+        {
             foreach (var cell in shape)
             {
                 foreach (var quarter in Quarters)
@@ -35,6 +45,11 @@ namespace Game.Play
                         PlaceInnerCorner(block, material, cell, quarter, pieces);
                 }
             }
+        }
+
+        private void FillTheOtherQuarters(BlockView block, IReadOnlyList<Cell> shape, Material material,
+            IBoardPieceSource pieces)
+        {
             foreach (var cell in shape)
             {
                 foreach (var quarter in Quarters)

@@ -14,26 +14,38 @@ namespace Game.Logic.Levels
             Array.Fill(owner, Free);
             for (var i = 0; i < level.Blocks.Count; i++)
             {
-                var block = level.Blocks[i];
-                if (block.Shape.Count == 0)
-                    report.Add(LevelProblem.BlockError(LevelProblemKind.EmptyBlock, i));
-                else if (!IsConnected(block.Shape))
-                    report.Add(LevelProblem.BlockError(LevelProblemKind.DisconnectedBlock, i));
-                foreach (var offset in block.Shape)
-                {
-                    var cell = block.Position + offset;
-                    if (!level.IsOnBoard(cell))
-                    {
-                        report.Add(LevelProblem.BlockError(LevelProblemKind.BlockOutsideBoard, i, cell));
-                        continue;
-                    }
-                    var index = cell.IndexIn(level.Width);
-                    if (owner[index] == Free)
-                        owner[index] = i;
-                    else
-                        report.Add(LevelProblem.BlockError(LevelProblemKind.BlocksOverlap, i, cell));
-                }
+                CheckShape(level.Blocks[i], i, report);
+                CheckCells(level, i, owner, report);
             }
+        }
+
+        private static void CheckShape(BlockData block, int index, LevelReport report)
+        {
+            if (block.Shape.Count == 0)
+                report.Add(LevelProblem.BlockError(LevelProblemKind.EmptyBlock, index));
+            else if (!IsConnected(block.Shape))
+                report.Add(LevelProblem.BlockError(LevelProblemKind.DisconnectedBlock, index));
+        }
+
+        private static void CheckCells(LevelData level, int index, int[] owner, LevelReport report)
+        {
+            var block = level.Blocks[index];
+            foreach (var offset in block.Shape)
+            {
+                var cell = block.Position + offset;
+                if (!level.IsOnBoard(cell))
+                    report.Add(LevelProblem.BlockError(LevelProblemKind.BlockOutsideBoard, index, cell));
+                else if (!TryClaim(owner, cell.IndexIn(level.Width), index))
+                    report.Add(LevelProblem.BlockError(LevelProblemKind.BlocksOverlap, index, cell));
+            }
+        }
+
+        private static bool TryClaim(int[] owner, int cellIndex, int block)
+        {
+            if (owner[cellIndex] != Free)
+                return false;
+            owner[cellIndex] = block;
+            return true;
         }
 
         private static bool IsConnected(List<Cell> shape)

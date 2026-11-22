@@ -30,24 +30,43 @@ namespace Game.Play
 
         public override void Install(IContainerBuilder builder)
         {
+            InstallSettings(builder);
+            builder.RegisterUIScreens(_screens);
+            InstallBoard(builder);
+            InstallBlockFeatures(builder);
+            builder.RegisterEntryPoint<PlaySession>(Lifetime.Scoped).AsSelf();
+            InstallBoosters(builder);
+        }
+
+        private void InstallSettings(IContainerBuilder builder)
+        {
             builder.RegisterInstance(_art);
             builder.RegisterInstance(_palette);
             builder.RegisterInstance(_motion);
             builder.RegisterInstance(_outline);
-            builder.Register<BlockOutlineMaterials>(Lifetime.Scoped);
             builder.RegisterInstance(_ice);
             builder.RegisterInstance(_framing);
             builder.RegisterInstance(_reward);
             builder.RegisterInstance(_timeWarning);
-            builder.RegisterUIScreens(_screens);
+        }
+
+        private static void InstallBoard(IContainerBuilder builder)
+        {
+            builder.Register<BlockOutlineMaterials>(Lifetime.Scoped);
             builder.Register<PooledBoardPieces>(Lifetime.Scoped);
             builder.Register<BlockPieceBuilder>(Lifetime.Scoped);
             builder.Register<BlockViewBuilder>(Lifetime.Scoped);
             builder.Register<LevelStage>(Lifetime.Scoped);
             builder.Register<TouchPlane>(Lifetime.Scoped);
-            builder.Register<BoardInteraction>(Lifetime.Scoped);
-            builder.RegisterEntryPoint<PlaySession>(Lifetime.Scoped).AsSelf();
-            InstallBoosters(builder);
+            builder.Register<BoardProjection>(Lifetime.Scoped);
+            builder.Register<BoardPresenter>(Lifetime.Scoped);
+            builder.Register<BoardInput>(Lifetime.Scoped);
+        }
+
+        private void InstallBlockFeatures(IContainerBuilder builder)
+        {
+            foreach (var feature in BlockFeatures.Of(_ice, _art))
+                builder.RegisterInstance<IBlockFeature>(feature);
         }
 
         private void InstallBoosters(IContainerBuilder builder)

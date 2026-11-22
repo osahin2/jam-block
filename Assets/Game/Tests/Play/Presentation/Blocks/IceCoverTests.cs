@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Play;
 using NUnit.Framework;
@@ -12,7 +11,8 @@ namespace Game.Tests.Play
     {
         private static readonly Cell[] Shape = { new Cell(0, 0), new Cell(1, 0) };
 
-        private Transform _block;
+        private BlockView _block;
+        private BlockMotionSettings _motion;
         private IceCover _cover;
         private Renderer _piece;
         private GameObject _count;
@@ -20,17 +20,21 @@ namespace Game.Tests.Play
         [SetUp]
         public void SetUp()
         {
-            _block = new GameObject("Block").transform;
-            _cover = IceCovers.Under(_block);
+            _block = new GameObject("Block").AddComponent<BlockView>();
+            _motion = ScriptableObject.CreateInstance<BlockMotionSettings>();
+            _cover = IceCovers.Under(_block.transform);
             _count = _cover.GetComponentInChildren<TextMeshPro>(true).gameObject;
             _piece = GameObject.CreatePrimitive(PrimitiveType.Cube).GetComponent<Renderer>();
-            _piece.transform.SetParent(_block);
+            _piece.transform.SetParent(_block.transform);
             _piece.sharedMaterial = Load<ColorPalette>().ForBlock(1);
-            _cover.Init(Load<IceSettings>(), new List<Renderer> { _piece });
         }
 
         [TearDown]
-        public void TearDown() => Object.DestroyImmediate(_block.gameObject);
+        public void TearDown()
+        {
+            Object.DestroyImmediate(_block.gameObject);
+            Object.DestroyImmediate(_motion);
+        }
 
         [Test]
         public void Show_WithIce_ShowsTheCountAndTurnsThePiecesToIce()
@@ -96,8 +100,24 @@ namespace Game.Tests.Play
             Assert.AreEqual(0, _cover.Shown);
         }
 
-        private void Show(int ice, Cell[] shape) =>
-            _cover.Show(ice, shape, _piece.sharedMaterial, Load<BoardArtSettings>());
+        private void Show(int ice, Cell[] shape)
+        {
+            _block.Init(_motion, shape);
+            _block.AddPiece(PieceOf(_piece));
+            _cover.Show(ice, _block, Load<IceSettings>(), Load<BoardArtSettings>());
+        }
+
+        private static BoardPiece PieceOf(Renderer renderer)
+        {
+            var piece = renderer.GetComponent<BoardPiece>();
+            if (piece != null)
+                return piece;
+            piece = renderer.gameObject.AddComponent<BoardPiece>();
+            var fields = new SerializedObject(piece);
+            fields.FindProperty("_renderer").objectReferenceValue = renderer;
+            fields.ApplyModifiedPropertiesWithoutUndo();
+            return piece;
+        }
 
         private static T Load<T>() where T : Object
         {

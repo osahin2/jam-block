@@ -28,9 +28,7 @@ namespace Game.Play
             var window = ViewportWindow(viewportSafeArea, camera.aspect);
             var center = board.TransformPoint(layout.Box.center);
             var tanHalfHeight = Mathf.Tan(camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            var radius = Vector3.Scale(layout.Box.extents, board.lossyScale).magnitude;
-            var narrowerHalfAngle = Mathf.Atan(Mathf.Min(tanHalfHeight, tanHalfHeight * camera.aspect));
-            view.position = center - view.forward * (radius / Mathf.Sin(narrowerHalfAngle));
+            StandBackToSeeAll(camera, center, Vector3.Scale(layout.Box.extents, board.lossyScale).magnitude, tanHalfHeight);
             for (var round = 0; round < Rounds; round++)
             {
                 var shown = OnScreen(camera, layout, board);
@@ -41,6 +39,13 @@ namespace Game.Play
                 view.position += view.forward * (depth - fittedDepth) +
                     view.right * (offset.x * viewportToWorld * camera.aspect) + view.up * (offset.y * viewportToWorld);
             }
+        }
+
+        private static void StandBackToSeeAll(Camera camera, Vector3 center, float radius, float tanHalfHeight)
+        {
+            var narrowerHalfAngle = Mathf.Atan(Mathf.Min(tanHalfHeight, tanHalfHeight * camera.aspect));
+            var view = camera.transform;
+            view.position = center - view.forward * (radius / Mathf.Sin(narrowerHalfAngle));
         }
 
         private static Rect OnScreen(Camera camera, BoardLayout layout, Transform board)

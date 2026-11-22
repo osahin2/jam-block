@@ -17,7 +17,7 @@ namespace Game.Logic.Play
 
         public int IceLeft(IReadOnlyBoard board, int block)
         {
-            if (block >= _startingIce.Length)
+            if (IsSplitPart(block))
                 return 0;
             var left = _startingIce[block] - board.GoneCount - _hits[block];
             return left > 0 ? left : 0;
@@ -28,5 +28,7 @@ namespace Game.Logic.Play
         public bool Guards(IReadOnlyBoard board, int block) => IceLeft(board, block) > 0;
 
         void IBlockGuard.TakeHit(int block) => _hits[block]++;
+
+        private bool IsSplitPart(int block) => block >= _startingIce.Length;
     }
 }

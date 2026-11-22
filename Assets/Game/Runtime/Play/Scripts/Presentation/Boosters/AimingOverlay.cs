@@ -26,12 +26,17 @@ namespace Game.Play
 
         private readonly List<RectTransform> _crosshairs = new List<RectTransform>();
         private BoosterMotionSettings _motion;
+        private BoardProjection _projection;
         private Action _onCancel;
 
         [Inject]
-        public void Construct(BoosterMotionSettings motion) => _motion = motion;
+        public void Construct(BoosterMotionSettings motion, BoardProjection projection)
+        {
+            _motion = motion;
+            _projection = projection;
+        }
 
-        public void Show(BoosterDefinition booster, Rect boardOnScreen, Action onCancel)
+        public void Show(BoosterDefinition booster, Action onCancel)
         {
             _onCancel = onCancel;
             HideCrosshairs();
@@ -39,11 +44,11 @@ namespace Game.Play
             _hint.SetText(booster.Description);
             _buttonIcon.sprite = booster.Icon;
             gameObject.SetActive(true);
-            Cut(boardOnScreen);
+            Cut(_projection.ScreenRect());
             Copy(_bar.SlotOf(booster));
         }
 
-        public void MarkTargets(IBoardEffect effect, IReadOnlyBoard board, BoardInteraction interaction)
+        public void MarkTargets(IBoardEffect effect, IReadOnlyBoard board)
         {
             var marked = 0;
             var blocks = board.Blocks;
@@ -56,7 +61,7 @@ namespace Game.Play
                 {
                     var cell = block.Position + block.Shape[k];
                     if (effect.CanTarget(board, cell))
-                        Mark(marked++, cell, interaction);
+                        Mark(marked++, cell);
                 }
             }
         }
@@ -73,13 +78,13 @@ namespace Game.Play
                 _onCancel?.Invoke();
         }
 
-        private void Mark(int index, Cell cell, BoardInteraction interaction)
+        private void Mark(int index, Cell cell)
         {
             if (index == _crosshairs.Count)
                 _crosshairs.Add(Instantiate(_crosshair, _crosshair.parent));
             var area = (RectTransform)transform;
-            var center = ToLocal(area, interaction.ScreenPointOf(cell, _motion.TargetLift));
-            var next = ToLocal(area, interaction.ScreenPointOf(cell + new Cell(1, 0), _motion.TargetLift));
+            var center = ToLocal(area, _projection.ScreenPointOf(cell, _motion.TargetLift));
+            var next = ToLocal(area, _projection.ScreenPointOf(cell + new Cell(1, 0), _motion.TargetLift));
             var size = Vector2.Distance(center, next) * _crosshairSize;
             var mark = _crosshairs[index];
             mark.anchoredPosition = center;

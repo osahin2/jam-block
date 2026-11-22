@@ -28,9 +28,7 @@ namespace Game.Editor.LevelEditor
             _door = LevelEdits.DoorAt(level, cell);
             if (_door != LevelEdits.NoDoor)
             {
-                var door = level.Doors[_door];
-                var lastCell = door.End - 1;
-                _anchor = along - door.Start <= lastCell - along ? lastCell : door.Start;
+                _anchor = FartherEndOf(level.Doors[_door], along);
                 return false;
             }
             _door = LevelEdits.AddDoor(level, colorId, side, along);
@@ -51,5 +49,11 @@ namespace Game.Editor.LevelEditor
         public void Release() => _door = LevelEdits.NoDoor;
 
         public bool RightClick(LevelData level, Cell cell) => false;
+
+        private static int FartherEndOf(DoorData door, int along)
+        {
+            var lastCell = door.End - 1;
+            return along - door.Start <= lastCell - along ? lastCell : door.Start;
+        }
     }
 }

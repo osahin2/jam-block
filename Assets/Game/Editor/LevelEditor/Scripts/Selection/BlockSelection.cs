@@ -17,7 +17,7 @@ namespace Game.Editor.LevelEditor
         public BlockSelection(BlockData block)
         {
             _block = block;
-            _fields = new[] { new SelectionField("Ice", IceTooltip, _ => _block.Ice, (_, ice) => LevelEdits.SetIce(_block, ice)) };
+            _fields = new[] { new SelectionField("Ice", IceTooltip, _ => _block.Ice, (_, ice) => IceEdits.Set(_block, ice)) };
         }
 
         public bool Exists(LevelData level) => level.Blocks.Contains(_block);

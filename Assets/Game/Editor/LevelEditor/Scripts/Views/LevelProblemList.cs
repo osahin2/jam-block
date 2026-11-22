@@ -36,15 +36,25 @@ namespace Game.Editor.LevelEditor
             if (Focused >= problems.Count)
                 Focused = NoProblem;
             _rows.Clear();
-            var errors = 0;
             for (var i = 0; i < problems.Count; i++)
-            {
                 _rows.Add(Row(i, problems[i], level));
-                errors += problems[i].Severity == Severity.Error ? 1 : 0;
-            }
-            var warnings = problems.Count - errors;
-            _header.text = problems.Count == 0 ? "No problems."
-                : $"{Plural(errors, "error")}, {Plural(warnings, "warning")}." + (errors > 0 ? " Fix the errors to save." : "");
+            _header.text = Summary(problems.Count, ErrorsIn(report));
+        }
+
+        private static int ErrorsIn(LevelReport report)
+        {
+            var errors = 0;
+            foreach (var problem in report.Problems)
+                errors += problem.Severity == Severity.Error ? 1 : 0;
+            return errors;
+        }
+
+        private static string Summary(int problems, int errors)
+        {
+            if (problems == 0)
+                return "No problems.";
+            var counts = $"{Plural(errors, "error")}, {Plural(problems - errors, "warning")}.";
+            return errors > 0 ? counts + " Fix the errors to save." : counts;
         }
 
         private VisualElement Row(int index, LevelProblem problem, LevelData level)
@@ -53,21 +63,27 @@ namespace Game.Editor.LevelEditor
             var row = new VisualElement();
             row.AddToClassList("problem-row");
             row.AddToClassList($"problem-row--{SeverityName(problem.Severity)}");
-            var title = new Label($"{problem.Severity}: {(subject != null ? _nameOf(subject) : "Level")}");
-            title.AddToClassList("problem-title");
-            var explanation = new Label(LevelProblemGuide.Explain(problem.Kind));
-            explanation.AddToClassList("problem-text");
-            row.Add(title);
-            row.Add(explanation);
+            row.Add(TextLabel($"{problem.Severity}: {(subject != null ? _nameOf(subject) : "Level")}", "problem-title"));
+            row.Add(TextLabel(LevelProblemGuide.Explain(problem.Kind), "problem-text"));
             row.RegisterCallback<PointerEnterEvent>(_ => Focus(index));
             row.RegisterCallback<PointerLeaveEvent>(_ => Focus(NoProblem));
             if (subject != null)
-            {
-                row.AddToClassList("problem-row--selectable");
-                row.tooltip = "Click to select it on the board.";
-                row.RegisterCallback<ClickEvent>(_ => Picked?.Invoke(subject));
-            }
+                LetPick(row, subject);
             return row;
+        }
+
+        private void LetPick(VisualElement row, ILevelSelection subject)
+        {
+            row.AddToClassList("problem-row--selectable");
+            row.tooltip = "Click to select it on the board.";
+            row.RegisterCallback<ClickEvent>(_ => Picked?.Invoke(subject));
+        }
+
+        private static Label TextLabel(string text, string className)
+        {
+            var label = new Label(text);
+            label.AddToClassList(className);
+            return label;
         }
 
         private void Focus(int index)

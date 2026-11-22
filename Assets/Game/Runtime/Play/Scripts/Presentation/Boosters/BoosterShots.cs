@@ -12,24 +12,34 @@ namespace Game.Play
 
         private readonly Dictionary<BoosterShot, BoosterShot> _shots = new Dictionary<BoosterShot, BoosterShot>();
         private BoosterMotionSettings _motion;
+        private BoardProjection _projection;
+        private BoardPresenter _board;
 
         [Inject]
-        public void Construct(BoosterMotionSettings motion) => _motion = motion;
-
-        public void Play(TargetedDefinition booster, Cell target, BoardInteraction board, Action onLanded)
+        public void Construct(BoosterMotionSettings motion, BoardProjection projection, BoardPresenter board)
         {
-            if (!_shots.TryGetValue(booster.Shot, out var shot))
-            {
-                shot = Instantiate(booster.Shot, transform);
-                _shots.Add(booster.Shot, shot);
-            }
-            shot.Play(_bar.ScreenPointOf(booster), target, board, _motion, onLanded);
+            _motion = motion;
+            _projection = projection;
+            _board = board;
         }
+
+        public void Play(TargetedDefinition booster, Cell target, Action onLanded) =>
+            ShotOf(booster).Play(_bar.ScreenPointOf(booster), target, onLanded);
 
         public void Stop()
         {
             foreach (var shot in _shots.Values)
                 shot.Stop();
+        }
+
+        private BoosterShot ShotOf(TargetedDefinition booster)
+        {
+            if (_shots.TryGetValue(booster.Shot, out var shot))
+                return shot;
+            shot = Instantiate(booster.Shot, transform);
+            shot.Init(_projection, _board, _motion);
+            _shots.Add(booster.Shot, shot);
+            return shot;
         }
     }
 }

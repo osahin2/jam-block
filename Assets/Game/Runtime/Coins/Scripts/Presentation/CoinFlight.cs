@@ -33,21 +33,38 @@ namespace Game.Coins
             var sequence = DOTween.Sequence().SetUpdate(true).SetLink(to.gameObject);
             for (var i = 0; i < flight.Coins.Length; i++)
             {
-                var coin = _coins.Get(transform);
+                var coin = TakeCoinAt(from);
                 flight.Coins[i] = coin;
-                coin.position = from;
-                coin.localScale = Vector3.zero;
-                var scatter = from + (Vector3)(UnityEngine.Random.insideUnitCircle * radius);
-                sequence.Insert(0f, coin.DOScale(1f, burst).SetEase(_settings.BurstEase));
-                sequence.Insert(0f, coin.DOMove(scatter, burst).SetEase(_settings.BurstEase));
+                Burst(sequence, coin, from, radius, burst);
                 var leave = burst + i * _settings.FlightStagger;
-                sequence.Insert(leave, coin.DOMoveX(landing.x, duration).SetEase(_settings.AcrossEase));
-                sequence.Insert(leave, coin.DOMoveY(landing.y, duration).SetEase(_settings.UpEase));
-                sequence.Insert(leave, coin.DOScale(landingScale, duration).SetEase(Ease.Linear));
+                FlyToCounter(sequence, coin, leave, landing, landingScale, duration);
                 sequence.InsertCallback(leave + duration, flight.LandNext);
             }
 
             sequence.OnComplete(flight.Finish).OnKill(flight.ReleaseRest);
+        }
+
+        private RectTransform TakeCoinAt(Vector3 from)
+        {
+            var coin = _coins.Get(transform);
+            coin.position = from;
+            coin.localScale = Vector3.zero;
+            return coin;
+        }
+
+        private void Burst(Sequence sequence, RectTransform coin, Vector3 from, float radius, float duration)
+        {
+            var scatter = from + (Vector3)(UnityEngine.Random.insideUnitCircle * radius);
+            sequence.Insert(0f, coin.DOScale(1f, duration).SetEase(_settings.BurstEase));
+            sequence.Insert(0f, coin.DOMove(scatter, duration).SetEase(_settings.BurstEase));
+        }
+
+        private void FlyToCounter(Sequence sequence, RectTransform coin, float leave, Vector3 landing, float landingScale,
+            float duration)
+        {
+            sequence.Insert(leave, coin.DOMoveX(landing.x, duration).SetEase(_settings.AcrossEase));
+            sequence.Insert(leave, coin.DOMoveY(landing.y, duration).SetEase(_settings.UpEase));
+            sequence.Insert(leave, coin.DOScale(landingScale, duration).SetEase(Ease.Linear));
         }
 
         private sealed class Flight

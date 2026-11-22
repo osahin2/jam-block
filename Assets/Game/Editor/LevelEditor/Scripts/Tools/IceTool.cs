@@ -35,7 +35,7 @@ namespace Game.Editor.LevelEditor
                 return false;
             var block = level.Blocks[index];
             var before = block.Ice;
-            LevelEdits.SetIce(block, before + change);
+            IceEdits.Set(block, before + change);
             return block.Ice != before;
         }
     }

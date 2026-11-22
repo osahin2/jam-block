@@ -7,20 +7,12 @@ using UnityEngine.UIElements;
 
 namespace Game.Editor.LevelEditor
 {
-    public sealed class LevelBoardView : VisualElement
+    public sealed class LevelBoardView : VisualElement, IBoardCanvas
     {
         private const int LeftButton = 0;
         private const int RightButton = 1;
         private const float OutlineWidth = 3f;
         private const float TileInset = 0.05f;
-        private const float IceBadgeSize = 0.45f;
-        private const float IceBadgeMinSize = 12f;
-        private const float IceBadgeInset = 0.06f;
-        private const float IceBadgeTextSize = 0.6f;
-        private const float ArrowInset = 0.2f;
-        private const float ArrowHead = 0.18f;
-        private const float ArrowWidth = 3f;
-        private static readonly Color ArrowOutlineColor = new Color(0.08f, 0.12f, 0.2f);
         private static readonly Color MissingColor = Color.magenta;
 
         public event Action<Cell> Pressed;
@@ -31,6 +23,7 @@ namespace Game.Editor.LevelEditor
         public event Action HoverEnded;
 
         private readonly VisualElement _hoverLayer = new VisualElement { pickingMode = PickingMode.Ignore };
+        private readonly IReadOnlyList<IBlockMechanicDrawing> _mechanics;
         private LevelData _level;
         private ColorPalette _palette;
         private IReadOnlyList<BoardMark> _marks;
@@ -40,8 +33,11 @@ namespace Game.Editor.LevelEditor
         private Cell _hoverCell;
         private bool _hovering;
 
-        public LevelBoardView()
+        public float CellSize => _cellSize;
+
+        public LevelBoardView(IReadOnlyList<IBlockMechanicDrawing> mechanics)
         {
+            _mechanics = mechanics;
             AddToClassList("board");
             _hoverLayer.style.position = Position.Absolute;
             _hoverLayer.style.left = 0f;
@@ -63,17 +59,42 @@ namespace Game.Editor.LevelEditor
             Rebuild();
         }
 
+        public bool IsOnBoard(Cell cell) => _level.IsOnBoard(cell);
+
+        public Rect CellRect(Cell cell) =>
+            new Rect(_origin.x + (cell.X + 1) * _cellSize, _origin.y + (cell.Y + 1) * _cellSize, _cellSize, _cellSize);
+
+        public VisualElement AddBox(Rect rect, string className)
+        {
+            var box = Box(rect, className);
+            Add(box);
+            return box;
+        }
+
         private void Rebuild()
         {
             Clear();
-            if (_level == null || float.IsNaN(contentRect.width))
+            if (_level == null || float.IsNaN(contentRect.width) || !TryFitCells())
                 return;
+            DrawCells();
+            DrawMechanicsOnBlocks();
+            DrawMechanicsOnTop();
+            DrawMarks();
+            Add(_hoverLayer);
+            DrawHover();
+        }
+
+        private bool TryFitCells()
+        {
             var columns = _level.Width + 2;
             var rows = _level.Height + 2;
             _cellSize = Mathf.Floor(Mathf.Min(contentRect.width / columns, contentRect.height / rows));
-            if (_cellSize < 1f)
-                return;
             _origin = new Vector2((contentRect.width - _cellSize * columns) / 2f, (contentRect.height - _cellSize * rows) / 2f);
+            return _cellSize >= 1f;
+        }
+
+        private void DrawCells()
+        {
             Add(Box(BoardRect(), "board-ground"));
             for (var y = -1; y <= _level.Height; y++)
             {
@@ -83,26 +104,45 @@ namespace Game.Editor.LevelEditor
                     Add(_level.IsOnBoard(cell) ? BoardCell(cell) : FrameCell(cell));
                 }
             }
-            foreach (var block in _level.Blocks)
-                AddMechanicsOf(block);
-            if (_marks != null)
+        }
+
+        private void DrawMechanicsOnBlocks()
+        {
+            foreach (var mechanic in _mechanics)
             {
-                foreach (var mark in _marks)
-                    Add(Box(PieceRect(mark.Cell), mark.ClassName));
+                foreach (var block in _level.Blocks)
+                {
+                    if (block.Shape.Count > 0)
+                        mechanic.DrawOnBlock(block, this);
+                }
             }
-            Add(_hoverLayer);
-            DrawHover();
+        }
+
+        private void DrawMechanicsOnTop()
+        {
+            foreach (var mechanic in _mechanics)
+            {
+                foreach (var block in _level.Blocks)
+                {
+                    if (block.Shape.Count > 0)
+                        mechanic.DrawOnTop(block, this);
+                }
+            }
+        }
+
+        private void DrawMarks()
+        {
+            if (_marks == null)
+                return;
+            foreach (var mark in _marks)
+                Add(Box(PieceRect(mark.Cell), mark.ClassName));
         }
 
         private VisualElement BoardCell(Cell cell)
         {
             var block = LevelEdits.BlockAt(_level, cell);
             if (block == LevelEdits.NoBlock)
-            {
-                var inset = Mathf.Max(1f, _cellSize * TileInset);
-                var tile = CellRect(cell);
-                return Box(new Rect(tile.x + inset, tile.y + inset, tile.width - 2f * inset, tile.height - 2f * inset), "board-tile");
-            }
+                return EmptyTile(cell);
             var element = Box(CellRect(cell), "board-block");
             element.style.backgroundColor = ColorOf(_level.Blocks[block].ColorId);
             element.style.borderTopWidth = Outline(cell, new Cell(0, -1), block);
@@ -112,95 +152,11 @@ namespace Game.Editor.LevelEditor
             return element;
         }
 
-        private void AddMechanicsOf(BlockData block)
+        private VisualElement EmptyTile(Cell cell)
         {
-            if (block.Shape.Count == 0)
-                return;
-            if (block.Ice > 0)
-                AddIceTint(block);
-            if (block.Arrow.IsSet)
-                Add(ArrowOf(block));
-            if (block.Ice > 0)
-                Add(IceBadgeOf(block));
-        }
-
-        private void AddIceTint(BlockData block)
-        {
-            foreach (var offset in block.Shape)
-            {
-                var cell = block.Position + offset;
-                if (_level.IsOnBoard(cell))
-                    Add(Box(CellRect(cell), "board-ice"));
-            }
-        }
-
-        private VisualElement ArrowOf(BlockData block)
-        {
-            var arrow = block.Arrow;
-            var horizontal = arrow.Axis == ArrowAxis.Horizontal;
-            var rect = CellRect(block.Position + arrow.Start);
-            if (horizontal)
-                rect.width *= arrow.Length;
-            else
-                rect.height *= arrow.Length;
-            var element = Box(rect, "board-arrow");
-            element.generateVisualContent += context => DrawArrow(context.painter2D, rect.size, horizontal);
-            return element;
-        }
-
-        private VisualElement IceBadgeOf(BlockData block)
-        {
-            var corner = CellRect(block.Position + TopLeftCellOf(block.Shape));
-            var size = Mathf.Max(IceBadgeMinSize, _cellSize * IceBadgeSize);
-            var inset = _cellSize * IceBadgeInset;
-            var badge = Box(new Rect(corner.x + inset, corner.y + inset, size, size), "board-ice-badge");
-            badge.style.borderTopLeftRadius = badge.style.borderTopRightRadius =
-                badge.style.borderBottomLeftRadius = badge.style.borderBottomRightRadius = size / 2f;
-            badge.style.fontSize = size * IceBadgeTextSize;
-            badge.Add(new Label(block.Ice.ToString()) { pickingMode = PickingMode.Ignore });
-            return badge;
-        }
-
-        private static Cell TopLeftCellOf(List<Cell> shape)
-        {
-            var topLeft = shape[0];
-            foreach (var cell in shape)
-            {
-                if (cell.Y < topLeft.Y || (cell.Y == topLeft.Y && cell.X < topLeft.X))
-                    topLeft = cell;
-            }
-            return topLeft;
-        }
-
-        private void DrawArrow(Painter2D painter, Vector2 size, bool horizontal)
-        {
-            var inset = _cellSize * ArrowInset;
-            var head = _cellSize * ArrowHead;
-            var from = horizontal ? new Vector2(inset, size.y / 2f) : new Vector2(size.x / 2f, inset);
-            var to = horizontal ? new Vector2(size.x - inset, size.y / 2f) : new Vector2(size.x / 2f, size.y - inset);
-            var along = (to - from).normalized;
-            var across = new Vector2(-along.y, along.x);
-            painter.lineCap = LineCap.Round;
-            painter.lineJoin = LineJoin.Round;
-            StrokeArrow(painter, from, to, along * head, across * head, ArrowOutlineColor, ArrowWidth + 2f);
-            StrokeArrow(painter, from, to, along * head, across * head, Color.white, ArrowWidth);
-        }
-
-        private static void StrokeArrow(Painter2D painter, Vector2 from, Vector2 to, Vector2 along, Vector2 across, Color color,
-            float width)
-        {
-            painter.strokeColor = color;
-            painter.lineWidth = width;
-            painter.BeginPath();
-            painter.MoveTo(from);
-            painter.LineTo(to);
-            painter.MoveTo(from + along + across);
-            painter.LineTo(from);
-            painter.LineTo(from + along - across);
-            painter.MoveTo(to - along + across);
-            painter.LineTo(to);
-            painter.LineTo(to - along - across);
-            painter.Stroke();
+            var inset = Mathf.Max(1f, _cellSize * TileInset);
+            var tile = CellRect(cell);
+            return Box(new Rect(tile.x + inset, tile.y + inset, tile.width - 2f * inset, tile.height - 2f * inset), "board-tile");
         }
 
         private VisualElement FrameCell(Cell cell)
@@ -220,11 +176,7 @@ namespace Game.Editor.LevelEditor
             _hoverLayer.Clear();
             if (!_hovering || _level == null || _cellSize < 1f)
                 return;
-            var block = LevelEdits.BlockAt(_level, _hoverCell);
-            var door = LevelEdits.DoorAt(_level, _hoverCell);
-            var cells = block != LevelEdits.NoBlock ? LevelEdits.BlockCells(_level, block)
-                : door != LevelEdits.NoDoor ? LevelEdits.DoorCells(_level, door)
-                : null;
+            var cells = HoveredPieceCells();
             if (cells == null)
             {
                 _hoverLayer.Add(Box(PieceRect(_hoverCell), "hover-cell"));
@@ -232,6 +184,15 @@ namespace Game.Editor.LevelEditor
             }
             foreach (var cell in cells)
                 _hoverLayer.Add(Box(PieceRect(cell), "hover-piece"));
+        }
+
+        private IEnumerable<Cell> HoveredPieceCells()
+        {
+            var block = LevelEdits.BlockAt(_level, _hoverCell);
+            if (block != LevelEdits.NoBlock)
+                return LevelEdits.BlockCells(_level, block);
+            var door = LevelEdits.DoorAt(_level, _hoverCell);
+            return door != LevelEdits.NoDoor ? LevelEdits.DoorCells(_level, door) : null;
         }
 
         private void Hover(Cell cell)
@@ -275,9 +236,6 @@ namespace Game.Editor.LevelEditor
                 rect.height = half;
             return rect;
         }
-
-        private Rect CellRect(Cell cell) =>
-            new Rect(_origin.x + (cell.X + 1) * _cellSize, _origin.y + (cell.Y + 1) * _cellSize, _cellSize, _cellSize);
 
         private Rect BoardRect() =>
             new Rect(_origin.x + _cellSize, _origin.y + _cellSize, _level.Width * _cellSize, _level.Height * _cellSize);
@@ -332,8 +290,12 @@ namespace Game.Editor.LevelEditor
                 return;
             var target = CellAt(evt.localPosition);
             Hover(target);
-            if (!this.HasPointerCapture(evt.pointerId))
-                return;
+            if (this.HasPointerCapture(evt.pointerId))
+                DragTo(target);
+        }
+
+        private void DragTo(Cell target)
+        {
             while (_lastCell != target)
             {
                 var step = _lastCell.X != target.X

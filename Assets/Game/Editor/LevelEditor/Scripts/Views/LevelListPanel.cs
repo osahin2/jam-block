@@ -32,20 +32,9 @@ namespace Game.Editor.LevelEditor
         {
             _library = library;
             AddToClassList("level-list");
-
-            _search = new ToolbarSearchField { tooltip = "Find a level by its number in the play order or by its name." };
-            _search.AddToClassList("level-search");
-            _search.RegisterValueChangedCallback(_ => Rebuild());
+            _search = CreateSearch();
             Add(_search);
-
-            _list = new ListView(_shown, RowHeight, MakeRow, BindRow)
-            {
-                selectionType = SelectionType.Single,
-                reorderMode = ListViewReorderMode.Animated,
-                tooltip = "Click a level to open it. Drag a level to change the play order. Right-click for more."
-            };
-            _list.AddToClassList("level-rows");
-            _list.itemIndexChanged += OnReordered;
+            _list = CreateList();
             Add(_list);
             Rebuild();
         }
@@ -73,6 +62,27 @@ namespace Game.Editor.LevelEditor
         }
 
         private static string NameOf(LevelAsset level) => level != null ? level.name : MissingName;
+
+        private ToolbarSearchField CreateSearch()
+        {
+            var search = new ToolbarSearchField { tooltip = "Find a level by its number in the play order or by its name." };
+            search.AddToClassList("level-search");
+            search.RegisterValueChangedCallback(_ => Rebuild());
+            return search;
+        }
+
+        private ListView CreateList()
+        {
+            var list = new ListView(_shown, RowHeight, MakeRow, BindRow)
+            {
+                selectionType = SelectionType.Single,
+                reorderMode = ListViewReorderMode.Animated,
+                tooltip = "Click a level to open it. Drag a level to change the play order. Right-click for more."
+            };
+            list.AddToClassList("level-rows");
+            list.itemIndexChanged += OnReordered;
+            return list;
+        }
 
         private void SelectOpen(bool scroll)
         {

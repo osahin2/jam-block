@@ -30,33 +30,45 @@ namespace Game.Logic.Play
         {
             var targetX = x - _grabX;
             var targetY = y - _grabY;
-            var exitDoor = StepResult.NoDoor;
-            for (var i = 0; i < _maxStepsPerMove; i++)
-            {
-                var position = _board.Blocks[Block].Position;
-                var movedX = StepToward(targetX - position.X, Direction.Left, Direction.Right, out exitDoor);
-                if (exitDoor != StepResult.NoDoor)
-                    break;
-                var movedY = StepToward(targetY - position.Y, Direction.Up, Direction.Down, out exitDoor);
-                if (exitDoor != StepResult.NoDoor || !(movedX || movedY))
-                    break;
-            }
-
-            var block = Block;
-            var current = _board.Blocks[block].Position;
-            if (exitDoor != StepResult.NoDoor)
-            {
-                End();
-                return DragPose.Left(block, current, exitDoor);
-            }
-            var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
-            var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);
-            return DragPose.At(block, current, offsetX, offsetY);
+            var exitDoor = StepToward(targetX, targetY);
+            return exitDoor != StepResult.NoDoor ? LeaveThrough(exitDoor) : PoseToward(targetX, targetY);
         }
 
         public void End() => Block = Board.NoBlock;
 
-        private bool StepToward(float delta, Direction backward, Direction forward, out int exitDoor)
+        private int StepToward(float targetX, float targetY)
+        {
+            for (var i = 0; i < _maxStepsPerMove; i++)
+            {
+                var position = _board.Blocks[Block].Position;
+                var movedX = StepAlong(targetX - position.X, Direction.Left, Direction.Right, out var exitDoor);
+                if (exitDoor != StepResult.NoDoor)
+                    return exitDoor;
+                var movedY = StepAlong(targetY - position.Y, Direction.Up, Direction.Down, out exitDoor);
+                if (exitDoor != StepResult.NoDoor)
+                    return exitDoor;
+                if (!movedX && !movedY)
+                    break;
+            }
+            return StepResult.NoDoor;
+        }
+
+        private DragPose LeaveThrough(int exitDoor)
+        {
+            var block = Block;
+            End();
+            return DragPose.Left(block, _board.Blocks[block].Position, exitDoor);
+        }
+
+        private DragPose PoseToward(float targetX, float targetY)
+        {
+            var current = _board.Blocks[Block].Position;
+            var offsetX = Offset(targetX - current.X, Direction.Left, Direction.Right);
+            var offsetY = Offset(targetY - current.Y, Direction.Up, Direction.Down);
+            return DragPose.At(Block, current, offsetX, offsetY);
+        }
+
+        private bool StepAlong(float delta, Direction backward, Direction forward, out int exitDoor)
         {
             exitDoor = StepResult.NoDoor;
             if (delta > -HalfCell && delta < HalfCell)

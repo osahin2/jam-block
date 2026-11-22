@@ -19,6 +19,8 @@ namespace Game.Tests.Play
         private Transform _idle;
         private PooledBoardPieces _pieces;
         private BlockViewBuilder _builder;
+        private LevelMechanics _mechanics;
+        private Board _logic;
 
         [SetUp]
         public void SetUp()
@@ -30,8 +32,7 @@ namespace Game.Tests.Play
             board.FindProperty("_idlePieces").objectReferenceValue = _idle;
             board.ApplyModifiedPropertiesWithoutUndo();
             _pieces = new PooledBoardPieces(_board);
-            _builder = new BlockViewBuilder(_art, Load<ColorPalette>(), Load<BlockMotionSettings>(), Load<IceSettings>(),
-                new BlockPieceBuilder(_art));
+            _builder = BlockViewBuilders.WithTheGamesFeatures();
         }
 
         [TearDown]
@@ -44,12 +45,11 @@ namespace Game.Tests.Play
         [Test]
         public void Rebuild_AfterACellIsHit_GivesTheOldPiecesBackAndBuildsTheCellsLeft()
         {
-            var level = Line();
-            var view = Build(level.Blocks[0]);
-            var board = Boards.Of(level);
-            board.HitCell(new Cell(2, 0));
+            StartLevel(Line());
+            var view = Build(0);
+            _logic.HitCell(new Cell(2, 0));
 
-            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
+            _builder.Rebuild(view, On(0), _pieces);
 
             Assert.AreEqual(2, view.CellCount);
             Assert.AreEqual(2 * QuartersPerCell, view.GetComponentsInChildren<BoardPiece>().Length);
@@ -61,11 +61,10 @@ namespace Game.Tests.Play
         [Test]
         public void ReleaseAll_AfterARebuild_GivesBackEveryPieceOnce()
         {
-            var level = Line();
-            var view = Build(level.Blocks[0]);
-            var board = Boards.Of(level);
-            board.HitCell(new Cell(1, 0));
-            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
+            StartLevel(Line());
+            var view = Build(0);
+            _logic.HitCell(new Cell(1, 0));
+            _builder.Rebuild(view, On(0), _pieces);
 
             _pieces.ReleaseAll();
 
@@ -76,10 +75,11 @@ namespace Game.Tests.Play
         [Test]
         public void ReleasePieces_Twice_GivesNothingBackTheSecondTime()
         {
-            var view = Build(Line().Blocks[0]);
-            var other = Build(Line().Blocks[0]);
+            StartLevel(Line());
+            var view = Build(0);
+            var other = Build(0);
             view.ReleasePieces(_pieces);
-            var taken = Build(Line().Blocks[0]);
+            var taken = Build(0);
 
             view.ReleasePieces(_pieces);
 
@@ -91,11 +91,10 @@ namespace Game.Tests.Play
         [Test]
         public void Build_ForASplitPart_PlacesItsPiecesOnItsCellsFromTheSharedPosition()
         {
-            var board = Boards.Of(Line());
-            board.HitCell(new Cell(1, 0));
-            var part = board.Blocks[1];
+            StartLevel(Line());
+            _logic.HitCell(new Cell(1, 0));
 
-            var view = _builder.Build(part, new ArrowData(), Vector3.zero, _board.transform, _pieces);
+            var view = Build(1);
 
             Assert.AreEqual(1, view.CellCount);
             var pieces = view.GetComponentsInChildren<BoardPiece>();
@@ -108,35 +107,46 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void Build_ABlockWithIce_ShowsItsIce()
+        {
+            var level = Line();
+            level.Blocks[0].Ice = 2;
+            StartLevel(level);
+
+            var view = Build(0);
+
+            Assert.AreEqual(2, view.Part<IceCover>().Shown);
+        }
+
+        [Test]
         public void Build_ForASplitPart_WithNoArrow_HidesTheIceAndArrowThePooledViewShowed()
         {
             var level = Line();
             level.Blocks[0].Ice = 2;
             level.Blocks[0].Arrow = new ArrowData { Axis = ArrowAxis.Horizontal, Start = new Cell(0, 0), Length = 2 };
-            Build(level.Blocks[0]);
+            StartLevel(level);
+            Build(0);
             _pieces.ReleaseAll();
-            var board = Boards.Of(Line());
-            board.HitCell(new Cell(1, 0));
+            StartLevel(Line());
+            _logic.HitCell(new Cell(1, 0));
 
-            var view = _builder.Build(board.Blocks[1], new ArrowData(), Vector3.zero, _board.transform, _pieces);
+            var view = Build(1);
 
-            Assert.AreEqual(0, view.Ice.Shown);
+            Assert.AreEqual(0, view.Part<IceCover>().Shown);
             AssertNoArrowShown(view);
         }
 
         [Test]
         public void Build_ForTheSplitPartHoldingTheArrow_ShowsItWhereItWasDrawn()
         {
-            var level = new LevelBuilder(5, 3).Rect(Red, 0, 0, 4, 1).Arrow(ArrowAxis.Horizontal, 2, 0, 2).Build();
-            var mechanics = LevelMechanics.For(level);
-            var board = new Board(level, mechanics.Rules, mechanics.Guards);
-            board.HitCell(new Cell(1, 0));
+            StartLevel(new LevelBuilder(5, 3).Rect(Red, 0, 0, 4, 1).Arrow(ArrowAxis.Horizontal, 2, 0, 2).Build());
+            _logic.HitCell(new Cell(1, 0));
 
-            var view = _builder.Build(board.Blocks[1], mechanics.Arrow.ArrowOf(board, 1), Vector3.zero,
-                _board.transform, _pieces);
+            var view = Build(1);
 
-            Assert.AreEqual(1, view.Arrow.GetComponentsInChildren<Renderer>().Length);
-            Assert.AreEqual(2.5f * _art.CellSize, view.Arrow.transform.localPosition.x, Tolerance);
+            var arrow = view.Part<BlockArrow>();
+            Assert.AreEqual(1, arrow.GetComponentsInChildren<Renderer>().Length);
+            Assert.AreEqual(2.5f * _art.CellSize, arrow.transform.localPosition.x, Tolerance);
         }
 
         [Test]
@@ -144,22 +154,30 @@ namespace Game.Tests.Play
         {
             var level = Line();
             level.Blocks[0].Arrow = new ArrowData { Axis = ArrowAxis.Horizontal, Start = new Cell(1, 0), Length = 2 };
-            var view = Build(level.Blocks[0]);
-            var board = Boards.Of(level);
-            board.HitCell(new Cell(2, 0));
+            StartLevel(level);
+            var view = Build(0);
+            _logic.HitCell(new Cell(2, 0));
 
-            _builder.Rebuild(view, board.Blocks[0], new ArrowData(), _pieces);
+            _builder.Rebuild(view, On(0), _pieces);
 
             AssertNoArrowShown(view);
         }
 
         private static void AssertNoArrowShown(BlockView view)
         {
-            foreach (var model in view.Arrow.GetComponentsInChildren<Renderer>(true))
+            foreach (var model in view.Part<BlockArrow>().GetComponentsInChildren<Renderer>(true))
                 Assert.IsFalse(model.gameObject.activeSelf, model.name);
         }
 
-        private BlockView Build(BlockData block) => _builder.Build(block, Vector3.zero, _board.transform, _pieces);
+        private void StartLevel(LevelData level)
+        {
+            _mechanics = LevelMechanics.For(level);
+            _logic = new Board(level, _mechanics.Rules, _mechanics.Guards);
+        }
+
+        private BlockOnBoard On(int index) => new BlockOnBoard(_logic, _mechanics, index);
+
+        private BlockView Build(int index) => _builder.Build(On(index), Vector3.zero, _board.transform, _pieces);
 
         private static LevelData Line() => new LevelBuilder(4, 3).Rect(Red, 0, 0, 3, 1).Build();
 

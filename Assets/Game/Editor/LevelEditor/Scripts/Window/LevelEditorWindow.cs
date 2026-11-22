@@ -99,75 +99,14 @@ namespace Game.Editor.LevelEditor
             var root = rootVisualElement;
             AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LayoutPath).CloneTree(root);
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(StylePath));
-
-            _levelName = root.Q<Label>("level");
-            var newLevel = root.Q<Button>("new");
-            newLevel.clicked += NewLevel;
-            newLevel.SetEnabled(_library != null);
-            _duplicate = root.Q<Button>("duplicate");
-            _duplicate.clicked += DuplicateLevel;
-            _save = root.Q<Button>("save");
-            _save.clicked += () => TrySave();
-            _play = root.Q<Button>("play");
-            _play.clicked += Play;
-            _revert = root.Q<Button>("revert");
-            _revert.clicked += () => Open(_document.Asset);
-            _unsaved = root.Q<Label>("unsaved");
-            _noLevel = root.Q<HelpBox>("no-level");
-            _content = root.Q("content");
-            _status = root.Q<Label>("status");
-            _colorName = root.Q<Label>("color-name");
-            _selectionPanel = root.Q("selection");
-            _selectionLabel = root.Q<Label>("selection-label");
-            _selectionFields = new SelectionFieldsView(Edit);
-            root.Q("selection-fields").Add(_selectionFields);
-            var delete = root.Q<Button>("delete-selection");
-            delete.clicked += DeleteSelection;
-            delete.tooltip = $"Removes the selected block or door. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.DeleteId)}";
-
-            _levelsPane = root.Q("levels");
-            _levelsHandle = root.Q("levels-handle");
-            BuildLevelList();
-            _levelsToggle = root.Q<ToolbarToggle>("levels-toggle");
-            _levelsToggle.tooltip = $"Shows or hides the level list, for more room for the board. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.LevelListId)}";
-            _levelsToggle.RegisterValueChangedCallback(evt => ShowLevelList(evt.newValue));
-            ShowLevelList(_levelsShown);
-            _side = root.Q("side");
-            _bottom = root.Q("bottom");
-            SetLevelsWidth(_levelsWidth);
-            SetSideWidth(_sideWidth);
-            SetBottomHeight(_bottomHeight);
-            _levelsHandle.AddManipulator(new PaneResizer(Vector2.right, () => _levelsWidth, SetLevelsWidth));
-            root.Q("side-handle").AddManipulator(new PaneResizer(Vector2.right, () => _sideWidth, SetSideWidth));
-            root.Q("bottom-handle").AddManipulator(new PaneResizer(Vector2.down, () => _bottomHeight, SetBottomHeight));
-
-            _problems = new LevelProblemList(NameOf);
-            _problems.FocusChanged += DrawBoard;
-            _problems.Picked += SelectSubject;
-            _bottom.Add(_problems);
-
-            _width = root.Q<IntegerField>("width");
-            _width.RegisterValueChangedCallback(evt => Resize(evt.newValue, Draft.Level.Height));
-            _height = root.Q<IntegerField>("height");
-            _height.RegisterValueChangedCallback(evt => Resize(Draft.Level.Width, evt.newValue));
-
-            _toolButtons = root.Q("tools");
-            BuildTools();
-            _colors = root.Q("colors");
-            BuildColors();
-
-            _board = new LevelBoardView();
-            _board.Pressed += OnPressed;
-            _board.RightClicked += OnRightClicked;
-            _board.Dragged += OnDragged;
-            _board.Released += OnReleased;
-            _board.Hovered += OnHovered;
-            _board.HoverEnded += OnHoverEnded;
-            root.Q("board-area").Add(_board);
-
-            var draft = new SerializedObject(Draft);
-            root.Bind(draft);
-            root.TrackSerializedObjectValue(draft, _ => Refresh());
+            CreateToolbar(root);
+            CreateSelectionPanel(root);
+            CreatePanes(root);
+            CreateProblemList();
+            CreateBoardSize(root);
+            CreateToolsAndColors(root);
+            CreateBoard(root);
+            BindDraft(root);
             Refresh();
         }
 
@@ -224,6 +163,105 @@ namespace Game.Editor.LevelEditor
         {
             var focused = rootVisualElement.focusController?.focusedElement as VisualElement;
             return focused != null && (focused.GetFirstOfType<IntegerField>() != null || focused.GetFirstOfType<TextField>() != null);
+        }
+
+        private void CreateToolbar(VisualElement root)
+        {
+            _levelName = root.Q<Label>("level");
+            var newLevel = root.Q<Button>("new");
+            newLevel.clicked += NewLevel;
+            newLevel.SetEnabled(_library != null);
+            _duplicate = root.Q<Button>("duplicate");
+            _duplicate.clicked += DuplicateLevel;
+            _save = root.Q<Button>("save");
+            _save.clicked += () => TrySave();
+            _play = root.Q<Button>("play");
+            _play.clicked += Play;
+            _revert = root.Q<Button>("revert");
+            _revert.clicked += () => Open(_document.Asset);
+            _unsaved = root.Q<Label>("unsaved");
+            _noLevel = root.Q<HelpBox>("no-level");
+            _content = root.Q("content");
+            _status = root.Q<Label>("status");
+        }
+
+        private void CreateSelectionPanel(VisualElement root)
+        {
+            _selectionPanel = root.Q("selection");
+            _selectionLabel = root.Q<Label>("selection-label");
+            _selectionFields = new SelectionFieldsView(Edit);
+            root.Q("selection-fields").Add(_selectionFields);
+            var delete = root.Q<Button>("delete-selection");
+            delete.clicked += DeleteSelection;
+            delete.tooltip = $"Removes the selected block or door. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.DeleteId)}";
+        }
+
+        private void CreatePanes(VisualElement root)
+        {
+            _levelsPane = root.Q("levels");
+            _levelsHandle = root.Q("levels-handle");
+            BuildLevelList();
+            CreateLevelListToggle(root);
+            _side = root.Q("side");
+            _bottom = root.Q("bottom");
+            SetLevelsWidth(_levelsWidth);
+            SetSideWidth(_sideWidth);
+            SetBottomHeight(_bottomHeight);
+            _levelsHandle.AddManipulator(new PaneResizer(Vector2.right, () => _levelsWidth, SetLevelsWidth));
+            root.Q("side-handle").AddManipulator(new PaneResizer(Vector2.right, () => _sideWidth, SetSideWidth));
+            root.Q("bottom-handle").AddManipulator(new PaneResizer(Vector2.down, () => _bottomHeight, SetBottomHeight));
+        }
+
+        private void CreateLevelListToggle(VisualElement root)
+        {
+            _levelsToggle = root.Q<ToolbarToggle>("levels-toggle");
+            _levelsToggle.tooltip = $"Shows or hides the level list, for more room for the board. Shortcut: {LevelEditorShortcuts.Key(LevelEditorShortcuts.LevelListId)}";
+            _levelsToggle.RegisterValueChangedCallback(evt => ShowLevelList(evt.newValue));
+            ShowLevelList(_levelsShown);
+        }
+
+        private void CreateProblemList()
+        {
+            _problems = new LevelProblemList(NameOf);
+            _problems.FocusChanged += DrawBoard;
+            _problems.Picked += SelectSubject;
+            _bottom.Add(_problems);
+        }
+
+        private void CreateBoardSize(VisualElement root)
+        {
+            _width = root.Q<IntegerField>("width");
+            _width.RegisterValueChangedCallback(evt => Resize(evt.newValue, Draft.Level.Height));
+            _height = root.Q<IntegerField>("height");
+            _height.RegisterValueChangedCallback(evt => Resize(Draft.Level.Width, evt.newValue));
+        }
+
+        private void CreateToolsAndColors(VisualElement root)
+        {
+            _toolButtons = root.Q("tools");
+            BuildTools();
+            _colors = root.Q("colors");
+            _colorName = root.Q<Label>("color-name");
+            BuildColors();
+        }
+
+        private void CreateBoard(VisualElement root)
+        {
+            _board = new LevelBoardView(new IBlockMechanicDrawing[] { new IceDrawing(), new ArrowDrawing() });
+            _board.Pressed += OnPressed;
+            _board.RightClicked += OnRightClicked;
+            _board.Dragged += OnDragged;
+            _board.Released += OnReleased;
+            _board.Hovered += OnHovered;
+            _board.HoverEnded += OnHoverEnded;
+            root.Q("board-area").Add(_board);
+        }
+
+        private void BindDraft(VisualElement root)
+        {
+            var draft = new SerializedObject(Draft);
+            root.Bind(draft);
+            root.TrackSerializedObjectValue(draft, _ => Refresh());
         }
 
         private void Open(LevelAsset asset) => Load(() => _document.Open(asset));
@@ -343,22 +381,33 @@ namespace Game.Editor.LevelEditor
                 return;
             }
             for (var i = 0; i < _palette.Count; i++)
-            {
-                var colorId = i;
-                var material = _palette.ForBlock(i);
-                var key = i < LevelEditorShortcuts.ColorKeyCount ? LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(i)) : "";
-                var swatch = new Button(() => PickColor(colorId)) { tooltip = key.Length > 0 ? $"{ColorName(i)} ({key})" : ColorName(i) };
-                swatch.AddToClassList("color-swatch");
-                if (key.Length > 0)
-                {
-                    var badge = new Label(key);
-                    badge.AddToClassList("color-swatch-key");
-                    swatch.Add(badge);
-                }
-                swatch.style.backgroundColor = material != null ? material.color : Color.magenta;
-                _colors.Add(swatch);
-            }
+                _colors.Add(Swatch(i));
             ShowColor(Mathf.Clamp(_colorId, 0, _palette.Count - 1));
+        }
+
+        private Button Swatch(int colorId)
+        {
+            var key = ColorKey(colorId);
+            var swatch = new Button(() => PickColor(colorId))
+            {
+                tooltip = key.Length > 0 ? $"{ColorName(colorId)} ({key})" : ColorName(colorId)
+            };
+            swatch.AddToClassList("color-swatch");
+            if (key.Length > 0)
+                swatch.Add(KeyBadge(key));
+            var material = _palette.ForBlock(colorId);
+            swatch.style.backgroundColor = material != null ? material.color : Color.magenta;
+            return swatch;
+        }
+
+        private static string ColorKey(int colorId) =>
+            colorId < LevelEditorShortcuts.ColorKeyCount ? LevelEditorShortcuts.Key(LevelEditorShortcuts.ColorId(colorId)) : "";
+
+        private static Label KeyBadge(string key)
+        {
+            var badge = new Label(key);
+            badge.AddToClassList("color-swatch-key");
+            return badge;
         }
 
         private void ShowColor(int colorId)
@@ -485,30 +534,40 @@ namespace Game.Editor.LevelEditor
             var hasLevel = _document.IsOpen;
             _noLevel.style.display = hasLevel ? DisplayStyle.None : DisplayStyle.Flex;
             _content.style.display = hasLevel ? DisplayStyle.Flex : DisplayStyle.None;
-            if (!hasLevel)
-            {
-                UpdateToolbar(false);
-                LevelPreviewSource.ReleaseEdited();
-                return;
-            }
+            if (hasLevel)
+                ShowLevel(Draft.Level);
+            else
+                ShowNoLevel();
+        }
 
-            var level = Draft.Level;
-            if (_selectTool.Selection != null && !_selectTool.Selection.Exists(level))
-                _selectTool.ClearSelection();
+        private void ShowNoLevel()
+        {
+            UpdateToolbar(false);
+            LevelPreviewSource.ReleaseEdited();
+        }
+
+        private void ShowLevel(LevelData level)
+        {
             _width.SetValueWithoutNotify(level.Width);
             _height.SetValueWithoutNotify(level.Height);
-            var selection = ShownSelection;
-            _selectionPanel.style.display = selection != null ? DisplayStyle.Flex : DisplayStyle.None;
-            if (selection != null)
-                _selectionLabel.text = NameOf(selection);
-            _selectionFields.Show(selection, level);
-
+            ShowSelection(level);
             _report = LevelValidator.Validate(level);
             _problems.Show(_report, level);
             DrawBoard();
             UpdateToolbar(!_report.HasErrors);
             UpdateStatus();
             LevelPreviewSource.ShowEdited(level);
+        }
+
+        private void ShowSelection(LevelData level)
+        {
+            if (_selectTool.Selection != null && !_selectTool.Selection.Exists(level))
+                _selectTool.ClearSelection();
+            var selection = ShownSelection;
+            _selectionPanel.style.display = selection != null ? DisplayStyle.Flex : DisplayStyle.None;
+            if (selection != null)
+                _selectionLabel.text = NameOf(selection);
+            _selectionFields.Show(selection, level);
         }
 
         private void Edit(string name, Action<LevelData> change)

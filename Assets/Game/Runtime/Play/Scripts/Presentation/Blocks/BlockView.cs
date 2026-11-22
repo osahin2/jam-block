@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Game.Data.Levels;
@@ -11,23 +12,23 @@ namespace Game.Play
         private const float SnapDistanceSqr = 0.000001f;
 
         [SerializeField] private Outline _outline;
-        [SerializeField] private IceCover _ice;
-        [SerializeField] private BlockArrow _arrow;
 
         private readonly List<BoardPiece> _pieces = new List<BoardPiece>();
         private readonly List<Renderer> _renderers = new List<Renderer>();
         private readonly List<Cell> _cells = new List<Cell>();
+        private readonly Dictionary<Type, Component> _parts = new Dictionary<Type, Component>();
         private BlockMotionSettings _settings;
         private Vector3 _target;
         private Tween _motion;
 
         public bool IsLeaving { get; private set; }
         public int CellCount => _cells.Count;
-        public Color Color => _renderers[0].sharedMaterial.color;
-        public IceCover Ice => _ice;
-        public BlockArrow Arrow => _arrow;
+        public IReadOnlyList<Cell> Shape => _cells;
+        public IReadOnlyList<Renderer> Pieces => _renderers;
+        public Material Material => _renderers[0].sharedMaterial;
+        public Color Color => Material.color;
 
-        public void Init(BlockMotionSettings settings, IceSettings ice, IReadOnlyList<Cell> shape)
+        public void Init(BlockMotionSettings settings, IReadOnlyList<Cell> shape)
         {
             _settings = settings;
             _cells.Clear();
@@ -36,7 +37,6 @@ namespace Game.Play
             _pieces.Clear();
             _renderers.Clear();
             transform.localScale = Vector3.one;
-            _ice.Init(ice, _renderers);
         }
 
         private void Awake() => enabled = false;
@@ -67,6 +67,16 @@ namespace Game.Play
                 return;
             StopMotion();
             enabled = true;
+        }
+
+        public T Part<T>() where T : Component
+        {
+            if (!_parts.TryGetValue(typeof(T), out var part))
+            {
+                part = GetComponentInChildren<T>(true);
+                _parts.Add(typeof(T), part);
+            }
+            return (T)part;
         }
 
         public void AddPiece(BoardPiece piece)

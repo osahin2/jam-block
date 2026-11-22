@@ -28,6 +28,8 @@ namespace Game.Play
         public Vector3 CellCenter(Cell cell) =>
             new Vector3(Left + (cell.X + 0.5f) * CellSize, 0f, Top - (cell.Y + 0.5f) * CellSize);
 
+        public Vector3 AboveCell(Cell cell, float lift) => CellCenter(cell) + Vector3.up * (lift * CellSize);
+
         public Vector3 PoseToLocal(DragPose pose) =>
             CellCenter(pose.Position) + new Vector3(pose.OffsetX * CellSize, 0f, -pose.OffsetY * CellSize);
 

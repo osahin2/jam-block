@@ -9,21 +9,20 @@ namespace Game.Play
     {
         [SerializeField] private RectTransform _body;
 
-        protected override Sequence Build(Vector2 from, Cell target, BoardInteraction board, BoosterMotionSettings motion,
-            Action onLanded)
+        protected override Sequence Build(Vector2 from, Cell target, Action onLanded)
         {
-            _body.anchoredPosition = ToLocal(board.ScreenPointOf(target, motion.VacuumLift));
+            _body.anchoredPosition = ToLocal(Projection.ScreenPointOf(target, Motion.VacuumLift));
             _body.localScale = Vector3.zero;
             return DOTween.Sequence()
-                .Append(_body.DOScale(motion.VacuumScale, motion.VacuumGrow).SetEase(motion.VacuumGrowEase))
-                .AppendCallback(() => Pull(target, board, motion, onLanded))
-                .AppendInterval(motion.VacuumHold)
-                .Append(_body.DOScale(0f, motion.VacuumShrink).SetEase(motion.VacuumShrinkEase));
+                .Append(_body.DOScale(Motion.VacuumScale, Motion.VacuumGrow).SetEase(Motion.VacuumGrowEase))
+                .AppendCallback(() => Pull(target, onLanded))
+                .AppendInterval(Motion.VacuumHold)
+                .Append(_body.DOScale(0f, Motion.VacuumShrink).SetEase(Motion.VacuumShrinkEase));
         }
 
-        private static void Pull(Cell target, BoardInteraction board, BoosterMotionSettings motion, Action onLanded)
+        private void Pull(Cell target, Action onLanded)
         {
-            board.VanishGone(target, motion.VacuumLift, motion.VacuumPull, motion.VacuumStagger, motion.VacuumPullEase);
+            Board.VanishGone(target, Motion.VacuumLift, Motion.VacuumPull, Motion.VacuumStagger, Motion.VacuumPullEase);
             onLanded();
         }
     }

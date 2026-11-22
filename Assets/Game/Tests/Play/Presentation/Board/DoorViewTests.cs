@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Game.Data.Levels;
 using Game.Editor.LevelEditor;
+using Game.Logic.Play;
 using Game.Play;
 using Game.Tests.Levels;
 using NUnit.Framework;
@@ -28,11 +29,11 @@ namespace Game.Tests.Play
             _art = Load<BoardArtSettings>();
             _motion = Load<BlockMotionSettings>();
             var palette = Load<ColorPalette>();
-            var builder = new BoardBuilder(_art, palette, _motion,
-                new BlockViewBuilder(_art, palette, _motion, Load<IceSettings>(), new BlockPieceBuilder(_art)));
+            var builder = new BoardBuilder(_art, palette, _motion, BlockViewBuilders.WithTheGamesFeatures());
             var level = new LevelBuilder(4, 5).Rect(Red, 1, 0, 2, 1).Door(Red, Side.Top, 1, 2).Build();
             _board = new GameObject("Board").transform;
-            _door = builder.Build(level, new BoardLayout(4, 5, _art), _board, new PreviewBoardPieces()).Doors[0];
+            _door = builder.Build(level, new LevelAttempt(level), new BoardLayout(4, 5, _art), _board,
+                new PreviewBoardPieces()).Doors[0];
             _model = _door.transform.Find("Model");
             foreach (var piece in _board.GetComponentsInChildren<BoardPiece>())
             {
