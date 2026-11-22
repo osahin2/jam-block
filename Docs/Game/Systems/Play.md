@@ -9,7 +9,7 @@
 
 ## Board
 - `LevelStage.Show` is the one way a level is shown: layout, build, shader clip and camera framing. The game and the preview call it, so the preview matches the game.
-- `BoardBuilder` takes every piece from an `IBoardPieceSource` and creates or keeps nothing. Contract of `Take(prefab, parent)`: an instance, active under the parent, with the prefab's local pose; whoever gave the source releases what was taken, its own way (pools in the game, unsaved copies in the preview). A restart instantiates nothing.
+- `BoardBuilder` takes every piece from an `IBoardPieceSource` and creates or keeps nothing. Contract of `Take(prefab, parent)`: an instance, active under the parent, with the prefab's local pose; whoever gave the source releases what was taken, its own way (pools in the game, unsaved copies in the preview). Pools fill on the first level instead of being prewarmed; a restart instantiates nothing.
 - Every piece prefab is a neutral root with the supplied model turned inside it, so no model's orientation lives in code. Walls and doors are stretched bars (the supplied pieces are straight extrusions); blocks are built from quarter pieces.
 - `CameraFraming` keeps the camera's angle and moves it until the board fills the window between the HUD and the booster slots; five measuring rounds leave it within a pixel.
 

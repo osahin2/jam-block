@@ -32,7 +32,7 @@ Unity 2022.3.62f2 (required by the case; never upgrade), URP 14, Android first. 
 ## Workflow
 - Editor work: skill `unity-editor` (batch mode and editor scripts; the live `unity command` bridge needs Unity 6). After script changes compile, check for errors and run EditMode tests.
 - Git: work on `develop` or a short-lived branch from it, merged into `develop` with `--no-ff` once tests pass. Merge into `main` or push only when asked. The repository stays private.
-- A choice a reviewer could ask about gets a short entry in `Docs/Game/Decisions.md`; the README's decisions section is written from it.
+- A choice that shapes the architecture, the scope or more than one feature, with an alternative really weighed, gets a short entry in `Docs/Game/Decisions.md`; the README's decisions section is written from it. How a single feature works goes in its system note, not there.
 - When a system's behavior changes, update its note and the index.
 - CLAUDE.md files hold only rules that are always true. Task workflows are skills in `.claude/skills/`; system details are in the docs.
 

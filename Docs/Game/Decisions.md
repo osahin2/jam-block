@@ -1,6 +1,6 @@
 # Decisions
 
-> One short entry per choice a reviewer could ask about: what was chosen, why, and what it was chosen over. The README's decisions section is written from it. Newest last.
+> One short entry per choice that shapes the architecture, the scope or more than one feature, with an alternative that was really weighed: what was chosen, why, and over what. How a single feature works belongs in its system note. The README's decisions section is written from it. Newest last.
 
 ## Four game assemblies: Data, Logic, Runtime, Editor
 - Why: the compiler checks the separation of data, logic and view; `Game.Logic` has no engine reference, so rules run in EditMode tests without a scene, and the editor and game share one level format.
@@ -66,86 +66,42 @@
 - Why: it outlines the block's outer shape only, at an even screen width, in URP as published. Forked (MIT, original and changes in separate commits) for pooled pieces and allocation-free grabs. Blocks are flat plates made from the supplied pieces in Blender, as the deep supplied pieces spilled the outline below the ground.
 - Instead of: an inverted hull (lines on seams), a ribbon mesh (fragile geometry), a full-screen outline pass every frame on mobile.
 
-## The coin wallet saves itself through a port
-- Why: every change must reach the disk; the interface sits in the logic, the Save implementation in `Game`, tests use memory.
-- Instead of: a wrapper that saves after each call, which a direct caller could bypass.
-
-## A level ends in one place and calls back won or failed
-- Why: the session sees a touch's win and the timer's fail the same way; two callbacks give each reaction its own method in the flow.
-- Instead of: one `onEnded(outcome)` that pushes a branch into every caller.
-
 ## Folders: feature first, code and assets apart, fixed names
 - Why: a feature lives under one folder per assembly, and fixed role and asset folder names make every file's place obvious.
 - Instead of: an asset tree by type, which scatters a feature; feature folders above the assemblies, which hides the four-layer split.
-
-## Board pieces come from a source the caller gives
-- Why: the game pools pieces and the editor preview makes unsaved copies, with the same builder. Pools fill on the first level: prewarming 150 small objects would only move the work.
-- Instead of: the builder owning the board's lifetime; prewarmed pools sized in settings.
 
 ## The Game flow is one method per step
 - Why: each screen's buttons lead to the next method, so `GameEntry` reads like the flow chart.
 - Instead of: a state machine with a class per state; screens awaited with UniTask.
 
-## The played run is a strategy chosen once
-- Why: the player's run and a designer's test differ in level, number and what a win does to progress; `ILevelRun` holds all three, so the flow never branches on it.
-- Instead of: methods per kind with the choice in the flow.
-
 ## Game code explains itself, without comments
 - Why: names and small named steps say what the code does; contracts and engine facts live in the system notes. A hook refuses new comments in `Assets/Game`. Core, a reusable package, keeps short comments on its public contracts.
 - Instead of: comments that drift from the code.
 
-## Mechanics plug into the board through role interfaces
-- Why: the board asks `IMoveRule` and `IBlockGuard` at fixed points; a new mechanic is a class, a level field, one line in `LevelMechanics.For` and maybe one validator check.
-- Instead of: a method per mechanic on the board; one interface with every hook, mostly empty; a data-driven registry.
+## Mechanics plug in through small role interfaces
+- Why: the board asks `IMoveRule` and `IBlockGuard` at fixed points, views show a mechanic through an `IBlockFeature`, and the editor draws it through its own drawing; the level attempt builds the board and its mechanics together, as they share state. A new mechanic is a class per layer and one line per list, so the board, views and editor name no mechanic. Ice and the arrow block were added this way.
+- Instead of: a method per mechanic on the board and a field and call per mechanic in the views and the editor; one interface with every hook, mostly empty; a data-driven registry.
 
-### The level attempt makes the board and its mechanics together
-- Why: they share state, so they come in pairs; internal constructors let the compiler hold the boundary and keep views away from guards.
-- Instead of: the session building them, which let a second board share mechanics.
-
-## Ice counts the blocks gone; views catch up by pulling
-- Why: ice left is computed from the board's one removal count, so nothing has to be told a block went. Whoever changes the board calls `CatchUp`, and each view plays the difference.
-- Instead of: counters lowered by events; the logic returning results the views switch on.
+## Views catch up by pulling the logic's state
+- Why: whoever changes the board calls `BoardPresenter.CatchUp`, and each view plays the difference from the logic's state; counts such as ice left are computed from the board, so nothing has to be told a block went.
+- Instead of: events, or counters lowered by events; the logic returning results the views switch on.
 
 ## A booster is a logic effect and a presentation
 - Why: what it does to the board is a tested command (`IBoardEffect`); `TargetedBooster` fixes the order every aimed booster follows, so each adds only its effect and shot.
 - Instead of: a method per booster on the attempt; a booster subclass per animation.
 
-## The board's touch path is input, presenter, projection
-- Why: one class had six jobs and changed with every booster and mechanic; now each changes for one reason, and boosters get only what they use.
-- Instead of: one board interaction, or a facade that only forwards.
-
-### Board touches go through modes: drag, pick, busy
-- Why: aiming picks a cell instead of grabbing, and during a shot the logic is ahead of the views; one mode at a time replaces the listeners.
-- Instead of: flags in every handler.
-
-## A mechanic shows itself on a block through a block feature
-- Why: the view, builder and presenter no longer name any mechanic; a new one adds a feature, a prefab part and one line in `BlockFeatures.Of`.
-- Instead of: a field and a call per mechanic in three classes.
-
-### The editor draws mechanics through one drawing each, in two layers
-- Why: each mechanic's drawing is its own class, and the layers keep tint, arrow and badge readable together.
-- Instead of: an if per mechanic in the board view.
-
-## The solver searches every arrangement breadth-first, leaving blocks at once, with no heuristic
+## The solver searches every arrangement breadth-first on the game's own rules
 - Why: a block leaving only frees cells and melts ice, so leaving as soon as it can is never wrong; the search branches only where no block can leave, and breadth-first gives the fewest moves. Proving a level unsolvable needs every arrangement anyway, so a heuristic would not help. It runs on the game's own `Board` and mechanics, so it cannot drift from the rules; a test agrees with a plain search on random levels.
 - Instead of: A* or greedy search; a copy of the rules inside the solver.
-
-## The solver counts alike blocks once and does not ask the block just moved
-- Why: on open boards the cost is the number of arrangements. Swapping alike blocks gives the same arrangement, and the block just moved cannot newly reach a door. Both are exact; the second rests on every step being reversible, written as a rule in the solver's note.
-- Instead of: re-asking only blocks whose reach touched freed cells, which measured no gain for a hundred lines and a fragile assumption.
 
 ## The level editor solves after every change and asks before saving an unsolvable level
 - Why: the verdict helps most while editing. A quick check bounded by time keeps editing smooth; Check fully, bounded by arrangements, decides what it leaves open. The case asks for a warning, so an unsolvable level asks before it is saved but can still be kept.
 - Instead of: only a Check button; a full search after every change, which would freeze on large boards; a background thread; refusing to save.
 
-## The freeze bar reads the timer's frozen seconds
-- Why: the freeze is the timer's state, so the bar under the time box reads `FrozenSeconds` each frame as the time label reads the remaining seconds; pause stops the count in the logic, not through `timeScale`, so a bar with its own clock would keep draining under the pause popup. The logic gives seconds and the bar takes the first value it sees as full.
-- Instead of: a 10-second tween started by the booster; a global tick manager that stops everything, when a freeze stops only the timer; a progress ratio in the logic.
+## Texture sizes follow their size on screen
+- Why: every texture came in at Unity's default 2048. Each max size is now the smallest power of two that covers it on a 1080x2400 phone, from 2048 for full-screen backgrounds to 256 for small icons; default presets give new textures the same settings.
+- Instead of: one limit for all, which blurs the backgrounds; an `AssetPostprocessor` that overrules changes made in the inspector.
 
-## Texture sizes follow their size on screen; presets set new textures
-- Why: every texture was imported at Unity's default 2048, so the booster icons and the large backgrounds took far more memory than their size on screen needs. Each texture's max size is now the smallest power of two that covers its largest size on screen on a 1080x2400 phone (the canvas scales by height, 1.25 times its 1920 reference): 2048 for the full-screen backgrounds, 1024 for the popup frames and the tab background, 512 for the booster icons and the rest of the UI, 256 for small icons; the ice texture keeps the 512 it was given with the ice. Compression stays Automatic, which is ASTC on Android. Two default presets in the Preset Manager, `UISprite` for `Assets/Art/UI` and `SurfaceTexture` for `Assets/Art/Textures`, give a new texture the same settings when it is first imported; they leave out the sprite border, pivot and sprite sheet, so no texture takes another's nine-slice borders.
-- Instead of: one 512 limit for all, which would blur the full-screen backgrounds; an `AssetPostprocessor` that rewrites the settings on every import and overrules changes made in the inspector; per-platform overrides, which the Android default format already covers.
-
-## Aim targets are a crosshair prefab built from bars
-- Why: a translucent square over a cell read as a highlight, not as a target. Corner brackets mark the cell without hiding the block, and eight sliced bars of the supplied rounded square make them, so no new art is needed. Each bar is anchored by ratio, so the overlay sizes a mark to its cell through one `sizeDelta`; all bars share one sprite and material and batch into one draw call.
-- Instead of: a new crosshair or ring sprite, outside the supplied assets; the circle button sprites, which are shaded buttons; a mark object kept inside the HUD, which only the HUD could use.
+## Levels are designed in the editor, at the reference's scale
+- Why: the case asks for "the first 5 levels" without saying they must copy the reference game's layouts. They are read as the game's opening levels: the reference's first five set the scale (4 x 5 to 5 x 6 boards, two to six blocks, five minutes, 40 coins each), and the layouts are original, made in the level editor as the case requires.
+- Instead of: copying the reference's first five layouts.
