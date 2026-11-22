@@ -24,6 +24,10 @@ namespace Game.Play
             _pointer = NoPointer;
         }
 
+        public void Listen(Action<Vector2> pressed) => Listen(pressed, null, null);
+
+        public void Mute() => Listen(null, null, null);
+
         public void Cover(Bounds box)
         {
             _area.center = box.center;
@@ -46,7 +50,7 @@ namespace Game.Play
         public void OnDrag(PointerEventData eventData)
         {
             if (IsHeld(eventData))
-                _moved(eventData.position);
+                _moved?.Invoke(eventData.position);
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -54,7 +58,7 @@ namespace Game.Play
             if (!IsHeld(eventData))
                 return;
             _pointer = NoPointer;
-            _released();
+            _released?.Invoke();
         }
 
         private bool IsHeld(PointerEventData eventData) =>

@@ -120,6 +120,36 @@ namespace Game.Tests.Play
         }
 
         [Test]
+        public void AListenerForPressesOnly_HearsThePress_AndLetsTheDragAndReleaseGo()
+        {
+            _view.Listen(_pressed.Add);
+
+            _view.OnPointerDown(Event(First, Vector2.zero));
+            _view.OnDrag(Event(First, Vector2.one));
+            _view.OnPointerUp(Event(First, Vector2.one));
+            _view.OnPointerDown(Event(Second, Vector2.one));
+
+            Assert.AreEqual(2, _pressed.Count);
+            Assert.AreEqual(0, _moved.Count);
+            Assert.AreEqual(0, _released);
+        }
+
+        [Test]
+        public void Mute_WhileAPointerIsDown_HearsNothingMore()
+        {
+            _view.OnPointerDown(Event(First, Vector2.zero));
+
+            _view.Mute();
+            _view.OnDrag(Event(First, Vector2.one));
+            _view.OnPointerUp(Event(First, Vector2.one));
+            _view.OnPointerDown(Event(Second, Vector2.one));
+
+            Assert.AreEqual(1, _pressed.Count);
+            Assert.AreEqual(0, _moved.Count);
+            Assert.AreEqual(0, _released);
+        }
+
+        [Test]
         public void OnInitializePotentialDrag_TurnsTheDragThresholdOff()
         {
             var data = Event(First, Vector2.zero);

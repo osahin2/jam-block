@@ -39,14 +39,14 @@ namespace Game.Play
         {
             IsBusy = false;
             _onPicked = onPicked;
-            _input.Listen(Pick, Ignore, Ignore);
+            _input.Listen(Pick);
         }
 
         public void EnterBusy()
         {
             IsBusy = true;
             _onPicked = null;
-            _input.Listen(Ignore, Ignore, Ignore);
+            _input.Mute();
         }
 
         public void Release()
@@ -86,14 +86,6 @@ namespace Game.Play
         {
             if (_projection.TryFindOnBoard(screen, out var onBoard))
                 _onPicked(onBoard);
-        }
-
-        private static void Ignore(Vector2 screen)
-        {
-        }
-
-        private static void Ignore()
-        {
         }
     }
 }
