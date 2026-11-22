@@ -58,6 +58,35 @@ namespace Game.Logic.Play
             return true;
         }
 
+        internal bool CanLeave(int block) => !_blocks[block].IsGone && FindExitDoor(block) != StepResult.NoDoor;
+
+        internal void Place(int block, Cell position)
+        {
+            var placed = _blocks[block];
+            SetOccupant(placed, NoBlock);
+            placed.Position = position;
+            SetOccupant(placed, block);
+        }
+
+        internal BoardArrangement CurrentArrangement() => new BoardArrangement(_blocks);
+
+        internal void Arrange(BoardArrangement arrangement)
+        {
+            Array.Fill(_occupant, NoBlock);
+            RemainingBlocks = 0;
+            for (var i = 0; i < arrangement.BlockCount; i++)
+            {
+                var block = _blocks[i];
+                block.IsGone = arrangement.IsGone(i);
+                block.Position = arrangement.PositionOf(i);
+                if (block.IsGone)
+                    continue;
+                SetOccupant(block, i);
+                RemainingBlocks++;
+            }
+            GoneCount = arrangement.BlockCount - RemainingBlocks;
+        }
+
         public void Hit(int block)
         {
             if (!_blocks[block].IsGone && !TryAbsorbHit(block))

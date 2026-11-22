@@ -21,6 +21,7 @@
 - `IsCleared` is true when every block is gone.
 - `BlockAt(cell)` returns the block on a cell, or `Board.NoBlock` for an empty cell or one outside the board.
 - `BoardBlock.ExtentAcross(side)` is how far the block reaches from that side, for the leave animation.
+- **For the solver** ([Solver](Solver.md)), internal to `Game.Logic`: `CanLeave(block)` asks the exit rule without removing the block; `Place(block, position)` puts a block on a place the caller knows is free; `CurrentArrangement()` takes a `BoardArrangement`, every block's position and whether it is gone, and `Arrange(arrangement)` sets the board back to it, occupancy and counts included. An arrangement holds one entry per level block and no hits, so it is only for a board that was never split or hit: ice hits live in `IceMechanic`, which `Arrange` does not touch.
 
 ## Mechanics
 The board knows no mechanic ([Decisions](../Decisions.md)). It asks two role interfaces at fixed points:

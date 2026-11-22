@@ -22,6 +22,8 @@ namespace Game.Editor.LevelEditor
         private const string SelectedClass = "selected";
         private const string FaultClass = "problem-fault";
         private const string FocusClass = "problem-focus";
+        private const string SolutionFromClass = "solution-from";
+        private const string SolutionToClass = "solution-to";
         private static readonly Vector2 LevelsWidthRange = new Vector2(140f, 400f);
         private static readonly Vector2 SideWidthRange = new Vector2(180f, 420f);
         private static readonly Vector2 BottomHeightRange = new Vector2(110f, 520f);
@@ -40,6 +42,7 @@ namespace Game.Editor.LevelEditor
         private ColorPalette _palette;
         private LevelCatalog _catalog;
         private LevelLibrary _library;
+        private SolvabilityCheck _solvability;
         private LevelBoardView _board;
         private Label _levelName;
         private LevelListPanel _levels;
@@ -51,6 +54,7 @@ namespace Game.Editor.LevelEditor
         private Button _duplicate;
         private Label _unsaved;
         private LevelProblemList _problems;
+        private SolverPanel _solver;
         private Label _status;
         private Label _colorName;
         private Label _selectionLabel;
@@ -66,11 +70,13 @@ namespace Game.Editor.LevelEditor
         private VisualElement _side;
         private VisualElement _bottom;
         private LevelReport _report;
+        private LevelSolution _solution;
         private Cell _hoverCell;
         private bool _hovering;
+        private bool _stroking;
 
         private ILevelEditorTool Tool => _tools[_toolIndex];
-        private ILevelSelection ShownSelection => Tool == _selectTool ? _selectTool.Selection : null;
+        private ILevelSelection ShownSelection => Tool == _selectTool && !_solver.IsPlaying ? _selectTool.Selection : null;
         private LevelDraft Draft => _document.Draft;
         private string LevelName => _document.Name(_library);
 
@@ -80,6 +86,8 @@ namespace Game.Editor.LevelEditor
             _palette = EditorAssets.FindFirst<ColorPalette>();
             _catalog = EditorAssets.FindFirst<LevelCatalog>();
             _library = _catalog != null ? new LevelLibrary(_catalog) : null;
+            var solverSettings = EditorAssets.FindFirst<SolverSettings>();
+            _solvability = solverSettings != null ? new SolvabilityCheck(solverSettings) : null;
             _tools = new ILevelEditorTool[] { _selectTool, new BlockTool(), new DoorTool(), new ArrowTool(), new IceTool(), new EraseTool() };
             _toolIndex = Mathf.Clamp(_toolIndex, 0, _tools.Length - 1);
             saveChangesMessage = "This level has unsaved changes. Save them?";
@@ -141,6 +149,12 @@ namespace Game.Editor.LevelEditor
             root.Q("side-handle").AddManipulator(new PaneResizer(Vector2.right, () => _sideWidth, SetSideWidth));
             root.Q("bottom-handle").AddManipulator(new PaneResizer(Vector2.down, () => _bottomHeight, SetBottomHeight));
 
+            _solver = new SolverPanel(BlockName);
+            _solver.PlaybackChanged += OnPlaybackChanged;
+            _solver.FullCheckRequested += OnFullCheckRequested;
+            _bottom.Add(_solvability != null
+                ? _solver
+                : new HelpBox("No solver settings asset found, so the level is not checked for a solution.", HelpBoxMessageType.Error));
             _problems = new LevelProblemList(NameOf);
             _problems.FocusChanged += DrawBoard;
             _problems.Picked += SelectSubject;
@@ -185,12 +199,8 @@ namespace Game.Editor.LevelEditor
 
         public override void SaveChanges()
         {
-            if (!TrySave())
-            {
-                EditorUtility.DisplayDialog(Title, $"{LevelName} has errors and was not saved. Fix them first.", "OK");
-                return;
-            }
-            base.SaveChanges();
+            if (TrySave())
+                base.SaveChanges();
         }
 
         internal void UseTool<T>() where T : ILevelEditorTool => ChooseTool(Array.FindIndex(_tools, tool => tool is T));
@@ -283,11 +293,25 @@ namespace Game.Editor.LevelEditor
 
         private bool TrySave()
         {
-            if (!_document.TrySave(_library))
+            if (!ConfirmSolvable())
                 return false;
+            if (!_document.TrySave(_library))
+            {
+                EditorUtility.DisplayDialog(Title, $"{LevelName} was not saved: {WhyNotSaved()}", "OK");
+                return false;
+            }
             Refresh();
             return true;
         }
+
+        private string WhyNotSaved() => _report != null && _report.HasErrors
+            ? "it has errors. Fix them first."
+            : "no level catalog was found to add it to.";
+
+        private bool ConfirmSolvable() => _solution == null || _solution.Verdict != Solvability.Unsolvable ||
+            EditorUtility.DisplayDialog(Title,
+                $"{LevelName} cannot be solved: no order of moves gets every block out without boosters. Save it anyway?",
+                "Save anyway", "Keep editing");
 
         private void Play()
         {
@@ -409,6 +433,7 @@ namespace Game.Editor.LevelEditor
         private void OnPressed(Cell cell)
         {
             Draft.BeginStroke();
+            _stroking = true;
             Tool.Press(Draft.Level, cell, _colorId);
             Refresh();
         }
@@ -431,6 +456,8 @@ namespace Game.Editor.LevelEditor
         {
             Tool.Release();
             Draft.EndStroke(Tool.Name);
+            _stroking = false;
+            Refresh();
         }
 
         private void OnHovered(Cell cell)
@@ -452,8 +479,21 @@ namespace Game.Editor.LevelEditor
             Refresh();
         }
 
+        private void OnPlaybackChanged() => Refresh();
+
+        private void OnFullCheckRequested()
+        {
+            _solvability.SearchFully(Draft.Level);
+            Refresh();
+        }
+
         private void UpdateStatus()
         {
+            if (_solver.IsPlaying)
+            {
+                _status.text = "Showing the solution. Close it in the solver panel to edit the level.";
+                return;
+            }
             var hint = _hovering ? Tool.Describe(Draft.Level, _hoverCell) : Tool.Tooltip;
             var problem = _hovering ? ProblemAt(_hoverCell) : null;
             _status.text = problem == null ? $"{Tool.Name} tool: {hint}" : $"{Tool.Name} tool: {hint}\nProblem here: {problem}";
@@ -497,14 +537,18 @@ namespace Game.Editor.LevelEditor
                 _selectTool.ClearSelection();
             _width.SetValueWithoutNotify(level.Width);
             _height.SetValueWithoutNotify(level.Height);
+
+            _report = LevelValidator.Validate(level);
+            _problems.Show(_report, level);
+            if (!_stroking)
+                _solution = _report.HasErrors || _solvability == null ? null : _solvability.Solve(level);
+            _solver.Show(_solution, level, _solvability != null && _solvability.SearchedFully);
+
             var selection = ShownSelection;
             _selectionPanel.style.display = selection != null ? DisplayStyle.Flex : DisplayStyle.None;
             if (selection != null)
                 _selectionLabel.text = NameOf(selection);
             _selectionFields.Show(selection, level);
-
-            _report = LevelValidator.Validate(level);
-            _problems.Show(_report, level);
             DrawBoard();
             UpdateToolbar(!_report.HasErrors);
             UpdateStatus();
@@ -532,6 +576,12 @@ namespace Game.Editor.LevelEditor
         private void DrawBoard()
         {
             _marks.Clear();
+            _board.TakesEdits = !_solver.IsPlaying;
+            if (_solver.IsPlaying)
+            {
+                DrawSolution();
+                return;
+            }
             var problems = _report.Problems;
             foreach (var problem in problems)
                 MarkProblem(problem, $"problem--{LevelProblemList.SeverityName(problem.Severity)}");
@@ -541,6 +591,16 @@ namespace Game.Editor.LevelEditor
             if (_problems.Focused != LevelProblemList.NoProblem)
                 MarkProblem(problems[_problems.Focused], FocusClass);
             _board.Show(Draft.Level, _palette, _marks);
+        }
+
+        private void DrawSolution()
+        {
+            if (_solver.ShowsNextMove)
+            {
+                Mark(_solver.NextBlockCells(), SolutionFromClass);
+                Mark(_solver.NextTargetCells(), SolutionToClass);
+            }
+            _board.Show(_solver.PlayedLevel, _palette, _marks);
         }
 
         private void MarkProblem(LevelProblem problem, string className)
@@ -567,5 +627,7 @@ namespace Game.Editor.LevelEditor
 
         private string NameOf(ILevelSelection selection) =>
             $"{ColorName(selection.ColorId(Draft.Level))} {selection.Describe(Draft.Level)}";
+
+        private string BlockName(int block) => NameOf(new BlockSelection(Draft.Level.Blocks[block]));
     }
 }
