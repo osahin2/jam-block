@@ -25,5 +25,5 @@ Show the findings to the developer ranked, each with its cost and the proposed f
 
 ## 5. Fix and record
 - Fix the chosen findings, then compile and run the EditMode tests (skill `unity-editor`).
-- Update the system notes the fixes touch; a choice a reviewer could ask about goes to `Docs/Game/Decisions.md`.
+- Update the system notes the fixes touch; only a choice that shapes the architecture, the scope or more than one feature goes to `Docs/Game/Decisions.md`.
 - Name the review in the commit message of its fixes, so the next review knows where to start.
