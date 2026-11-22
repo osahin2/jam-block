@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Drives the players from the engine loop in unscaled time, so fades and source returns continue while the game is paused.
     internal sealed class AudioTicker : MonoBehaviour
     {
         private SfxPlayer _sfx;
@@ -14,6 +13,7 @@ namespace Core.Audio
             _music = music;
         }
 
+        // Unscaled time, so fades and source returns go on while the game is paused.
         private void Update()
         {
             float deltaTime = Time.unscaledDeltaTime;

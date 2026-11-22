@@ -1,0 +1,33 @@
+{
+    "name": "Game.Tests",
+    "rootNamespace": "Game.Tests",
+    "references": [
+        "Game.Data",
+        "Game.Logic",
+        "Game",
+        "Game.Editor",
+        "Core.Installers",
+        "Core.Levels",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "QuickOutline"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "DOTween.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

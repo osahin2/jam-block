@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Not named AudioSettings: that would clash with UnityEngine.AudioSettings in any file using both namespaces.
     [CreateAssetMenu(menuName = "Core/Audio/Audio Service Settings", fileName = "AudioServiceSettings")]
     public sealed class AudioServiceSettings : ScriptableObject
     {

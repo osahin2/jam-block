@@ -4,11 +4,10 @@ using UnityEditor.SceneManagement;
 
 namespace Core.Scenes.Editor
 {
-    // Play mode always starts from the first enabled build scene (the boot scene with the root scope), so pressing Play
-    // with a content scene open does not start that scene without its parent scope.
     [InitializeOnLoad]
     internal static class PlayFromFirstScene
     {
+        // A content scene started on its own would have no parent scope.
         static PlayFromFirstScene()
         {
             EditorBuildSettings.sceneListChanged += Apply;

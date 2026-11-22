@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Core.Haptics.Tests
 {
-    // Round-trips through JSON so tests see what a real save would keep.
     internal sealed class MemorySave : ISaveService
     {
         public readonly Dictionary<string, string> Files = new Dictionary<string, string>();

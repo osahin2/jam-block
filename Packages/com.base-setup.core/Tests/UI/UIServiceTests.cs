@@ -127,7 +127,6 @@ namespace Core.UI.Tests
 
         private UIScreenCatalog Catalog(string name, params UIScreen[] screens) => Track(UIScreenCatalog.Create(name, screens));
 
-        // A stand-in prefab: an inactive object with the screen component and a Content child.
         private T Prefab<T>() where T : UIScreen
         {
             var root = Track(new GameObject(typeof(T).Name, typeof(RectTransform)));

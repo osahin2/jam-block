@@ -1,13 +1,37 @@
 {
   "permissions": {
     "deny": [
-      "Read(./Library/**)", "Read(./Temp/**)", "Read(./obj/**)", "Read(./Logs/**)",
-      "Read(./Build/**)", "Read(./Builds/**)", "Read(./UserSettings/**)",
-      "Edit(./Library/**)", "Edit(./Temp/**)", "Edit(./obj/**)", "Edit(./Logs/**)", "Edit(./UserSettings/**)",
-      "Edit(**/*.unity)", "Edit(**/*.prefab)", "Edit(**/*.meta)", "Edit(**/*.asset)", "Edit(./ProjectSettings/**)"
+      "Read(./Library/**)",
+      "Read(./Temp/**)",
+      "Read(./obj/**)",
+      "Read(./Logs/**)",
+      "Read(./Build/**)",
+      "Read(./Builds/**)",
+      "Read(./UserSettings/**)",
+      "Edit(./Library/**)",
+      "Edit(./Temp/**)",
+      "Edit(./obj/**)",
+      "Edit(./Logs/**)",
+      "Edit(./UserSettings/**)",
+      "Edit(**/*.unity)",
+      "Edit(**/*.prefab)",
+      "Edit(**/*.meta)",
+      "Edit(**/*.asset)",
+      "Edit(./ProjectSettings/**)"
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_comments.py\" --block-new"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|MultiEdit|Write",
@@ -15,6 +39,10 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_member_order.py\""
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_comments.py\""
           }
         ]
       }

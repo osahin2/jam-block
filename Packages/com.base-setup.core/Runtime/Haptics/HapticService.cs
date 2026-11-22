@@ -3,8 +3,6 @@ using Core.Save;
 
 namespace Core.Haptics
 {
-    // Owns the player's on/off choice: restores it on creation, saves every change and lets presets through to the
-    // backend only while haptics are enabled.
     internal sealed class HapticService : IHapticService
     {
         internal const string SaveKey = "haptic-settings";

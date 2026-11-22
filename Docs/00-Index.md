@@ -1,35 +1,32 @@
 # Docs index
 
-> Entry point for the project documentation: the case, the plan, the conventions, the Core systems and the game systems.
+> Entry point for the project documentation: the case, the conventions, the game systems and the Core package.
 
 ## Case
-- [Requirements](Game/Case.md) - what the case asks for, acceptance criteria, evaluation order, README contents
-- [Plan](Game/Plan.md) - phases, open decisions, status
-- [Decisions](Game/Decisions.md) - short notes per choice; the README's decisions section comes from here
-- [Work log](Game/WorkLog.md) - time and LLM use per session
-
-## Conventions
-- [Assemblies, features and folders](Conventions/Assemblies.md) - Game.Data / Game.Logic / Game / Game.Editor, one entry class per feature, folder layout
-- [Logic and view](Conventions/LogicAndView.md) - rules return outcomes, one player per outcome type, views only show and forward input
-- [Communication](Conventions/Communication.md) - how systems reach each other, dependency injection rules
-- [Settings and installers](Conventions/SettingsAndInstallers.md) - settings assets per concern, one installer asset per feature
-- [Code style](Conventions/CodeStyle.md) - member order (checked by a hook), one type per file, naming
+- [Requirements](Game/Case.md) - what the case asks for and how it is evaluated
+- [Reference game](Game/Reference.md) - how the reference game plays and looks
+- [Decisions](Game/Decisions.md) - each choice, why, and what it was chosen over
+- [Conventions](Conventions.md) - assemblies and folders, logic and view, communication, settings, code style
 
 ## Game
-Game systems get a note each in `Game/Systems/` as they are built.
+- [Levels](Game/Systems/Levels.md) - level format and validation
+- [Board](Game/Systems/Board.md) - move rules, exits, hits and splits, mechanics as role interfaces
+- [Ice](Game/Systems/Ice.md) - the ice blocker
+- [Arrow block](Game/Systems/Arrow.md) - a block that moves along one axis
+- [Level attempt](Game/Systems/LevelAttempt.md) - one try at a level, its timer and booster effects
+- [Coins](Game/Systems/Coins.md) - the saved balance, counter and coin flight
+- [App flow](Game/Systems/AppFlow.md) - Boot, Home and Game scenes, the run played
+- [Play](Game/Systems/Play.md) - the Game scene: board, input, views, HUD and popups
+- [Rocket](Game/Systems/Rocket.md) - the booster that takes one cell
+- [Boosters](Game/Systems/Boosters.md) - stock, purchase and the aimed booster flow
+- [Home](Game/Systems/Home.md) - the home screen
+- [Preferences](Game/Systems/Preferences.md) - the settings popup
+- [Buttons](Game/Systems/Buttons.md) - press feedback on every button
+- [Popups](Game/Systems/Popups.md) - the shared popup entrance
+- [Level editor](Game/Systems/LevelEditor.md) - the designers' level editor window
+- [Solver](Game/Systems/Solver.md) - whether a level can be cleared without boosters
+- [Player build](Game/Systems/PlayerBuild.md) - APK and Xcode builds, mobile settings
 
 ## Core
-Systems of the Core package (`Packages/com.base-setup.core/`), one note each.
-- [Overview](Base/Architecture/Overview.md) - modules, what each does, dependencies, how a game registers them
-- [Save](Base/Systems/Save.md) - typed JSON documents under `persistentDataPath`, synchronous, atomic writes
-- [Levels](Base/Systems/Levels.md) - level progression: current number and index, completion, loop rule
-- [UI](Base/Systems/UI.md) - screens and popups opened by type from per-feature catalogs, UI root and screen template, safe area fitted once
-- [Scenes](Base/Systems/Scenes.md) - additive scene switch on top of a boot scene that stays loaded, transition hook with progress, ready fade overlay, play mode starts from the boot scene
-- [Pooling](Base/Systems/Pooling.md) - `PrefabPool<T>` over `ObjectPool<T>`: prewarm inactive under a root, get under a parent with the prefab's pose, release, max idle size
-- [Audio](Base/Systems/Audio.md) - `SfxCue` one-shots on pooled sources, looping music with crossfade, volume and mute per channel saved through Save
-- [Haptics](Base/Systems/Haptics.md) - semantic presets through a platform backend (own iOS plugin, silent elsewhere), on/off saved through Save, game-supplied backend possible
-- [Installers](Base/Systems/Installers.md) - `ScriptableObjectInstaller`: a feature's settings and services registered from one asset, scopes run a list of them
-- [VContainer for Zenject users](Base/Architecture/VContainer-for-Zenject-users.md) - concept map and the differences that matter
-
-## Templates
-- [System](Templates/System.md) - system note
+- [Overview](Base/Architecture/Overview.md) - modules and how a game registers them
+- [Save](Base/Systems/Save.md), [Levels](Base/Systems/Levels.md), [UI](Base/Systems/UI.md), [Scenes](Base/Systems/Scenes.md), [Pooling](Base/Systems/Pooling.md), [Audio](Base/Systems/Audio.md), [Haptics](Base/Systems/Haptics.md), [Display](Base/Systems/Display.md), [Installers](Base/Systems/Installers.md)

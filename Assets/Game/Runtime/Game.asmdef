@@ -1,0 +1,32 @@
+{
+    "name": "Game",
+    "rootNamespace": "Game",
+    "references": [
+        "Game.Data",
+        "Game.Logic",
+        "Core.Audio",
+        "Core.Display",
+        "Core.Haptics",
+        "Core.Installers",
+        "Core.Levels",
+        "Core.Pooling",
+        "Core.Save",
+        "Core.Scenes",
+        "Core.UI",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "VContainer",
+        "UniTask",
+        "QuickOutline",
+        "DOTween.Modules"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

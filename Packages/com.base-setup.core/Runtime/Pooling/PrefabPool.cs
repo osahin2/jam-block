@@ -5,11 +5,6 @@ using Object = UnityEngine.Object;
 
 namespace Core.Pooling
 {
-    /// <summary>
-    /// Reuses instances of one prefab. Idle instances wait inactive under <c>root</c>; <see cref="Get"/> hands one out
-    /// active under the given parent, <see cref="Release"/> takes it back. At most <c>maxSize</c> idle instances are
-    /// kept; one released beyond that is destroyed. Built on <see cref="ObjectPool{T}"/>.
-    /// </summary>
     public sealed class PrefabPool<T> where T : Component
     {
         private readonly T _prefab;
@@ -50,10 +45,6 @@ namespace Core.Pooling
             Prewarm(prewarmCount);
         }
 
-        /// <summary>
-        /// Returns an idle instance, or a new one if none is idle, active under <paramref name="parent"/> (null for
-        /// the scene root) with the prefab's local position, rotation and scale, like <c>Instantiate(prefab, parent)</c>.
-        /// </summary>
         public T Get(Transform parent)
         {
             var instance = _pool.Get();
@@ -65,10 +56,7 @@ namespace Core.Pooling
             return instance;
         }
 
-        /// <summary>
-        /// Deactivates the instance and puts it back under the root. Releasing the same instance twice throws in the
-        /// editor. If the pool already holds max size idle instances, this one is destroyed instead.
-        /// </summary>
+        // Releasing an instance twice throws in the editor; one beyond the max size is destroyed.
         public void Release(T instance)
         {
             if (instance == null)
@@ -77,10 +65,7 @@ namespace Core.Pooling
             _pool.Release(instance);
         }
 
-        /// <summary>
-        /// Destroys the idle instances. Instances handed out by <see cref="Get"/> are left to their owner and can
-        /// still be released. The pool stays usable.
-        /// </summary>
+        // Instances handed out by Get stay with their owner and can still be released.
         public void Clear()
         {
             _pool.Clear();

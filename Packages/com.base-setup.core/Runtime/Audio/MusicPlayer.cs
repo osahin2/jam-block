@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace Core.Audio
 {
-    // Two looping sources: the current track fades towards full level, the other one towards silence, which gives a
-    // crossfade when the track changes. A track keeps playing at zero volume while music is muted.
     internal sealed class MusicPlayer
     {
         private sealed class Track

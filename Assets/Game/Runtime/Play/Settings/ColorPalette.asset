@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eb01cec194004a37bab3888a8a9731c, type: 3}
+  m_Name: ColorPalette
+  m_EditorClassIdentifier: 
+  _colors:
+  - {fileID: 2100000, guid: a9fca788f366d46e6a87723eb2441a8c, type: 2}
+  - {fileID: 2100000, guid: 4ceb64ea5008c4cfaa9eb34e3aad6419, type: 2}
+  - {fileID: 2100000, guid: 3753e54fe80a042fcb5960d1441cdf42, type: 2}
+  - {fileID: 2100000, guid: 804535b06fd244ba1b055c342c3ddd03, type: 2}
+  - {fileID: 2100000, guid: 2492c8626c4194f1a8119e64e95a24de, type: 2}
+  - {fileID: 2100000, guid: dce32f81b76954c51a6954861eeb2b8f, type: 2}
+  _doorColors:
+  - {fileID: 2100000, guid: 00b32d1fc14944993945b463514ed99a, type: 2}
+  - {fileID: 2100000, guid: 3d904a197d42142cf962528a398e41ab, type: 2}
+  - {fileID: 2100000, guid: ed58c891680cb4a88915e9239746037e, type: 2}
+  - {fileID: 2100000, guid: 1dc1e4c1d15364e3ebe7d2c5b8c2a423, type: 2}
+  - {fileID: 2100000, guid: 61f98b5161dd94b328ea437a5c992976, type: 2}
+  - {fileID: 2100000, guid: 2c2c7a692bbed4a66ad1c6a4043a83a3, type: 2}

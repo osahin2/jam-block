@@ -3,10 +3,10 @@
 > Summary: What the case asks for, condensed from the case PDF ("Game Developer Case 2026", 8 pages) so that sessions do not need the PDF. When in doubt, the PDF wins; record any interpretation in [Decisions](Decisions.md).
 
 ## Goal and constraints
-- A small vertical slice of a block-sliding color puzzle in the style of a known hybrid-casual game: a playable level flow and a level editor.
+- A small vertical slice of Color Block Jam (the reference game; mechanics only, see [Reference](Reference.md)): a playable level flow and a level editor.
 - Evaluated: code quality, architecture, editor usability. Art is not evaluated.
 - Unity **2022.3.62f2**. Reference resolution **1080 x 1920 portrait**.
-- Use the supplied assets (Google Drive folder linked in the PDF); import other art only if absolutely necessary.
+- Use the supplied assets (Google Drive folder linked in the PDF); do not buy or import other art unless absolutely necessary.
 - Any LLM tool is allowed; the README must say which tools were used for which parts.
 - Time: 7 days.
 
@@ -17,7 +17,7 @@
 
 ## Required scope and acceptance criteria
 ### Home screen
-- Tab navigation bar with placeholder tabs (other sections are not implemented), level button, top UI, settings button. Other buttons give visual feedback on touch and need no function.
+- Tab navigation bar with placeholder tabs (the other sections are not implemented), level button, top UI, settings button. Other buttons give visual feedback on touch and need no function.
 - [ ] The level button starts the current level.
 - [ ] The settings button opens the settings screen.
 - [ ] Layout correct at 1080 x 1920 and still correct on a 20:9 device.
@@ -57,4 +57,4 @@ Level validation (warn before saving an unsolvable level), functional boosters, 
 How to open and run the project; how to open the editor and make a level; architecture decisions and the reason for each; known problems and incomplete parts; LLM tools used and for which parts; approximate work time.
 
 ## Notes from the case
-Follow industry best practices. Report problems found in the supplied assets (feedback welcome). When a requirement is unclear, decide, continue, and write the decision in the README.
+Follow industry best practices. Report problems found in the supplied assets (feedback welcome). When a requirement is unclear, decide, continue, and write the decision in the README; the Talent Team can also be asked via LinkedIn or email.

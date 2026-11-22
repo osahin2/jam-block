@@ -15,8 +15,9 @@ namespace Core.UI
                     (prefab, parent) => resolver.Instantiate(prefab, parent)),
                 Lifetime.Singleton);
 
-        // Once per feature that brings screens.
+        // Not RegisterInstance: VContainer rejects two singletons of one type in a collection, and a scope often
+        // holds several catalogs.
         public static void RegisterUIScreens(this IContainerBuilder builder, UIScreenCatalog catalog) =>
-            builder.RegisterInstance(catalog);
+            builder.Register(_ => catalog, Lifetime.Scoped);
     }
 }

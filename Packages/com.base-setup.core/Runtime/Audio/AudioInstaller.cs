@@ -4,9 +4,9 @@ using VContainer;
 
 namespace Core.Audio
 {
-    // In the root scope, after RegisterCoreSave. The audio objects are created when IAudioService is first resolved.
     public static class AudioInstaller
     {
+        // In the root scope, after RegisterCoreSave.
         public static void RegisterCoreAudio(this IContainerBuilder builder, AudioServiceSettings settings)
         {
             if (settings == null)

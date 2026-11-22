@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Core.UI
 {
-    // The canvas screens are created under: one full-screen parent per layer, popups drawn above screens.
     public sealed class UIRoot : MonoBehaviour
     {
         [SerializeField] private RectTransform _screens;
