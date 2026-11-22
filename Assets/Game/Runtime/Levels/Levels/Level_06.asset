@@ -86,11 +86,11 @@ MonoBehaviour:
         Y: 1
       Ice: 0
       Arrow:
-        Axis: 1
+        Axis: 0
         Start:
           X: 0
-          Y: 1
-        Length: 1
+          Y: 0
+        Length: 0
     - ColorId: 2
       Position:
         X: 3
