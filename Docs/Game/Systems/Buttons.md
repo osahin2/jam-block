@@ -1,6 +1,6 @@
 # Buttons
 
-> One touch feedback for every button: it shrinks while pressed and springs back, tuned in one settings asset in the Boot scope.
+> One touch feedback for every button: it shrinks while pressed and springs back, with a `Light` haptic on the press, tuned in one settings asset in the Boot scope.
 
 **Code:** `Runtime/Buttons/`. **Entry:** `PressFeedback` (next to any `Selectable`), the prefabs `TextButton`, `TextButtonGreen`, `IconButton`, `CloseButton`.
 

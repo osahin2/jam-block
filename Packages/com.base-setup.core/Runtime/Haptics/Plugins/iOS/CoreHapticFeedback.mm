@@ -10,6 +10,7 @@ static UIImpactFeedbackGenerator *CoreHapticFeedback_light;
 static UIImpactFeedbackGenerator *CoreHapticFeedback_medium;
 static UIImpactFeedbackGenerator *CoreHapticFeedback_heavy;
 static UINotificationFeedbackGenerator *CoreHapticFeedback_notification;
+static UISelectionFeedbackGenerator *CoreHapticFeedback_selection;
 
 static void CoreHapticFeedback_CreateGenerators(void)
 {
@@ -19,6 +20,7 @@ static void CoreHapticFeedback_CreateGenerators(void)
         CoreHapticFeedback_medium = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleMedium];
         CoreHapticFeedback_heavy = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleHeavy];
         CoreHapticFeedback_notification = [[UINotificationFeedbackGenerator alloc] init];
+        CoreHapticFeedback_selection = [[UISelectionFeedbackGenerator alloc] init];
     });
 }
 
@@ -41,12 +43,19 @@ static void CoreHapticFeedback_Heavy(void) { CoreHapticFeedback_Impact(CoreHapti
 static void CoreHapticFeedback_Success(void) { CoreHapticFeedback_Notify(UINotificationFeedbackTypeSuccess); }
 static void CoreHapticFeedback_Failure(void) { CoreHapticFeedback_Notify(UINotificationFeedbackTypeError); }
 
+static void CoreHapticFeedback_Selection(void)
+{
+    [CoreHapticFeedback_selection selectionChanged];
+    [CoreHapticFeedback_selection prepare];
+}
+
 static void (*const CoreHapticFeedback_Presets[])(void) = {
-    CoreHapticFeedback_Light,   // HapticPreset.Light = 0
-    CoreHapticFeedback_Medium,  // HapticPreset.Medium = 1
-    CoreHapticFeedback_Heavy,   // HapticPreset.Heavy = 2
-    CoreHapticFeedback_Success, // HapticPreset.Success = 3
-    CoreHapticFeedback_Failure, // HapticPreset.Failure = 4
+    CoreHapticFeedback_Light,     // HapticPreset.Light = 0
+    CoreHapticFeedback_Medium,    // HapticPreset.Medium = 1
+    CoreHapticFeedback_Heavy,     // HapticPreset.Heavy = 2
+    CoreHapticFeedback_Success,   // HapticPreset.Success = 3
+    CoreHapticFeedback_Failure,   // HapticPreset.Failure = 4
+    CoreHapticFeedback_Selection, // HapticPreset.Selection = 5
 };
 
 extern "C" void CoreHapticFeedback_Play(int preset)

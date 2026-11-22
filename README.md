@@ -16,7 +16,7 @@ A vertical slice of a block-sliding color puzzle for Android (portrait, 1080 x 1
 | Part | State |
 |---|---|
 | Home: level button, settings button, top UI, tab bar | Done. The middle tabs switch placeholder panels; avatar, lives and the coins' "+" are placeholders. |
-| Settings: vibration, sound and music toggles, placeholder buttons, close | Done. Each toggle shows its state and is saved. |
+| Settings: vibration, sound and music toggles, placeholder buttons, close | Done. Each toggle shows its state and is saved; vibration drives the game's haptics (button presses, grabbing and dropping a block, a block leaving), on iOS and Android 8+. |
 | Gameplay: at least five levels, timer, coins, pause, restart, fail popup, home | Done. The timer starts on the first touch; coins are saved when the reward is taken. |
 | Level editor: board size, doors, blocks, timer, save, play | Done, with undo, a level list, validation, a scene preview and Play from the editor. |
 | Optional: unsolvable-level warning | Done. The editor solves the level after every change and asks before saving an unsolvable one. |

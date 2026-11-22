@@ -38,6 +38,10 @@
 - Why: one type covers every shape; a step changes only the anchor; the view builds from the same cells.
 - Instead of: width, height and a shape kind, with a case per shape everywhere.
 
+## Our own Android haptics backend in Core
+- Why: Core had only an iOS backend, so the vibration switch changed nothing on Android. The platform API is small (`Vibrator`, `VibrationEffect`) and its pitfalls are known (the permission, API levels, JNI exceptions); Core's `IHapticBackend` keeps a package swappable later. API 24-25 stay silent to keep one code path.
+- Instead of: a third-party haptics package; the free ones are small hobby projects with uncertain upkeep, and the paid ones cannot be shipped in the repository.
+
 ## Levels are validated when made, not when played
 - Why: levels come only from the editor, which shows every problem with its block, door or cell; a test checks every level asset.
 - Instead of: a second check in the board, or exceptions that report only the first problem.

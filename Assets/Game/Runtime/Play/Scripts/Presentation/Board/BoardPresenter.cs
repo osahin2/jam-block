@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Haptics;
 using DG.Tweening;
 using Game.Data.Levels;
 using Game.Logic.Play;
@@ -13,6 +14,7 @@ namespace Game.Play
         private readonly BlockViewBuilder _blockViews;
         private readonly PooledBoardPieces _pieces;
         private readonly BoardRoot _board;
+        private readonly IHapticService _haptics;
         private readonly List<BlockView> _blocks = new List<BlockView>();
         private LevelAttempt _attempt;
         private BoardLayout _layout;
@@ -22,13 +24,14 @@ namespace Game.Play
         private float FrameInCells => _layout.FrameWidth / _layout.CellSize;
 
         public BoardPresenter(BlockMotionSettings motion, BlockOutlineMaterials outline, BlockViewBuilder blockViews,
-            PooledBoardPieces pieces, BoardRoot board)
+            PooledBoardPieces pieces, BoardRoot board, IHapticService haptics)
         {
             _motion = motion;
             _outline = outline;
             _blockViews = blockViews;
             _pieces = pieces;
             _board = board;
+            _haptics = haptics;
         }
 
         public void Show(LevelAttempt attempt, StagedLevel staged)
@@ -42,14 +45,21 @@ namespace Game.Play
                 block.UseOutline(_outline);
         }
 
-        public void Hold(int block) => _blocks[block].Hold();
+        public void Hold(int block)
+        {
+            _blocks[block].Hold();
+            _haptics.Play(HapticPreset.Selection);
+        }
 
         public void Refuse(int block) => _blocks[block].Refuse();
 
         public void Follow(DragPose pose) => _blocks[pose.Block].Follow(_layout.PoseToLocal(pose));
 
-        public void SnapBack(int block) =>
+        public void SnapBack(int block)
+        {
             _blocks[block].SnapTo(_layout.CellCenter(_attempt.Board.Blocks[block].Position));
+            _haptics.Play(HapticPreset.Selection);
+        }
 
         public void ShowLeaving(DragPose pose)
         {
@@ -58,6 +68,7 @@ namespace Game.Play
             SlideOut(pose, door.Side, cellsToClear);
             OpenDoor(door, cellsToClear);
             CatchUp();
+            _haptics.Play(HapticPreset.Success);
         }
 
         public void VanishGone(Cell toward, float lift, float duration, float stagger, Ease ease)

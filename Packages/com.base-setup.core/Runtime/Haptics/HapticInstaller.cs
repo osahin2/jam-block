@@ -7,7 +7,7 @@ namespace Core.Haptics
     public static class HapticInstaller
     {
         // In the root scope, after RegisterCoreSave.
-        // Uses the platform's native backend (iOS; silent in the editor and on other platforms).
+        // Uses the platform's native backend (iOS, Android 8+; silent in the editor and on other platforms).
         public static void RegisterCoreHaptics(this IContainerBuilder builder) =>
             Register(builder, NativeHapticBackend.Create());
 

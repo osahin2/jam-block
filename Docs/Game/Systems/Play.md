@@ -19,6 +19,7 @@
 - Mechanics show themselves through `IBlockFeature`s listed once in `BlockFeatures.Of`. `Show` puts a (possibly pooled) view into the block's state; `CatchUp` moves a shown view to the current state. A new mechanic adds a feature, a part on `Block.prefab` and one line.
 - The held block is outlined; the outline keeps two material arrays per renderer, so a grab allocates nothing. Blocks are flat plates so the outline has no hidden geometry to spill.
 - A leaving block snaps to its door, slides out and is cut at the frame by its shader while the door drops and bursts cubes.
+- `BoardPresenter` plays the board's haptics with its visuals: `Selection` on a grab and on a snap back, `Success` on an exit.
 - `BlockView` follows the finger with an exponential follow that is frame-rate independent. While following, a new target only replaces the old: re-enabling the behaviour would skip that frame's `Update` and the block would stand still at 60 fps.
 - `DoorView` reads its rest pose on first `Init`, not `Awake`: the preview builds doors in edit mode, where `Awake` does not run.
 

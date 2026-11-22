@@ -1,3 +1,4 @@
+using Core.Haptics;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,13 +11,18 @@ namespace Game.Buttons
     public sealed class PressFeedback : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private ButtonFeedbackSettings _settings;
+        private IHapticService _haptics;
         private Selectable _selectable;
         private Vector3 _restScale;
         private bool _pressed;
         private Tween _motion;
 
         [Inject]
-        public void Construct(ButtonFeedbackSettings settings) => _settings = settings;
+        public void Construct(ButtonFeedbackSettings settings, IHapticService haptics)
+        {
+            _settings = settings;
+            _haptics = haptics;
+        }
 
         private void Awake()
         {
@@ -37,6 +43,7 @@ namespace Game.Buttons
             if (eventData.button != PointerEventData.InputButton.Left || !_selectable.IsInteractable())
                 return;
             _pressed = true;
+            _haptics.Play(HapticPreset.Light);
             ScaleTo(_restScale * _settings.PressedScale, _settings.PressDuration, _settings.PressEase);
         }
 
