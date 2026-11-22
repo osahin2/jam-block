@@ -15,8 +15,8 @@ MonoBehaviour:
   _selectDuration: 0.18
   _selectEase: 6
   _selectedWidth: 1.25
-  _iconRise: 84
+  _iconRise: 69
   _iconScale: 1.55
   _shakeDuration: 0.15
-  _shakeStrength: 6
+  _shakeStrength: 5
   _shakeVibrato: 12

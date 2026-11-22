@@ -13,10 +13,9 @@ namespace Game.Play
             _settings = settings;
         }
 
-        public Rect ViewportWindow(Rect viewportSafeArea, float aspect)
+        public Rect ViewportWindow(Rect viewportSafeArea)
         {
-            var reference = _settings.UiReferenceResolution;
-            var unit = Mathf.Min(aspect / reference.x, 1f / reference.y);
+            var unit = 1f / _settings.UiReferenceResolution.y;
             return Rect.MinMaxRect(viewportSafeArea.xMin + _settings.SideMargin,
                 viewportSafeArea.yMin + _settings.BottomMargin * unit,
                 viewportSafeArea.xMax - _settings.SideMargin, viewportSafeArea.yMax - _settings.TopMargin * unit);
@@ -25,7 +24,7 @@ namespace Game.Play
         public void Frame(Camera camera, BoardLayout layout, Transform board, Rect viewportSafeArea)
         {
             var view = camera.transform;
-            var window = ViewportWindow(viewportSafeArea, camera.aspect);
+            var window = ViewportWindow(viewportSafeArea);
             var center = board.TransformPoint(layout.Box.center);
             var tanHalfHeight = Mathf.Tan(camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
             StandBackToSeeAll(camera, center, Vector3.Scale(layout.Box.extents, board.lossyScale).magnitude, tanHalfHeight);

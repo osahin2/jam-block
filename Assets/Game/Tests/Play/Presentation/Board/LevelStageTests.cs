@@ -36,7 +36,7 @@ namespace Game.Tests.Play
         public void Show_EveryCatalogLevel_KeepsEveryPieceInsideTheWindow(int screenWidth, int screenHeight)
         {
             _camera.aspect = (float)screenWidth / screenHeight;
-            var window = new CameraFraming(_framing).ViewportWindow(new Rect(0f, 0f, 1f, 1f), _camera.aspect);
+            var window = new CameraFraming(_framing).ViewportWindow(new Rect(0f, 0f, 1f, 1f));
             var outside = new StringBuilder();
             foreach (var level in Load<LevelCatalog>().Levels)
             {

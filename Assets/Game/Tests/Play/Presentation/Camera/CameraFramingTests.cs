@@ -60,7 +60,7 @@ namespace Game.Tests.Play
 
             _framing.Frame(_camera, layout, _board, safeArea);
 
-            var window = _framing.ViewportWindow(safeArea, _camera.aspect);
+            var window = _framing.ViewportWindow(safeArea);
             var shown = OnScreen(layout);
             Assert.That(shown.xMin, Is.GreaterThanOrEqualTo(window.xMin - Tolerance), "left");
             Assert.That(shown.xMax, Is.LessThanOrEqualTo(window.xMax + Tolerance), "right");
@@ -81,7 +81,7 @@ namespace Game.Tests.Play
 
             _framing.Frame(_camera, layout, _board, Notched);
 
-            var window = _framing.ViewportWindow(Notched, _camera.aspect);
+            var window = _framing.ViewportWindow(Notched);
             var shown = OnScreen(layout);
             Assert.AreEqual(window.center.x, shown.center.x, Tolerance, "across");
             Assert.AreEqual(window.center.y, shown.center.y, Tolerance, "up");
@@ -98,7 +98,7 @@ namespace Game.Tests.Play
             _framing.Frame(_camera, layout, _board, FullScreen);
 
             Assert.AreEqual(rotation, _camera.transform.rotation);
-            var window = _framing.ViewportWindow(FullScreen, _camera.aspect);
+            var window = _framing.ViewportWindow(FullScreen);
             var shown = OnScreen(layout);
             Assert.AreEqual(window.center.x, shown.center.x, Tolerance);
             Assert.That(shown.yMin, Is.GreaterThanOrEqualTo(window.yMin - Tolerance));
@@ -119,12 +119,11 @@ namespace Game.Tests.Play
         }
 
         [Test]
-        public void ViewportWindow_OnAPhone_MeasuresTheMarginsInUIUnitsScaledByTheWidth()
+        public void ViewportWindow_MeasuresTheMarginsInUIUnitsScaledByTheHeight_AndTheSidesInWidths()
         {
-            var aspect = 1080f / 2400f;
-            var unit = aspect / 1080f;
+            var unit = 1f / 1920f;
 
-            var window = _framing.ViewportWindow(Notched, aspect);
+            var window = _framing.ViewportWindow(Notched);
 
             Assert.AreEqual(_settings.SideMargin, window.xMin, Tolerance);
             Assert.AreEqual(1f - _settings.SideMargin, window.xMax, Tolerance);
@@ -132,20 +131,8 @@ namespace Game.Tests.Play
             Assert.AreEqual(Notched.yMax - _settings.TopMargin * unit, window.yMax, Tolerance);
         }
 
-        [TestCase(1536f, 2048f)]
-        [TestCase(1920f, 1080f)]
-        public void ViewportWindow_OnAWiderScreen_MeasuresTheMarginsInUIUnitsScaledByTheHeight(float width, float height)
-        {
-            var unit = 1f / 1920f;
-
-            var window = _framing.ViewportWindow(FullScreen, width / height);
-
-            Assert.AreEqual(_settings.BottomMargin * unit, window.yMin, Tolerance);
-            Assert.AreEqual(1f - _settings.TopMargin * unit, window.yMax, Tolerance);
-        }
-
         [Test]
-        public void Settings_MeasureInTheUIRootsReferenceResolution_WhichFitsTheScreen()
+        public void Settings_MeasureInTheUIRootsReferenceResolution_WhichMatchesTheScreensHeight()
         {
             var settings = AssetDatabase.LoadAssetAtPath<CameraFramingSettings>(
                 "Assets/Game/Runtime/Play/Settings/CameraFramingSettings.asset");
@@ -153,7 +140,8 @@ namespace Game.Tests.Play
                 .GetComponentInChildren<CanvasScaler>(true);
 
             Assert.AreEqual(CanvasScaler.ScaleMode.ScaleWithScreenSize, scaler.uiScaleMode);
-            Assert.AreEqual(CanvasScaler.ScreenMatchMode.Expand, scaler.screenMatchMode);
+            Assert.AreEqual(CanvasScaler.ScreenMatchMode.MatchWidthOrHeight, scaler.screenMatchMode);
+            Assert.AreEqual(1f, scaler.matchWidthOrHeight);
             Assert.AreEqual(scaler.referenceResolution, settings.UiReferenceResolution);
         }
 
@@ -165,7 +153,7 @@ namespace Game.Tests.Play
 
             _framing.Frame(_camera, layout, _board, FullScreen);
 
-            var window = _framing.ViewportWindow(FullScreen, _camera.aspect);
+            var window = _framing.ViewportWindow(FullScreen);
             var shown = OnScreen(layout);
             Assert.That(shown.yMin, Is.GreaterThanOrEqualTo(window.yMin - Tolerance), "bottom");
             Assert.That(shown.yMax, Is.LessThanOrEqualTo(window.yMax + Tolerance), "top");

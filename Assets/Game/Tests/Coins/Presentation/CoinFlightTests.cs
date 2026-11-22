@@ -16,6 +16,7 @@ namespace Game.Tests.Coins
             Assert.AreEqual(screens.uiScaleMode, flight.uiScaleMode);
             Assert.AreEqual(screens.referenceResolution, flight.referenceResolution);
             Assert.AreEqual(screens.screenMatchMode, flight.screenMatchMode);
+            Assert.AreEqual(screens.matchWidthOrHeight, flight.matchWidthOrHeight);
         }
 
         private static CanvasScaler Scaler(string path) =>
