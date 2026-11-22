@@ -10,10 +10,11 @@ namespace Game.Play
     {
         [SerializeField] private TMP_Text _title;
         [SerializeField] private Image _icon;
+        [SerializeField] private TMP_Text _packSize;
         [SerializeField] private TMP_Text _description;
         [SerializeField] private Button _buyButton;
         [SerializeField] private CanvasGroup _buyGroup;
-        [SerializeField] private TMP_Text _offer;
+        [SerializeField] private TMP_Text _price;
         [SerializeField] private Button _closeButton;
         [SerializeField, Range(0f, 1f)] private float _offAlpha = 0.5f;
 
@@ -32,8 +33,9 @@ namespace Game.Play
         {
             _title.SetText(booster.Title);
             _icon.sprite = booster.Icon;
+            _packSize.SetText("x{0}", booster.PackSize);
             _description.SetText(booster.Description);
-            _offer.SetText("{0} for {1}", booster.PackSize, booster.Price);
+            _price.SetText("{0}", booster.Price);
             _buyButton.interactable = canAfford;
             _buyGroup.alpha = canAfford ? 1f : _offAlpha;
             _onBuy = onBuy;
