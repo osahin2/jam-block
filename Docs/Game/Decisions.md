@@ -22,14 +22,6 @@
 - Why: a bus pays off for unrelated observers (analytics, quests); the case has none. Flow has one orchestrator, the coin balance one owner. The rule and the planned shape are in the conventions.
 - Instead of: a bus from day one, which hides who reacts and leaves order to subscriptions.
 
-## Free drag, with the rules in whole cells
-- Why: the reference moves blocks continuously under the finger; keeping the logic in whole cells keeps rules and tests discrete, while the view adds a sub-cell offset.
-- Instead of: swipe-to-slide (a different game), or float positions in the logic.
-
-### Blocks follow the finger with frame-rate independent exponential smoothing
-- Why: no inertia, no velocity state, the same at any frame rate, never overshoots.
-- Instead of: `SmoothDamp`, which eases every start; `Lerp(k·dt)`, which depends on the frame rate.
-
 ## DOTween for one-shot motions
 - Why: most Unity developers know it, so a motion is a few readable lines.
 - Instead of: hand-written timers in every view.
