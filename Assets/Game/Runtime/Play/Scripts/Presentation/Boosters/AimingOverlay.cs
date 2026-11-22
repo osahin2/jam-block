@@ -22,6 +22,7 @@ namespace Game.Play
         [SerializeField] private Image _buttonIcon;
         [SerializeField] private BoosterBar _bar;
         [SerializeField] private RectTransform _crosshair;
+        [SerializeField] private RectTransform _crosshairLayer;
         [SerializeField, Range(0f, 1f)] private float _crosshairSize = 0.6f;
 
         private readonly List<RectTransform> _crosshairs = new List<RectTransform>();
@@ -81,7 +82,7 @@ namespace Game.Play
         private void Mark(int index, Cell cell)
         {
             if (index == _crosshairs.Count)
-                _crosshairs.Add(Instantiate(_crosshair, _crosshair.parent));
+                _crosshairs.Add(Instantiate(_crosshair, _crosshairLayer));
             var area = (RectTransform)transform;
             var center = ToLocal(area, _projection.ScreenPointOf(cell, _motion.TargetLift));
             var next = ToLocal(area, _projection.ScreenPointOf(cell + new Cell(1, 0), _motion.TargetLift));

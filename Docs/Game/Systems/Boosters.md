@@ -12,6 +12,7 @@
 - Vacuum reads the locks as they are at the tap. Hammer on an iced block takes one ice.
 - Time runs while aiming and while a shot plays; the buy popup pauses it. Slots are off before the first touch and once the level is decided.
 - Freeze shows a bar under the time box (`Hud/FreezeBar`, `FreezeBarSettings`) that empties with `PlaySession.FrozenSeconds`, so it stops when the timer is paused and closes on a restart or a decided level.
+- `AimingOverlay` marks each target with a pooled `Crosshair` prefab under `Aiming/Crosshairs`, sized from the cell spacing.
 - Slots are placed in the HUD prefab, not made at run time, because their press feedback is injected when Core creates the screen.
 
 Related: [Rocket](Rocket.md), [Level attempt](LevelAttempt.md), [Coins](Coins.md), [Play](Play.md)
