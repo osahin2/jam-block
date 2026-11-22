@@ -18,6 +18,7 @@ namespace Game.Home
         private float _iconRestY;
         private Vector3 _iconRestScale;
         private Vector3 _labelRestScale;
+        private bool _selected;
 
         [Inject]
         public void Construct(TabBarSettings settings) => _settings = settings;
@@ -29,7 +30,7 @@ namespace Game.Home
             _iconRestY = _icon.anchoredPosition.y;
             _iconRestScale = _icon.localScale;
             _labelRestScale = _label.localScale;
-            _toggle.onValueChanged.AddListener(Select);
+            _toggle.onValueChanged.AddListener(OnToggled);
         }
 
         private void Start()
@@ -39,8 +40,15 @@ namespace Game.Home
             _label.DOComplete();
         }
 
+        private void OnToggled(bool on)
+        {
+            if (on != _selected)
+                Select(on);
+        }
+
         private void Select(bool on)
         {
+            _selected = on;
             _layout.flexibleWidth = on ? _settings.SelectedWidth : 1f;
             _card.SetActive(on);
             _label.gameObject.SetActive(on);
