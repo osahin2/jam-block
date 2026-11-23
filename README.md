@@ -135,6 +135,7 @@ Claude Code (Anthropic, Pro plan) was used throughout, with a clear split of rol
 - **The developer decided and reviewed:** the first plan and the overall architecture, the folder structure, what to build and in what order; reviewed the code, pointed out structures that went wrong and proposed how to change them; edited the prefabs; designed the levels in the level editor; tried every step in the editor and on a device.
 - **Claude Code did the mechanical work:** wrote the code, the tests and the docs following those decisions, ran compiles, tests and editor scripts in batch mode, studied the reference game on a device over adb, and ran independent code reviews in a separate agent.
 - **Written by Claude Code and not edited by hand:** the tests, the level editor's UI Toolkit code and the shader code. They were checked by running them, not line by line.
+- **No autonomous loops:** Claude Code worked one step at a time on the developer's request; there was no unattended agent loop or multi-agent orchestration. The few skills and hooks in `.claude/` cover only repeated tasks (editor batch runs, adding a feature, reviews) and the code-style checks.
 
 ## Work time
 About 30 to 35 hours over the seven days (2026-11-16 to 2026-11-22), roughly 4 to 5 hours a day in short sessions. Time was not tracked per session, so this is an estimate.
