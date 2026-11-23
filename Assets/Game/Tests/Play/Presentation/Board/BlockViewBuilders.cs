@@ -18,6 +18,13 @@ namespace Game.Tests.Play
                 TheGamesFeatures());
         }
 
+        public static LevelStage StageWithTheGamesFeatures(CameraFramingSettings framing)
+        {
+            var art = Load<BoardArtSettings>();
+            var builder = new BoardBuilder(art, Load<ColorPalette>(), Load<BlockMotionSettings>(), WithTheGamesFeatures());
+            return new LevelStage(art, builder, new CameraFraming(framing));
+        }
+
         private static T Load<T>() where T : Object
         {
             var guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { "Assets/Game" });

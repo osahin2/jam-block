@@ -10,16 +10,27 @@ namespace Game.Tests.LevelEditor
         private const int Red = 1;
 
         [Test]
-        public void AddBlock_MakesAOneCellBlockAtTheCell()
+        public void TryAddBlock_MakesAOneCellBlockAtTheCell()
         {
             var level = new LevelBuilder(3, 3).Build();
 
-            var index = LevelEdits.AddBlock(level, Red, new Cell(1, 2));
+            Assert.IsTrue(LevelEdits.TryAddBlock(level, Red, new Cell(1, 2), out var index));
 
             Assert.AreEqual(0, index);
             Assert.AreEqual(Red, level.Blocks[0].ColorId);
-            Assert.AreEqual(index, LevelEdits.BlockAt(level, new Cell(1, 2)));
-            Assert.AreEqual(LevelEdits.NoBlock, LevelEdits.BlockAt(level, new Cell(1, 1)));
+            Assert.AreEqual(index, LevelLookup.BlockAt(level, new Cell(1, 2)));
+            Assert.AreEqual(LevelLookup.NoBlock, LevelLookup.BlockAt(level, new Cell(1, 1)));
+        }
+
+        [Test]
+        public void TryAddBlock_OnATakenCellOrOffTheBoard_AddsNothing()
+        {
+            var level = new LevelBuilder(3, 3).Rect(Red, 0, 0, 1, 1).Build();
+
+            Assert.IsFalse(LevelEdits.TryAddBlock(level, Red, new Cell(0, 0), out var taken));
+            Assert.IsFalse(LevelEdits.TryAddBlock(level, Red, new Cell(-1, 0), out _));
+            Assert.AreEqual(LevelLookup.NoBlock, taken);
+            Assert.AreEqual(1, level.Blocks.Count);
         }
 
         [Test]
@@ -28,7 +39,7 @@ namespace Game.Tests.LevelEditor
             var level = new LevelBuilder(3, 3).Rect(Red, 1, 1, 1, 1).Build();
 
             Assert.IsTrue(LevelEdits.TryGrowBlock(level, 0, new Cell(1, 0)));
-            Assert.AreEqual(0, LevelEdits.BlockAt(level, new Cell(1, 0)));
+            Assert.AreEqual(0, LevelLookup.BlockAt(level, new Cell(1, 0)));
             Assert.AreEqual(2, level.Blocks[0].Shape.Count);
         }
 

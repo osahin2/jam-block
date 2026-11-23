@@ -21,8 +21,7 @@ namespace Game.Tests.Play
         public void SetUp()
         {
             _framing = Load<CameraFramingSettings>();
-            _stage = new LevelStage(Load<BoardArtSettings>(), Load<ColorPalette>(), Load<BlockMotionSettings>(),
-                BlockViewBuilders.TheGamesFeatures(), _framing);
+            _stage = BlockViewBuilders.StageWithTheGamesFeatures(_framing);
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _camera.fieldOfView = 63f;
             _camera.transform.rotation = Quaternion.Euler(76f, 0f, 0f);

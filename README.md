@@ -91,9 +91,9 @@ Each feature has one entry class that the rest of the game calls, for example `P
 **Adding a mechanic**
 - Logic: an `IMoveRule` and/or `IBlockGuard`, a field in the level data, one line in `LevelMechanics.For`, and a validator check if needed.
 - Game: an `IBlockFeature` with a part on `Block.prefab`, and one line in `BlockFeatures.Of`.
-- Editor: an `ILevelEditorTool` and an `IBlockMechanicDrawing`, each added to the window's list.
+- Editor: an `ILevelEditorTool` in `LevelEditorTools.Create` and an `IBlockMechanicDrawing` in the window's list.
 
-The board, views and editor name no mechanic, so nothing else changes. Ice and the arrow block were added this way.
+The board, views and the editor's board drawing name no mechanic. Ice and the arrow block were added this way. The editor's edits, block selection and solution playback also know ice and the arrow, so a third mechanic touches them too.
 
 **Adding a booster:** an `IBoardEffect` in the logic (what it does to the board), a `TargetedBooster` with its shot in the game, and one registration line in `PlayInstaller`. `TargetedBooster` fixes the order every aimed booster follows: aim, pick, apply, stock down, shot, catch up.
 

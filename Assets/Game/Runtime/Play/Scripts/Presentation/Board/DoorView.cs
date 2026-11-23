@@ -20,6 +20,7 @@ namespace Game.Play
         private Vector3 _burstRest;
         private float _arrowRest;
         private float _drop;
+        private float _burstHeight;
         private Sequence _passing;
 
         public Side Side { get; private set; }
@@ -32,7 +33,8 @@ namespace Game.Play
             StopPassing();
             _model.localPosition = _modelRest;
             _piece.SetMaterial(material);
-            ResetBurst(material, burstHeight);
+            ResetBurst(material);
+            _burstHeight = burstHeight;
             _arrow = arrow;
             _arrowRest = arrow.localPosition.y;
             _drop = drop;
@@ -42,6 +44,7 @@ namespace Game.Play
         public void LetThrough(float reach, float gone)
         {
             StopPassing();
+            PlaceBurst();
             var rise = gone + _motion.DoorRiseDelay;
             var modelDrop = _drop / transform.localScale.y;
             _passing = DOTween.Sequence()
@@ -63,11 +66,15 @@ namespace Game.Play
             _hasRest = true;
         }
 
-        private void ResetBurst(Material material, float burstHeight)
+        private void ResetBurst(Material material)
         {
             _burstRenderer.sharedMaterial = material;
             _burst.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            var height = (burstHeight - transform.localPosition.y) / transform.localScale.y;
+        }
+
+        private void PlaceBurst()
+        {
+            var height = (_burstHeight - transform.localPosition.y) / transform.localScale.y;
             _burst.transform.localPosition = new Vector3(_burstRest.x, height, _burstRest.z);
         }
 

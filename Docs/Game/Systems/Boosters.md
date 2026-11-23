@@ -2,9 +2,10 @@
 
 > Freeze, Rocket, Hammer and Vacuum under the board: saved stock with a free start, a buy popup for packs, and one flow for every aimed booster (aim with the screen dimmed, tap a target, stock down, shot, views catch up). What a booster does to the board is a logic effect; this feature only presents it.
 
-**Code:** `Logic/Boosters/` (stock, purchase), `Logic/Play/Effects/`, `Data/Boosters/`, `Runtime/Play/Scripts/` (`Services/` boosters, `Presentation/Boosters/` slots, overlay, shots, `UI/BoosterPurchasePopup`). **Entry:** `PlaySession.Use(booster, ...)` and `IsAvailable(booster)` from the HUD; `IBooster` with `TargetedBooster` and `FreezeBooster`, one registration line each in `PlayInstaller`.
+**Code:** `Logic/Boosters/` (stock, purchase), `Logic/Play/Effects/`, `Data/Boosters/`, `Runtime/Play/Scripts/` (`Services/` boosters, `Presentation/Boosters/` slots, overlay, shots, `UI/BoosterPurchasePopup`). **Entry:** `PlaySession.Use(booster, ...)`, which returns `BoosterUse` (`Started`, `Ignored`, `OutOfStock`), and `IsAvailable(booster)` from the HUD; `IBooster` with `TargetedBooster` and `FreezeBooster`, one registration line each in `PlayInstaller`.
 
 ## Rules
+- The stock is checked once, in `PlaySession.Use`; the HUD offers the buy popup on `OutOfStock`, and a booster's `Use` runs only with stock.
 - The stock goes down only when an effect has been applied, and is saved at once. A purchase saves the stock before spending the coins, so a crash between the two leaves boosters unpaid rather than coins lost. `IBoosterStore.Save` returns once persisted.
 - `IBooster`: `IsAvailable` changes and allocates nothing (read every frame); `Use` calls `onDone` exactly once however the use ends; `Cancel` ends a use in progress without firing and does nothing otherwise.
 - `TargetedBooster` fixes the order: release the held block, aim, pick, `TryApply`, stock down, busy, shot, catch up, drag. A booster adds only its effect and its shot.

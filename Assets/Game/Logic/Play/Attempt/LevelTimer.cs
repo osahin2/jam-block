@@ -8,7 +8,6 @@ namespace Game.Logic.Play
         public bool IsPaused { get; private set; }
         public bool HasExpired => RemainingSeconds <= 0f;
         public bool IsRunning => HasStarted && !IsPaused && !HasExpired;
-        public bool IsFrozen => FrozenSeconds > 0f;
 
         public LevelTimer(int limitSeconds)
         {

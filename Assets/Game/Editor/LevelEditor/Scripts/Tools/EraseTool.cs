@@ -9,9 +9,9 @@ namespace Game.Editor.LevelEditor
 
         public string Describe(LevelData level, Cell cell)
         {
-            if (LevelEdits.BlockAt(level, cell) != LevelEdits.NoBlock)
+            if (LevelLookup.BlockAt(level, cell) != LevelLookup.NoBlock)
                 return "Block cell: click or drag to erase cells. A block cut in two is shown as an error.";
-            if (LevelEdits.DoorAt(level, cell) != LevelEdits.NoDoor)
+            if (LevelLookup.DoorAt(level, cell) != LevelLookup.NoDoor)
                 return "Door: click to remove it.";
             return "Nothing to erase here.";
         }
@@ -30,10 +30,10 @@ namespace Game.Editor.LevelEditor
         {
             if (LevelEdits.TryRemoveBlockCell(level, cell))
                 return true;
-            var door = LevelEdits.DoorAt(level, cell);
-            if (door == LevelEdits.NoDoor)
+            var door = LevelLookup.DoorAt(level, cell);
+            if (door == LevelLookup.NoDoor)
                 return false;
-            level.Doors.RemoveAt(door);
+            LevelEdits.RemoveDoor(level, level.Doors[door]);
             return true;
         }
     }

@@ -15,13 +15,13 @@ namespace Game.Tests.LevelEditor
         {
             var level = new LevelBuilder(3, 4).Build();
 
-            Assert.IsTrue(LevelEdits.TryGetSide(level, new Cell(1, -1), out var top));
+            Assert.IsTrue(LevelLookup.TryGetSide(level, new Cell(1, -1), out var top));
             Assert.AreEqual(Side.Top, top);
-            Assert.IsTrue(LevelEdits.TryGetSide(level, new Cell(3, 2), out var right));
+            Assert.IsTrue(LevelLookup.TryGetSide(level, new Cell(3, 2), out var right));
             Assert.AreEqual(Side.Right, right);
-            Assert.IsFalse(LevelEdits.TryGetSide(level, new Cell(-1, -1), out _));
-            Assert.IsFalse(LevelEdits.TryGetSide(level, new Cell(1, 1), out _));
-            Assert.IsFalse(LevelEdits.TryGetSide(level, new Cell(1, -2), out _));
+            Assert.IsFalse(LevelLookup.TryGetSide(level, new Cell(-1, -1), out _));
+            Assert.IsFalse(LevelLookup.TryGetSide(level, new Cell(1, 1), out _));
+            Assert.IsFalse(LevelLookup.TryGetSide(level, new Cell(1, -2), out _));
         }
 
         [Test]
@@ -29,9 +29,9 @@ namespace Game.Tests.LevelEditor
         {
             var level = new LevelBuilder(4, 4).Door(Red, Side.Left, 1, 2).Build();
 
-            Assert.AreEqual(0, LevelEdits.DoorAt(level, new Cell(-1, 2)));
-            Assert.AreEqual(LevelEdits.NoDoor, LevelEdits.DoorAt(level, new Cell(-1, 0)));
-            Assert.AreEqual(LevelEdits.NoDoor, LevelEdits.DoorAt(level, new Cell(0, 2)));
+            Assert.AreEqual(0, LevelLookup.DoorAt(level, new Cell(-1, 2)));
+            Assert.AreEqual(LevelLookup.NoDoor, LevelLookup.DoorAt(level, new Cell(-1, 0)));
+            Assert.AreEqual(LevelLookup.NoDoor, LevelLookup.DoorAt(level, new Cell(0, 2)));
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Game.Tests.LevelEditor
         {
             var level = new LevelBuilder(4, 3).Door(Red, Side.Bottom, 1, 2).Build();
 
-            CollectionAssert.AreEqual(new[] { new Cell(1, 3), new Cell(2, 3) }, LevelEdits.DoorCells(level, 0));
+            CollectionAssert.AreEqual(new[] { new Cell(1, 3), new Cell(2, 3) }, LevelLookup.DoorCells(level, level.Doors[0]));
         }
 
         [Test]
@@ -47,8 +47,10 @@ namespace Game.Tests.LevelEditor
         {
             var level = new LevelBuilder(4, 4).Door(Red, Side.Top, 0, 2).Build();
 
-            Assert.AreEqual(LevelEdits.NoDoor, LevelEdits.AddDoor(level, Blue, Side.Top, 1));
-            Assert.AreEqual(1, LevelEdits.AddDoor(level, Blue, Side.Top, 2));
+            Assert.IsFalse(LevelEdits.TryAddDoor(level, Blue, Side.Top, 1, out var overlapping));
+            Assert.AreEqual(LevelLookup.NoDoor, overlapping);
+            Assert.IsTrue(LevelEdits.TryAddDoor(level, Blue, Side.Top, 2, out var added));
+            Assert.AreEqual(1, added);
         }
 
         [Test]

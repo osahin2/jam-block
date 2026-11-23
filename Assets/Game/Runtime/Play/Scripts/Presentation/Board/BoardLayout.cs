@@ -6,11 +6,12 @@ namespace Game.Play
 {
     public sealed class BoardLayout
     {
+        public const int BoxCorners = 8;
+
         public float CellSize { get; }
         public float Left { get; }
         public float Right => -Left;
         public float Top { get; }
-        public float Bottom => -Top;
         public float FrameWidth { get; }
         public Bounds Box { get; }
 
@@ -36,5 +37,11 @@ namespace Game.Play
         public Vector3 ToLocal(Direction direction) => new Vector3(direction.Offset.X, 0f, -direction.Offset.Y);
 
         public Vector2 LocalToBoard(Vector3 local) => new Vector2((local.x - Left) / CellSize, (Top - local.z) / CellSize);
+
+        public Vector3 BoxCorner(int corner) =>
+            new Vector3(
+                (corner & 1) == 0 ? Box.min.x : Box.max.x,
+                (corner & 2) == 0 ? Box.min.y : Box.max.y,
+                (corner & 4) == 0 ? Box.min.z : Box.max.z);
     }
 }

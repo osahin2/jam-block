@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Logic.Play;
 using UnityEngine;
@@ -11,13 +10,11 @@ namespace Game.Play
         private readonly BoardBuilder _builder;
         private readonly CameraFraming _framing;
 
-        public LevelStage(BoardArtSettings art, ColorPalette palette, BlockMotionSettings motion,
-            IReadOnlyList<IBlockFeature> features, CameraFramingSettings framing)
+        public LevelStage(BoardArtSettings art, BoardBuilder builder, CameraFraming framing)
         {
             _art = art;
-            var blockViews = new BlockViewBuilder(art, palette, motion, new BlockPieceBuilder(art), features);
-            _builder = new BoardBuilder(art, palette, motion, blockViews);
-            _framing = new CameraFraming(framing);
+            _builder = builder;
+            _framing = framing;
         }
 
         public StagedLevel Show(LevelData level, LevelAttempt attempt, Transform parent, IBoardPieceSource pieces,

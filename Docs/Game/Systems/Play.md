@@ -8,7 +8,7 @@
 `GameEntry` has one method per step: Start (choose the run), Play, Pause (settings popup), OfferBooster (buy popup), Won (reward, then the next level), Failed (retry or home). Retry, restart and continue are played under the scene fade, the flow's only awaited work.
 
 ## Board
-- `LevelStage.Show` is the one way a level is shown: layout, build, shader clip and camera framing. The game and the preview call it, so the preview matches the game.
+- `LevelStage.Show` is the one way a level is shown: layout, build, shader clip and camera framing. The game and the preview call it, so the preview matches the game. Its `BoardBuilder`, `BlockViewBuilder` and `CameraFraming` are the scope's, the same ones `BoardPresenter` uses for split blocks; the preview builds its own.
 - `BoardBuilder` takes every piece from an `IBoardPieceSource` and creates or keeps nothing. Contract of `Take(prefab, parent)`: an instance, active under the parent, with the prefab's local pose; whoever gave the source releases what was taken, its own way (pools in the game, unsaved copies in the preview). Pools fill on the first level instead of being prewarmed; a restart instantiates nothing.
 - Every piece prefab is a neutral root with the supplied model turned inside it, so no model's orientation lives in code. Walls and doors are stretched bars (the supplied pieces are straight extrusions); blocks are built from quarter pieces.
 - `CameraFraming` keeps the camera's angle and moves it until the board fills the window between the HUD and the booster slots; five measuring rounds leave it within a pixel.
@@ -21,7 +21,7 @@
 - A leaving block snaps to its door, slides out and is cut at the frame by its shader while the door drops and bursts cubes.
 - `BoardPresenter` plays the board's haptics with its visuals: `Selection` on a grab and on a snap back, `Success` on an exit.
 - `BlockView` follows the finger with an exponential follow that is frame-rate independent. While following, a new target only replaces the old: re-enabling the behaviour would skip that frame's `Update` and the block would stand still at 60 fps.
-- `DoorView` reads its rest pose on first `Init`, not `Awake`: the preview builds doors in edit mode, where `Awake` does not run.
+- `DoorView` reads its rest pose on first `Init`, not `Awake`: the preview builds doors in edit mode, where `Awake` does not run. It places its burst when a block passes, from where the builder put it.
 
 ## Rules
 - A `Start` while a level plays abandons that attempt without calling back (restart and retry go through it).

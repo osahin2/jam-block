@@ -21,7 +21,6 @@ namespace Game.Tests.Play
         [SetUp]
         public void SetUp()
         {
-            var art = Load<BoardArtSettings>();
             _board = new GameObject("Board").AddComponent<BoardRoot>();
             _idle = new GameObject("Idle Board Pieces").transform;
             var board = new SerializedObject(_board);
@@ -29,8 +28,7 @@ namespace Game.Tests.Play
             board.ApplyModifiedPropertiesWithoutUndo();
             _camera = new GameObject("Camera").AddComponent<Camera>();
             _pieces = new PooledBoardPieces(_board);
-            _stage = new LevelStage(art, Load<ColorPalette>(), Load<BlockMotionSettings>(),
-                BlockViewBuilders.TheGamesFeatures(), Load<CameraFramingSettings>());
+            _stage = BlockViewBuilders.StageWithTheGamesFeatures(Load<CameraFramingSettings>());
         }
 
         [TearDown]
