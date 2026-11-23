@@ -83,7 +83,7 @@ Each feature has one entry class that the rest of the game calls, for example `P
 
 **One level, start to end**
 1. `Boot` loads the app-wide services (save, coins, progress, audio) and opens `Home`; the level button switches to `Game`.
-2. `GameEntry` picks the run (the player's current level, or the one sent from the editor) and calls `PlaySession.Start`.
+2. `GameEntry` takes the run from `LevelRuns` (the player's current level, or the one sent from the editor) and calls `PlaySession.Start`.
 3. `PlaySession` creates a `LevelAttempt`, the one rule object for a try: board, mechanics, drag and timer. `LevelStage` builds the board from pooled pieces and frames the camera.
 4. `BoardInput` turns touches into calls on the attempt; after each change, `BoardPresenter.CatchUp` brings the views to the logic's state.
 5. When the attempt is won or failed, `PlaySession` calls `GameEntry` back once. A win saves the reward and progress, then shows the next level; a fail offers retry or home. Restart is a new attempt; nothing carries over.
