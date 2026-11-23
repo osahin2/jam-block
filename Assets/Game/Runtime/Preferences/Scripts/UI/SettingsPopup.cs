@@ -44,7 +44,11 @@ namespace Game.Preferences
             _height = _panel.rect.height;
         }
 
-        public void Show(Action onClose, Action onHome = null)
+        public void Show(Action onClose) => Show(onClose, null);
+
+        public void ShowWithHome(Action onClose, Action onHome) => Show(onClose, onHome);
+
+        private void Show(Action onClose, Action onHome)
         {
             _sound.Show(!_audio.SfxMuted);
             _music.Show(!_audio.MusicMuted);

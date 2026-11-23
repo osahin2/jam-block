@@ -14,13 +14,13 @@ namespace Game.Editor.LevelEditor
 
         private readonly Label _header = new Label();
         private readonly ScrollView _rows = new ScrollView();
-        private readonly Func<ILevelSelection, string> _nameOf;
+        private readonly EditorPalette _palette;
 
         public int Focused { get; private set; } = NoProblem;
 
-        public LevelProblemList(Func<ILevelSelection, string> nameOf)
+        public LevelProblemList(EditorPalette palette)
         {
-            _nameOf = nameOf;
+            _palette = palette;
             AddToClassList("problems");
             _header.AddToClassList("problems-header");
             _rows.AddToClassList("problem-list");
@@ -53,7 +53,7 @@ namespace Game.Editor.LevelEditor
         {
             if (problems == 0)
                 return "No problems.";
-            var counts = $"{Plural(errors, "error")}, {Plural(problems - errors, "warning")}.";
+            var counts = $"{EditorText.Plural(errors, "error")}, {EditorText.Plural(problems - errors, "warning")}.";
             return errors > 0 ? counts + " Fix the errors to save." : counts;
         }
 
@@ -63,7 +63,7 @@ namespace Game.Editor.LevelEditor
             var row = new VisualElement();
             row.AddToClassList("problem-row");
             row.AddToClassList($"problem-row--{SeverityName(problem.Severity)}");
-            row.Add(TextLabel($"{problem.Severity}: {(subject != null ? _nameOf(subject) : "Level")}", "problem-title"));
+            row.Add(TextLabel($"{problem.Severity}: {(subject != null ? _palette.NameOf(subject, level) : "Level")}", "problem-title"));
             row.Add(TextLabel(LevelProblemGuide.Explain(problem.Kind), "problem-text"));
             row.RegisterCallback<PointerEnterEvent>(_ => Focus(index));
             row.RegisterCallback<PointerLeaveEvent>(_ => Focus(NoProblem));
@@ -93,7 +93,5 @@ namespace Game.Editor.LevelEditor
             Focused = index;
             FocusChanged?.Invoke();
         }
-
-        private static string Plural(int count, string word) => count == 1 ? $"1 {word}" : $"{count} {word}s";
     }
 }

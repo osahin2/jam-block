@@ -5,8 +5,6 @@ namespace Game.Play
 {
     public sealed class BoardProjection
     {
-        private const int BoxCorners = 8;
-
         private readonly TouchPlane _plane;
         private BoardLayout _layout;
 
@@ -34,19 +32,13 @@ namespace Game.Play
         {
             var min = new Vector2(float.MaxValue, float.MaxValue);
             var max = new Vector2(float.MinValue, float.MinValue);
-            for (var corner = 0; corner < BoxCorners; corner++)
+            for (var corner = 0; corner < BoardLayout.BoxCorners; corner++)
             {
-                var screen = _plane.ToScreen(CornerOf(_layout.Box, corner));
+                var screen = _plane.ToScreen(_layout.BoxCorner(corner));
                 min = Vector2.Min(min, screen);
                 max = Vector2.Max(max, screen);
             }
             return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
-
-        private static Vector3 CornerOf(Bounds box, int corner) =>
-            new Vector3(
-                (corner & 1) == 0 ? box.min.x : box.max.x,
-                (corner & 2) == 0 ? box.min.y : box.max.y,
-                (corner & 4) == 0 ? box.min.z : box.max.z);
     }
 }

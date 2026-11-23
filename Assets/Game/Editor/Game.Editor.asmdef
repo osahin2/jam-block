@@ -4,7 +4,8 @@
     "references": [
         "Game.Data",
         "Game.Logic",
-        "Game"
+        "Game",
+        "VContainer"
     ],
     "includePlatforms": [
         "Editor"

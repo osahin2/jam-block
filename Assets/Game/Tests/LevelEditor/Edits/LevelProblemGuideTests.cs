@@ -37,6 +37,17 @@ namespace Game.Tests.LevelEditor
         }
 
         [Test]
+        public void ExplainAt_ACellOfAFaultyBlock_ExplainsItsFirstProblem_AndAnEmptyCellNothing()
+        {
+            var level = new LevelBuilder(4, 3).Block(Red, 0, 0, new Cell(0, 0), new Cell(2, 0)).Build();
+            var report = LevelValidator.Validate(level);
+            var first = FirstAbout(report, LevelPart.Block);
+
+            Assert.AreEqual(LevelProblemGuide.Explain(first.Kind), LevelProblemGuide.ExplainAt(report, level, new Cell(2, 0)));
+            Assert.IsNull(LevelProblemGuide.ExplainAt(report, level, new Cell(1, 2)));
+        }
+
+        [Test]
         public void SubjectOf_AProblemWithTheWholeLevel_IsNothing()
         {
             var level = new LevelBuilder(3, 3).Build();
@@ -53,6 +64,17 @@ namespace Game.Tests.LevelEditor
                     return problem;
             }
             Assert.Fail($"No {kind} in {report}");
+            return default;
+        }
+
+        private static LevelProblem FirstAbout(LevelReport report, LevelPart part)
+        {
+            foreach (var problem in report.Problems)
+            {
+                if (problem.Part == part)
+                    return problem;
+            }
+            Assert.Fail($"No problem about a {part} in {report}");
             return default;
         }
     }

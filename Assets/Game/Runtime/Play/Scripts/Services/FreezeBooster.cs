@@ -21,7 +21,7 @@ namespace Game.Play
 
         public void Use(BoosterContext context, Action onDone)
         {
-            if (_inventory.Count(_definition.Id) > 0 && context.Attempt.Freeze(_definition.Seconds))
+            if (context.Attempt.Freeze(_definition.Seconds))
                 _inventory.TryUse(_definition.Id);
             onDone();
         }

@@ -16,8 +16,8 @@ namespace Game.Editor.LevelEditor
 
         public string Describe(LevelData level, Cell cell)
         {
-            var index = LevelEdits.BlockAt(level, cell);
-            if (index == LevelEdits.NoBlock)
+            var index = LevelLookup.BlockAt(level, cell);
+            if (index == LevelLookup.NoBlock)
                 return "Nothing to draw here. Arrows are drawn on blocks.";
             return level.Blocks[index].Arrow.IsSet
                 ? "Block with an arrow: click to remove it, or drag along the block to draw a new one."
@@ -26,8 +26,8 @@ namespace Game.Editor.LevelEditor
 
         public bool Press(LevelData level, Cell cell, int colorId)
         {
-            var index = LevelEdits.BlockAt(level, cell);
-            if (index == LevelEdits.NoBlock)
+            var index = LevelLookup.BlockAt(level, cell);
+            if (index == LevelLookup.NoBlock)
             {
                 _block = null;
                 return false;

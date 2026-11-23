@@ -11,9 +11,7 @@ namespace Game.Tests.LevelEditor
         public void EveryTool_HasAShortcut()
         {
             var ids = ShortcutManager.instance.GetAvailableShortcutIds().ToList();
-            ILevelEditorTool[] tools = { new SelectTool(), new BlockTool(), new DoorTool(), new ArrowTool(), new IceTool(), new EraseTool() };
-
-            foreach (var tool in tools)
+            foreach (var tool in LevelEditorTools.Create(new SelectTool()))
                 CollectionAssert.Contains(ids, LevelEditorShortcuts.ToolId(tool.Name), tool.Name);
         }
 

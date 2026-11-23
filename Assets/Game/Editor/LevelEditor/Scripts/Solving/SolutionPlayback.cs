@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Game.Data.Levels;
 using Game.Logic.Levels;
 using Game.Logic.Play;
-using UnityEngine;
 
 namespace Game.Editor.LevelEditor
 {
@@ -22,7 +21,7 @@ namespace Game.Editor.LevelEditor
 
         public SolutionPlayback(LevelData level, LevelSolution solution)
         {
-            _level = Copy(level);
+            _level = LevelCopy.Of(level);
             _moves = solution.Moves;
             _positions = new Cell[_level.Blocks.Count];
             _gone = new bool[_level.Blocks.Count];
@@ -61,7 +60,7 @@ namespace Game.Editor.LevelEditor
                 _gone[move.Block] = move.Leaves;
                 goneCount += move.Leaves ? 1 : 0;
             }
-            Shown = Copy(_level);
+            Shown = LevelCopy.Of(_level);
             for (var i = _positions.Length - 1; i >= 0; i--)
             {
                 if (_gone[i])
@@ -82,7 +81,5 @@ namespace Game.Editor.LevelEditor
                 cells.Add(position + offset);
             return cells;
         }
-
-        private static LevelData Copy(LevelData level) => JsonUtility.FromJson<LevelData>(JsonUtility.ToJson(level));
     }
 }

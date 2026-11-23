@@ -2,7 +2,7 @@
 
 > Builds the Android APK (development or release) and the iOS Xcode project from the Build menu or batch mode, and logs a size report. The mobile settings it builds with, and why.
 
-**Code:** `Editor/PlayerBuilds/`. **Entry:** `PlayerBuild` (menu `Build/...`, same methods for batch mode), `BuildReportLog`.
+**Code:** `Editor/PlayerBuilds/Scripts/Builds/`. **Entry:** `PlayerBuild` (menu `Build/...`, same methods for batch mode), `BuildReportLog`.
 
 ## Settings and reasons
 - An APK, not an app bundle: the case asks for one to install directly. Signed with Unity's debug keystore; a release keystore never enters the repository. Outputs go to `Build/`, never committed.

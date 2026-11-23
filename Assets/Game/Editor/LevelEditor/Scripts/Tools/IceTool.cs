@@ -9,8 +9,8 @@ namespace Game.Editor.LevelEditor
 
         public string Describe(LevelData level, Cell cell)
         {
-            var index = LevelEdits.BlockAt(level, cell);
-            if (index == LevelEdits.NoBlock)
+            var index = LevelLookup.BlockAt(level, cell);
+            if (index == LevelLookup.NoBlock)
                 return "Nothing to ice here. Ice goes on blocks.";
             var ice = level.Blocks[index].Ice;
             return ice > 0
@@ -30,8 +30,8 @@ namespace Game.Editor.LevelEditor
 
         private static bool ChangeIce(LevelData level, Cell cell, int change)
         {
-            var index = LevelEdits.BlockAt(level, cell);
-            if (index == LevelEdits.NoBlock)
+            var index = LevelLookup.BlockAt(level, cell);
+            if (index == LevelLookup.NoBlock)
                 return false;
             var block = level.Blocks[index];
             var before = block.Ice;

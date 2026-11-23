@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Data.Levels;
-using Game.Play;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,19 +12,17 @@ namespace Game.Editor.LevelEditor
         private const int RightButton = 1;
         private const float OutlineWidth = 3f;
         private const float TileInset = 0.05f;
-        private static readonly Color MissingColor = Color.magenta;
 
         public event Action<Cell> Pressed;
         public event Action<Cell> RightClicked;
         public event Action<Cell> Dragged;
         public event Action Released;
-        public event Action<Cell> Hovered;
-        public event Action HoverEnded;
+        public event Action HoverChanged;
 
         private readonly VisualElement _hoverLayer = new VisualElement { pickingMode = PickingMode.Ignore };
         private readonly IReadOnlyList<IBlockMechanicDrawing> _mechanics;
+        private readonly EditorPalette _palette;
         private LevelData _level;
-        private ColorPalette _palette;
         private IReadOnlyList<BoardMark> _marks;
         private float _cellSize;
         private Vector2 _origin;
@@ -36,9 +33,10 @@ namespace Game.Editor.LevelEditor
         public float CellSize => _cellSize;
         public bool TakesEdits { get; set; } = true;
 
-        public LevelBoardView(IReadOnlyList<IBlockMechanicDrawing> mechanics)
+        public LevelBoardView(IReadOnlyList<IBlockMechanicDrawing> mechanics, EditorPalette palette)
         {
             _mechanics = mechanics;
+            _palette = palette;
             AddToClassList("board");
             _hoverLayer.style.position = Position.Absolute;
             _hoverLayer.style.left = 0f;
@@ -53,12 +51,17 @@ namespace Game.Editor.LevelEditor
             RegisterCallback<PointerLeaveEvent>(_ => EndHover());
         }
 
-        public void Show(LevelData level, ColorPalette palette, IReadOnlyList<BoardMark> marks)
+        public void Show(LevelData level, IReadOnlyList<BoardMark> marks)
         {
             _level = level;
-            _palette = palette;
             _marks = marks;
             Rebuild();
+        }
+
+        public bool TryGetHoveredCell(out Cell cell)
+        {
+            cell = _hoverCell;
+            return _hovering;
         }
 
         public bool IsOnBoard(Cell cell) => _level.IsOnBoard(cell);
@@ -142,11 +145,11 @@ namespace Game.Editor.LevelEditor
 
         private VisualElement BoardCell(Cell cell)
         {
-            var block = LevelEdits.BlockAt(_level, cell);
-            if (block == LevelEdits.NoBlock)
+            var block = LevelLookup.BlockAt(_level, cell);
+            if (block == LevelLookup.NoBlock)
                 return EmptyTile(cell);
             var element = Box(CellRect(cell), "board-block");
-            element.style.backgroundColor = ColorOf(_level.Blocks[block].ColorId);
+            element.style.backgroundColor = _palette.ColorOf(_level.Blocks[block].ColorId);
             element.style.borderTopWidth = Outline(cell, new Cell(0, -1), block);
             element.style.borderBottomWidth = Outline(cell, new Cell(0, 1), block);
             element.style.borderLeftWidth = Outline(cell, new Cell(-1, 0), block);
@@ -164,11 +167,11 @@ namespace Game.Editor.LevelEditor
         private VisualElement FrameCell(Cell cell)
         {
             var element = Box(FrameRect(cell), "frame");
-            var door = LevelEdits.DoorAt(_level, cell);
-            if (door != LevelEdits.NoDoor)
+            var door = LevelLookup.DoorAt(_level, cell);
+            if (door != LevelLookup.NoDoor)
             {
                 element.AddToClassList("frame--door");
-                element.style.backgroundColor = ColorOf(_level.Doors[door].ColorId);
+                element.style.backgroundColor = _palette.ColorOf(_level.Doors[door].ColorId);
             }
             return element;
         }
@@ -178,23 +181,14 @@ namespace Game.Editor.LevelEditor
             _hoverLayer.Clear();
             if (!_hovering || _level == null || _cellSize < 1f)
                 return;
-            var cells = HoveredPieceCells();
-            if (cells == null)
+            var piece = LevelSelections.At(_level, _hoverCell);
+            if (piece == null)
             {
                 _hoverLayer.Add(Box(PieceRect(_hoverCell), "hover-cell"));
                 return;
             }
-            foreach (var cell in cells)
+            foreach (var cell in piece.Cells(_level))
                 _hoverLayer.Add(Box(PieceRect(cell), "hover-piece"));
-        }
-
-        private IEnumerable<Cell> HoveredPieceCells()
-        {
-            var block = LevelEdits.BlockAt(_level, _hoverCell);
-            if (block != LevelEdits.NoBlock)
-                return LevelEdits.BlockCells(_level, block);
-            var door = LevelEdits.DoorAt(_level, _hoverCell);
-            return door != LevelEdits.NoDoor ? LevelEdits.DoorCells(_level, door) : null;
         }
 
         private void Hover(Cell cell)
@@ -210,7 +204,7 @@ namespace Game.Editor.LevelEditor
             _hovering = true;
             _hoverCell = cell;
             DrawHover();
-            Hovered?.Invoke(cell);
+            HoverChanged?.Invoke();
         }
 
         private void EndHover()
@@ -219,7 +213,7 @@ namespace Game.Editor.LevelEditor
                 return;
             _hovering = false;
             DrawHover();
-            HoverEnded?.Invoke();
+            HoverChanged?.Invoke();
         }
 
         private Rect PieceRect(Cell cell) => _level.IsOnBoard(cell) ? CellRect(cell) : FrameRect(cell);
@@ -255,14 +249,7 @@ namespace Game.Editor.LevelEditor
         }
 
         private float Outline(Cell cell, Cell step, int block) =>
-            LevelEdits.BlockAt(_level, cell + step) == block ? 0f : OutlineWidth;
-
-        private Color ColorOf(int colorId)
-        {
-            if (_palette == null || !_palette.Has(colorId))
-                return MissingColor;
-            return _palette.ForBlock(colorId).color;
-        }
+            LevelLookup.BlockAt(_level, cell + step) == block ? 0f : OutlineWidth;
 
         private Cell CellAt(Vector2 localPosition) => new Cell(
             Mathf.FloorToInt((localPosition.x - _origin.x) / _cellSize) - 1,

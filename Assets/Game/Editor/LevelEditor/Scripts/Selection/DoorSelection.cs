@@ -24,7 +24,7 @@ namespace Game.Editor.LevelEditor
         public string Describe(LevelData level) =>
             $"door on the {_door.Side.ToString().ToLowerInvariant()} side, {_door.Length} cells wide";
 
-        public IEnumerable<Cell> Cells(LevelData level) => LevelEdits.DoorCells(level, level.Doors.IndexOf(_door));
+        public IEnumerable<Cell> Cells(LevelData level) => LevelLookup.DoorCells(level, _door);
 
         public void BeginMove(LevelData level) => _start = _door.Start;
 
@@ -36,6 +36,6 @@ namespace Game.Editor.LevelEditor
 
         public void Recolor(LevelData level, int colorId) => _door.ColorId = colorId;
 
-        public void Delete(LevelData level) => level.Doors.Remove(_door);
+        public void Delete(LevelData level) => LevelEdits.RemoveDoor(level, _door);
     }
 }

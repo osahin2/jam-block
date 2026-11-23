@@ -11,6 +11,7 @@ namespace Game.Tests.Levels
         private LevelAsset[] _levels;
         private LevelCatalog _catalog;
         private FakeProgression _progression;
+        private EditorPlayRequest _request;
         private LevelRuns _runs;
 
         [SetUp]
@@ -26,32 +27,57 @@ namespace Game.Tests.Levels
                 levels.GetArrayElementAtIndex(i).objectReferenceValue = _levels[i];
             levels.serializedObject.ApplyModifiedPropertiesWithoutUndo();
             _progression = new FakeProgression();
-            _runs = new LevelRuns(_catalog, _progression);
+            _request = new EditorPlayRequest();
+            _request.TryTake(out _);
+            _runs = new LevelRuns(_catalog, _progression, _request);
         }
 
         [TearDown]
         public void DestroyAssets()
         {
+            _request.TryTake(out _);
             foreach (var level in _levels)
                 Object.DestroyImmediate(level);
             Object.DestroyImmediate(_catalog);
         }
 
         [Test]
-        public void RunForPlayer_PlaysTheCatalogLevelAtTheProgressionsIndex()
+        public void TakeRun_WithoutARequest_PlaysThePlayersLevel()
         {
             _progression.Index = 1;
 
-            var run = _runs.RunForPlayer();
+            var run = _runs.TakeRun();
+
+            Assert.IsFalse(_runs.HasTestRun);
+            Assert.AreSame(_levels[1], run.Level);
+        }
+
+        [Test]
+        public void TakeRun_WithARequest_PlaysTheRequestedLevelOnce()
+        {
+            var requested = AnyLevelAsset();
+            _request.Request(requested);
+
+            Assert.IsTrue(_runs.HasTestRun);
+            Assert.AreSame(requested, _runs.TakeRun().Level);
+            Assert.IsFalse(_runs.HasTestRun);
+        }
+
+        [Test]
+        public void PlayerRun_PlaysTheCatalogLevelAtTheProgressionsIndex()
+        {
+            _progression.Index = 1;
+
+            var run = new PlayerRun(_catalog, _progression);
 
             Assert.AreSame(_levels[1], run.Level);
             Assert.AreEqual(2, run.Number);
         }
 
         [Test]
-        public void RunForPlayer_Advance_CompletesTheLevelAndPlaysTheNextOne()
+        public void PlayerRun_Advance_CompletesTheLevelAndPlaysTheNextOne()
         {
-            var run = _runs.RunForPlayer();
+            var run = new PlayerRun(_catalog, _progression);
 
             run.Advance();
 
@@ -61,18 +87,18 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void RunForTest_PlaysTheTestedLevelWithItsPlaceInTheCatalog()
+        public void TestRun_PlaysTheTestedLevelWithItsPlaceInTheCatalog()
         {
-            var run = _runs.RunForTest(_levels[2]);
+            var run = new TestRun(_catalog, _progression, _levels[2]);
 
             Assert.AreSame(_levels[2], run.Level);
             Assert.AreEqual(3, run.Number);
         }
 
         [Test]
-        public void RunForTest_Advance_FromTheCurrentLevel_PlaysTheCatalogsNextLevelWithoutProgress()
+        public void TestRun_Advance_FromTheCurrentLevel_PlaysTheCatalogsNextLevelWithoutProgress()
         {
-            var run = _runs.RunForTest(_levels[0]);
+            var run = new TestRun(_catalog, _progression, _levels[0]);
 
             run.Advance();
 
@@ -82,9 +108,9 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void RunForTest_Advance_FromAnotherCatalogLevel_PlaysTheCatalogsNextLevelWithoutProgress()
+        public void TestRun_Advance_FromAnotherCatalogLevel_PlaysTheCatalogsNextLevelWithoutProgress()
         {
-            var run = _runs.RunForTest(_levels[1]);
+            var run = new TestRun(_catalog, _progression, _levels[1]);
 
             run.Advance();
 
@@ -93,9 +119,9 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void RunForTest_Advance_FromTheCatalogsLastLevel_PlaysTheCatalogsFirstLevel()
+        public void TestRun_Advance_FromTheCatalogsLastLevel_PlaysTheCatalogsFirstLevel()
         {
-            var run = _runs.RunForTest(_levels[2]);
+            var run = new TestRun(_catalog, _progression, _levels[2]);
 
             run.Advance();
 
@@ -104,11 +130,11 @@ namespace Game.Tests.Levels
         }
 
         [Test]
-        public void RunForTest_ALevelOutsideTheCatalog_ShowsThePlayersNumberAndAdvancesToTheirLevelWithoutProgress()
+        public void TestRun_ALevelOutsideTheCatalog_ShowsThePlayersNumberAndAdvancesToTheirLevelWithoutProgress()
         {
             _progression.Index = 2;
             var draft = ScriptableObject.CreateInstance<LevelAsset>();
-            var run = _runs.RunForTest(draft);
+            var run = new TestRun(_catalog, _progression, draft);
 
             var number = run.Number;
             run.Advance();
@@ -117,6 +143,13 @@ namespace Game.Tests.Levels
             Assert.AreEqual(0, _progression.Completed);
             Assert.AreSame(_levels[2], run.Level);
             Object.DestroyImmediate(draft);
+        }
+
+        private static LevelAsset AnyLevelAsset()
+        {
+            var guids = AssetDatabase.FindAssets($"t:{nameof(LevelAsset)}");
+            Assert.IsNotEmpty(guids, "No level assets found.");
+            return AssetDatabase.LoadAssetAtPath<LevelAsset>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
 
         private sealed class FakeProgression : ILevelProgression

@@ -17,7 +17,6 @@ namespace Game.Bootstrap
     {
         private readonly PlaySession _session;
         private readonly LevelRuns _runs;
-        private readonly EditorPlayRequest _request;
         private readonly IUIService _ui;
         private readonly CoinWallet _wallet;
         private readonly WinRewardSettings _reward;
@@ -33,13 +32,11 @@ namespace Game.Bootstrap
         private BoosterPurchasePopup _offer;
         private BoosterDefinition _offered;
 
-        public GameEntry(PlaySession session, LevelRuns runs, EditorPlayRequest request, IUIService ui,
-            CoinWallet wallet, WinRewardSettings reward, SceneFlow flow, ISceneTransition transition, CoinFlight coinFlight,
-            BoosterPurchase purchase)
+        public GameEntry(PlaySession session, LevelRuns runs, IUIService ui, CoinWallet wallet, WinRewardSettings reward,
+            SceneFlow flow, ISceneTransition transition, CoinFlight coinFlight, BoosterPurchase purchase)
         {
             _session = session;
             _runs = runs;
-            _request = request;
             _ui = ui;
             _wallet = wallet;
             _reward = reward;
@@ -51,7 +48,7 @@ namespace Game.Bootstrap
 
         public void Start()
         {
-            _run = _request.TryTake(out var tested) ? _runs.RunForTest(tested) : _runs.RunForPlayer();
+            _run = _runs.TakeRun();
             _hud = _ui.Open<LevelHud>();
             Play();
         }
@@ -102,7 +99,7 @@ namespace Game.Bootstrap
             if (_session.IsDecided)
                 return;
             _session.Pause();
-            _ui.Open<SettingsPopup>().Show(_session.Resume, _flow.ToHome);
+            _ui.Open<SettingsPopup>().ShowWithHome(_session.Resume, _flow.ToHome);
         }
 
         private void Won()

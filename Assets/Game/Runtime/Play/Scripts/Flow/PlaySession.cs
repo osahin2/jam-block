@@ -1,5 +1,6 @@
 using System;
 using Game.Data.Levels;
+using Game.Logic.Boosters;
 using Game.Logic.Play;
 using UnityEngine;
 using VContainer.Unity;
@@ -15,6 +16,7 @@ namespace Game.Play
         private readonly BoardProjection _projection;
         private readonly BoardPresenter _board;
         private readonly BoardInput _input;
+        private readonly BoosterInventory _inventory;
         private LevelAttempt _attempt;
         private bool _running;
         private Action _onWon;
@@ -30,7 +32,7 @@ namespace Game.Play
         private bool IsBoardSettled => !_input.IsBusy && _board.IsSettled;
 
         public PlaySession(LevelStage stage, PooledBoardPieces pieces, BoardRoot boardRoot, Camera camera,
-            BoardProjection projection, BoardPresenter board, BoardInput input)
+            BoardProjection projection, BoardPresenter board, BoardInput input, BoosterInventory inventory)
         {
             _stage = stage;
             _pieces = pieces;
@@ -39,6 +41,7 @@ namespace Game.Play
             _projection = projection;
             _board = board;
             _input = input;
+            _inventory = inventory;
         }
 
         public void Start(LevelData level, Action onWon, Action onFailed)
@@ -70,12 +73,15 @@ namespace Game.Play
 
         public bool IsAvailable(IBooster booster) => _running && booster.IsAvailable(_attempt);
 
-        public void Use(IBooster booster, AimingOverlay overlay, BoosterShots shots)
+        public BoosterUse Use(IBooster booster, AimingOverlay overlay, BoosterShots shots)
         {
+            if (_inventory.Count(booster.Definition.Id) == 0)
+                return BoosterUse.OutOfStock;
             if (_booster != null || !IsAvailable(booster))
-                return;
+                return BoosterUse.Ignored;
             _booster = booster;
             booster.Use(new BoosterContext(_attempt, _input, _board, overlay, shots), BoosterDone);
+            return BoosterUse.Started;
         }
 
         private void ShowBoard(LevelData level)

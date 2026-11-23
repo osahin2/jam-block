@@ -41,7 +41,8 @@ namespace Game.Tests.LevelEditor
             Assert.IsFalse(_document.IsOpen);
             Assert.IsFalse(_document.HasUnsavedChanges);
             Assert.IsFalse(_document.CanRevert);
-            Assert.IsFalse(_document.TrySave(_library));
+            Assert.IsFalse(_document.TrySave(_library, out var problem));
+            StringAssert.Contains("no level is open", problem);
             _document.Duplicate();
             Assert.IsFalse(_document.IsOpen, "there is nothing to copy");
         }
@@ -73,7 +74,8 @@ namespace Game.Tests.LevelEditor
         {
             _document.StartNew();
 
-            Assert.IsFalse(_document.TrySave(_library), "an empty board has no blocks");
+            Assert.IsFalse(_document.TrySave(_library, out var problem), "an empty board has no blocks");
+            StringAssert.Contains("errors", problem);
             Assert.IsNull(_document.Asset);
             Assert.IsEmpty(_catalog.Levels);
         }
@@ -84,7 +86,7 @@ namespace Game.Tests.LevelEditor
             _document.StartNew();
             DrawPlayableLevel();
 
-            Assert.IsTrue(_document.TrySave(_library));
+            Assert.IsTrue(_document.TrySave(_library, out _));
 
             Assert.AreEqual($"{Folder}/Level_01.asset", AssetDatabase.GetAssetPath(_document.Asset));
             CollectionAssert.AreEqual(new[] { _document.Asset }, _catalog.Levels);
@@ -100,7 +102,8 @@ namespace Game.Tests.LevelEditor
             DrawPlayableLevel();
 
             Assert.AreEqual("New level", _document.Name(null));
-            Assert.IsFalse(_document.TrySave(null));
+            Assert.IsFalse(_document.TrySave(null, out var problem));
+            StringAssert.Contains("catalog", problem);
             Assert.IsNull(_document.Asset);
         }
 
@@ -126,7 +129,7 @@ namespace Game.Tests.LevelEditor
             _document.Open(asset);
             _document.Draft.Level.TimeLimitSeconds = 60;
 
-            Assert.IsTrue(_document.TrySave(_library));
+            Assert.IsTrue(_document.TrySave(_library, out _));
 
             Assert.AreEqual(60, asset.Level.TimeLimitSeconds);
             CollectionAssert.AreEqual(new[] { asset }, _catalog.Levels, "saving an open level adds nothing to the catalog");
@@ -157,7 +160,7 @@ namespace Game.Tests.LevelEditor
             _document.Draft.Level.TimeLimitSeconds = 60;
             _document.Duplicate();
 
-            Assert.IsTrue(_document.TrySave(_library));
+            Assert.IsTrue(_document.TrySave(_library, out _));
 
             Assert.AreNotSame(original, _document.Asset);
             Assert.AreEqual("Level_02", _document.Name(_library));
@@ -185,7 +188,7 @@ namespace Game.Tests.LevelEditor
         {
             _document.StartNew();
             DrawPlayableLevel();
-            _document.TrySave(_library);
+            _document.TrySave(_library, out _);
             return _document.Asset;
         }
 

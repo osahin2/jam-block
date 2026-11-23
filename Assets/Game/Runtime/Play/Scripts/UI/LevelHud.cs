@@ -24,7 +24,6 @@ namespace Game.Play
 
         private readonly char[] _time = new char[CountdownText.Length];
         private PlaySession _session;
-        private BoosterInventory _inventory;
         private Action _onRestart;
         private Action _onPause;
         private Action<BoosterDefinition> _onOutOfStock;
@@ -33,11 +32,7 @@ namespace Game.Play
         public CoinCounter Coins => _coins;
 
         [Inject]
-        public void Construct(PlaySession session, BoosterInventory inventory)
-        {
-            _session = session;
-            _inventory = inventory;
-        }
+        public void Construct(PlaySession session) => _session = session;
 
         private void Awake()
         {
@@ -79,9 +74,7 @@ namespace Game.Play
 
         private void PressBooster(IBooster booster)
         {
-            if (_inventory.Count(booster.Definition.Id) > 0)
-                _session.Use(booster, _aiming, _shots);
-            else
+            if (_session.Use(booster, _aiming, _shots) == BoosterUse.OutOfStock)
                 _onOutOfStock?.Invoke(booster.Definition);
         }
     }
