@@ -58,6 +58,8 @@ namespace Game.Play
             builder.Register<PooledBoardPieces>(Lifetime.Scoped);
             builder.Register<BlockPieceBuilder>(Lifetime.Scoped);
             builder.Register<BlockViewBuilder>(Lifetime.Scoped);
+            builder.Register<BoardBuilder>(Lifetime.Scoped);
+            builder.Register<CameraFraming>(Lifetime.Scoped);
             builder.Register<LevelStage>(Lifetime.Scoped);
             builder.Register<TouchPlane>(Lifetime.Scoped);
             builder.Register<BoardProjection>(Lifetime.Scoped);

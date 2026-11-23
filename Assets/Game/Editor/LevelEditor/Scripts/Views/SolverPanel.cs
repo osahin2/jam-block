@@ -21,7 +21,7 @@ namespace Game.Editor.LevelEditor
         private readonly Button _previous;
         private readonly Button _next;
         private readonly Button _close;
-        private readonly Func<int, string> _blockName;
+        private readonly EditorPalette _palette;
         private LevelSolution _solution;
         private LevelData _level;
         private bool _searchedFully;
@@ -31,9 +31,9 @@ namespace Game.Editor.LevelEditor
         public bool ShowsNextMove => IsPlaying && !_playback.IsAtEnd;
         public LevelData PlayedLevel => _playback.Shown;
 
-        public SolverPanel(Func<int, string> blockName)
+        public SolverPanel(EditorPalette palette)
         {
-            _blockName = blockName;
+            _palette = palette;
             AddToClassList("solver");
             _summary.AddToClassList("solver-summary");
             _move.AddToClassList("solver-move");
@@ -113,10 +113,10 @@ namespace Game.Editor.LevelEditor
         private string MoveText()
         {
             if (_playback.IsAtEnd)
-                return $"All {SolverGuide.Plural(_playback.MoveCount, "move")} played: the board is clear.";
+                return $"All {EditorText.Plural(_playback.MoveCount, "move")} played: the board is clear.";
             var move = _playback.NextMove;
             var action = move.Leaves ? "leaves through its door from the marked place" : "moves to the marked place";
-            return $"Move {_playback.Step + 1} of {_playback.MoveCount}: the {_blockName(move.Block)} {action}.";
+            return $"Move {_playback.Step + 1} of {_playback.MoveCount}: the {_palette.BlockName(_level, move.Block)} {action}.";
         }
 
         private static Button ControlButton(VisualElement parent, string text, string tooltip, Action clicked)

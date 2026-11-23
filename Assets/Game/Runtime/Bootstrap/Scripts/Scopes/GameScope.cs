@@ -15,6 +15,9 @@ namespace Game.Bootstrap
         [SerializeField] private UIRoot _uiRoot;
         [SerializeField] private ScriptableObjectInstaller[] _installers;
 
+        public Camera Camera => _camera;
+        public BoardRoot Board => _board;
+
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterCoreUI(_uiRoot);

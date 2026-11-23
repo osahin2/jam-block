@@ -49,13 +49,11 @@ namespace Game.Play
 
         private static Rect OnScreen(Camera camera, BoardLayout layout, Transform board)
         {
-            var box = layout.Box;
             var min = new Vector2(float.MaxValue, float.MaxValue);
             var max = new Vector2(float.MinValue, float.MinValue);
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < BoardLayout.BoxCorners; i++)
             {
-                var corner = board.TransformPoint(new Vector3((i & 1) == 0 ? box.min.x : box.max.x,
-                    (i & 2) == 0 ? box.min.y : box.max.y, (i & 4) == 0 ? box.min.z : box.max.z));
+                var corner = board.TransformPoint(layout.BoxCorner(i));
                 Vector2 point = camera.WorldToViewportPoint(corner);
                 min = Vector2.Min(min, point);
                 max = Vector2.Max(max, point);

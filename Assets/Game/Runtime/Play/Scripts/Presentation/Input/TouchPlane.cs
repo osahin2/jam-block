@@ -6,20 +6,21 @@ namespace Game.Play
     {
         private readonly Camera _camera;
         private readonly Transform _board;
-        private readonly Plane _plane;
+        private readonly BoardArtSettings _art;
 
         public TouchPlane(Camera camera, BoardRoot board, BoardArtSettings art)
         {
             _camera = camera;
             _board = board.transform;
-            _plane = new Plane(Vector3.up, new Vector3(0f, art.TouchHeight, 0f));
+            _art = art;
         }
 
         public bool TryProject(Vector2 screen, out Vector3 local)
         {
             var ray = _camera.ScreenPointToRay(screen);
             var onBoard = new Ray(_board.InverseTransformPoint(ray.origin), _board.InverseTransformVector(ray.direction));
-            if (_plane.Raycast(onBoard, out var distance))
+            var plane = new Plane(Vector3.up, new Vector3(0f, _art.TouchHeight, 0f));
+            if (plane.Raycast(onBoard, out var distance))
             {
                 local = onBoard.GetPoint(distance);
                 return true;

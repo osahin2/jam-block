@@ -13,16 +13,16 @@ namespace Game.Editor.LevelEditor
 
         public string Describe(LevelData level, Cell cell)
         {
-            if (LevelEdits.BlockAt(level, cell) != LevelEdits.NoBlock)
+            if (LevelLookup.BlockAt(level, cell) != LevelLookup.NoBlock)
                 return "Block: click to select it, drag to move it.";
-            if (LevelEdits.DoorAt(level, cell) != LevelEdits.NoDoor)
+            if (LevelLookup.DoorAt(level, cell) != LevelLookup.NoDoor)
                 return "Door: click to select it, drag along the frame to move it.";
             return "Empty: click to clear the selection.";
         }
 
         public bool Press(LevelData level, Cell cell, int colorId)
         {
-            Selection = SelectionAt(level, cell);
+            Selection = LevelSelections.At(level, cell);
             _grab = cell;
             Selection?.BeginMove(level);
             return false;
@@ -39,14 +39,5 @@ namespace Game.Editor.LevelEditor
         public void Select(ILevelSelection selection) => Selection = selection;
 
         public void ClearSelection() => Selection = null;
-
-        private static ILevelSelection SelectionAt(LevelData level, Cell cell)
-        {
-            var block = LevelEdits.BlockAt(level, cell);
-            if (block != LevelEdits.NoBlock)
-                return new BlockSelection(level.Blocks[block]);
-            var door = LevelEdits.DoorAt(level, cell);
-            return door != LevelEdits.NoDoor ? new DoorSelection(level.Doors[door]) : null;
-        }
     }
 }

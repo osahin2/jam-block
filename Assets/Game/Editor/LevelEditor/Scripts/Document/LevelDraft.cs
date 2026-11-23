@@ -21,7 +21,7 @@ namespace Game.Editor.LevelEditor
 
         public void Load(LevelData source)
         {
-            _level = JsonUtility.FromJson<LevelData>(JsonUtility.ToJson(source));
+            _level = LevelCopy.Of(source);
             Undo.ClearUndo(this);
         }
 

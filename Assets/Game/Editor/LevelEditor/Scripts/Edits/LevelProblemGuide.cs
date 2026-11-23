@@ -41,5 +41,21 @@ namespace Game.Editor.LevelEditor
 
         public static ILevelSelection SubjectOf(LevelProblem problem, LevelData level) =>
             Subjects.TryGetValue(problem.Part, out var create) ? create(level, problem.Index) : null;
+
+        public static string ExplainAt(LevelReport report, LevelData level, Cell cell)
+        {
+            foreach (var problem in report.Problems)
+            {
+                var subject = SubjectOf(problem, level);
+                if (subject == null)
+                    continue;
+                foreach (var subjectCell in subject.Cells(level))
+                {
+                    if (subjectCell == cell)
+                        return Explain(problem.Kind);
+                }
+            }
+            return null;
+        }
     }
 }

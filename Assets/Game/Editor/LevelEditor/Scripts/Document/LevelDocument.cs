@@ -68,14 +68,13 @@ namespace Game.Editor.LevelEditor
             return library != null ? $"{library.NextName()} (new)" : "New level";
         }
 
-        public bool TrySave(LevelLibrary library)
+        public bool TrySave(LevelLibrary library, out string problem)
         {
-            if (!IsOpen || LevelValidator.Validate(_draft.Level).HasErrors)
+            problem = WhyNotSaved(library);
+            if (problem != null)
                 return false;
             if (_isNew)
             {
-                if (library == null)
-                    return false;
                 _asset = library.Create();
                 _isNew = false;
             }
@@ -86,5 +85,14 @@ namespace Game.Editor.LevelEditor
         }
 
         public void Close() => _draft.Discard();
+
+        private string WhyNotSaved(LevelLibrary library)
+        {
+            if (!IsOpen)
+                return "no level is open.";
+            if (LevelValidator.Validate(_draft.Level).HasErrors)
+                return "it has errors. Fix them first.";
+            return _isNew && library == null ? "no level catalog was found to add it to." : null;
+        }
     }
 }

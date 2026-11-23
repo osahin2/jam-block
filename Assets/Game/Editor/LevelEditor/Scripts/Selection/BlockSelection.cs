@@ -34,7 +34,7 @@ namespace Game.Editor.LevelEditor
             return text;
         }
 
-        public IEnumerable<Cell> Cells(LevelData level) => LevelEdits.BlockCells(level, level.Blocks.IndexOf(_block));
+        public IEnumerable<Cell> Cells(LevelData level) => LevelLookup.BlockCells(_block);
 
         public void BeginMove(LevelData level) => _start = _block.Position;
 
@@ -43,6 +43,6 @@ namespace Game.Editor.LevelEditor
 
         public void Recolor(LevelData level, int colorId) => _block.ColorId = colorId;
 
-        public void Delete(LevelData level) => level.Blocks.Remove(_block);
+        public void Delete(LevelData level) => LevelEdits.RemoveBlock(level, _block);
     }
 }

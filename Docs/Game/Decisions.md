@@ -79,7 +79,7 @@
 - Instead of: comments that drift from the code.
 
 ## Mechanics plug in through small role interfaces
-- Why: the board asks `IMoveRule` and `IBlockGuard` at fixed points, views show a mechanic through an `IBlockFeature`, and the editor draws it through its own drawing; the level attempt builds the board and its mechanics together, as they share state. A new mechanic is a class per layer and one line per list, so the board, views and editor name no mechanic. Ice and the arrow block were added this way.
+- Why: the board asks `IMoveRule` and `IBlockGuard` at fixed points, views show a mechanic through an `IBlockFeature`, and the editor draws it through its own drawing; the level attempt builds the board and its mechanics together, as they share state. A new mechanic is a class per layer and one line per list, so the board, views and the editor's board drawing name no mechanic. Ice and the arrow block were added this way. The editor's tools, edits, block selection and solution playback still name ice and the arrow: a third mechanic edits those too.
 - Instead of: a method per mechanic on the board and a field and call per mechanic in the views and the editor; one interface with every hook, mostly empty; a data-driven registry.
 
 ## Views catch up by pulling the logic's state

@@ -2,7 +2,7 @@
 
 > The settings popup: sound, music and vibration switches written straight to Core's audio and haptics, which save them. Opened as pause in the Game scene (with a home button) and from Home's gear (without).
 
-**Code:** `Runtime/Preferences/`. **Entry:** `SettingsPopup.Show(onClose, onHome = null)`; `PreferencesInstaller` in every scene that opens it.
+**Code:** `Runtime/Preferences/`. **Entry:** `SettingsPopup.Show(onClose)`, `ShowWithHome(onClose, onHome)`; `PreferencesInstaller` in every scene that opens it.
 
 ## Rules
 - The game keeps no copy of the choices: the popup reads Core's state on every open and writes a choice the moment its switch flips.

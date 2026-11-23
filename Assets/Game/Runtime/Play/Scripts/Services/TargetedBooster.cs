@@ -29,7 +29,7 @@ namespace Game.Play
             _context = context;
             _onDone = onDone;
             context.Input.Release();
-            if (_inventory.Count(_definition.Id) == 0 || !context.Attempt.Aim())
+            if (!context.Attempt.Aim())
             {
                 Finish();
                 return;

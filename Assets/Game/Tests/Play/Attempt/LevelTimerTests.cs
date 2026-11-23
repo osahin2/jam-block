@@ -104,7 +104,7 @@ namespace Game.Tests.Play
             timer.Tick(4f);
 
             Assert.AreEqual(60f, timer.RemainingSeconds, Tolerance);
-            Assert.IsTrue(timer.IsFrozen);
+            Assert.Greater(timer.FrozenSeconds, 0f);
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace Game.Tests.Play
             timer.Tick(5f);
 
             Assert.AreEqual(57f, timer.RemainingSeconds, Tolerance);
-            Assert.IsFalse(timer.IsFrozen);
+            Assert.AreEqual(0f, timer.FrozenSeconds);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Game.Tests.Play
             timer.Resume();
             timer.Tick(9f);
 
-            Assert.IsTrue(timer.IsFrozen);
+            Assert.Greater(timer.FrozenSeconds, 0f);
             Assert.AreEqual(60f, timer.RemainingSeconds, Tolerance);
         }
 
@@ -178,7 +178,7 @@ namespace Game.Tests.Play
 
             timer.Tick(20f);
 
-            Assert.IsTrue(timer.IsFrozen);
+            Assert.Greater(timer.FrozenSeconds, 0f);
         }
 
         private static LevelTimer Started(int limitSeconds)

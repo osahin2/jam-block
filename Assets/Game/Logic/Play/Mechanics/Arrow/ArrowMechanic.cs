@@ -4,8 +4,7 @@ namespace Game.Logic.Play
 {
     public sealed class ArrowMechanic : IMoveRule
     {
-        private static readonly ArrowData NoArrow = new ArrowData();
-
+        private readonly ArrowData _noArrow = new ArrowData();
         private readonly ArrowData[] _arrows;
 
         public ArrowMechanic(LevelData level)
@@ -23,7 +22,7 @@ namespace Game.Logic.Play
         {
             var part = board.Blocks[block];
             var arrow = _arrows[part.LevelBlock];
-            return arrow.IsSet && arrow.LiesOn(part.Shape) ? arrow : NoArrow;
+            return arrow.IsSet && arrow.LiesOn(part.Shape) ? arrow : _noArrow;
         }
 
         public bool Allows(IReadOnlyBoard board, int block, Direction direction) =>

@@ -2,7 +2,6 @@ using Game.Bootstrap;
 using Game.Data.Levels;
 using Game.Logic.Play;
 using Game.Play;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -59,25 +58,19 @@ namespace Game.Editor.LevelEditor
                     continue;
                 foreach (var root in scene.GetRootGameObjects())
                 {
-                    var scope = root.GetComponent(typeof(GameScope));
+                    var scope = root.GetComponent<GameScope>();
                     if (scope == null)
                         continue;
                     gameScene = scene;
-                    return TryReadScope(scope, out camera, out board);
+                    camera = scope.Camera;
+                    board = scope.Board;
+                    return camera != null && board != null;
                 }
             }
             gameScene = default;
             camera = null;
             board = null;
             return false;
-        }
-
-        private static bool TryReadScope(Component scope, out Camera camera, out BoardRoot board)
-        {
-            var fields = new SerializedObject(scope);
-            camera = fields.FindProperty("_camera").objectReferenceValue as Camera;
-            board = fields.FindProperty("_board").objectReferenceValue as BoardRoot;
-            return camera != null && board != null;
         }
 
         private bool TryLoadSettings()
@@ -91,7 +84,8 @@ namespace Game.Editor.LevelEditor
             var framing = EditorAssets.FindFirst<CameraFramingSettings>();
             if (art == null || _palette == null || motion == null || ice == null || framing == null)
                 return false;
-            _stage = new LevelStage(art, _palette, motion, BlockFeatures.Of(ice, art), framing);
+            var blockViews = new BlockViewBuilder(art, _palette, motion, new BlockPieceBuilder(art), BlockFeatures.Of(ice, art));
+            _stage = new LevelStage(art, new BoardBuilder(art, _palette, motion, blockViews), new CameraFraming(framing));
             return true;
         }
 
